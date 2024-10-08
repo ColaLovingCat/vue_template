@@ -1,5 +1,6 @@
 <script lang="ts">
-import { ref, Ref, reactive, onMounted, defineComponent, computed, watch } from 'vue'
+import { ref, reactive, onMounted, defineComponent, computed, watch } from 'vue'
+import type { Ref } from 'vue'
 
 export default defineComponent({
   props: {
@@ -10,11 +11,11 @@ export default defineComponent({
   components: {},
   emits: [],
   setup(props, { emit }) {
-    onMounted(() => {})
+    onMounted(() => { })
 
     watch(
       () => props.value,
-      (newValue, oldValue) => {}
+      (newValue, oldValue) => { }
     )
 
     return {}
