@@ -1,0 +1,12 @@
+{
+    "system.account": "Account",
+    "system.password": "Password",
+    "system.login": "Login",
+    "system.logout": "Log out",
+    "system.remember": "Remember me",
+    "system.login.other": "OR SIGN IN WITH",
+    "system.login.sso": "SSO",
+    "system.login.ssoing": "In the process of SSO login, please wait...",
+    "system.upload": "Drag and Drop file here or Click",
+    "system.supportFormat": "Support format"
+}

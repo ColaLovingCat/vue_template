@@ -1,0 +1,28 @@
+﻿
+@font-face {
+    font-family: "boschsans";
+    font-style: normal;
+    font-weight: 700;
+    src: url("boschsans_bold_eot.eot") format("eot"), url("boschsans_bold_woff2.woff2") format("woff2"), url("boschsans_bold_woff.woff") format("woff"), url("boschsans_bold_truetype.ttf") format("truetype"), url("boschsans_bold_svg.svg") format("svg");
+}
+
+@font-face {
+    font-family: "boschsans";
+    font-style: normal;
+    font-weight: 600;
+    src: url("boschsans_medium.eot") format("eot"), url("boschsans_medium_woff2.woff2") format("woff2"), url("boschsans_medium_woff.woff") format("woff"), url("boschsans_medium_truetype.ttf") format("truetype"), url("boschsans_medium_svg.svg") format("svg");
+}
+
+@font-face {
+    font-family: "boschsans";
+    font-style: normal;
+    font-weight: 400;
+    src: url("boschsans_regular.eot") format("eot"), url("boschsans_regular_woff2.woff2") format("woff2"), url("boschsans_regular_woff.woff") format("woff"), url("boschsans_regular_truetype.ttf") format("truetype"), url("boschsans_regular_svg.svg") format("svg");
+}
+
+@font-face {
+    font-family: "boschsans";
+    font-style: normal;
+    font-weight: 200;
+    src: url("boschsans_light.eot") format("eot"), url("boschsans_light_woff2.woff2") format("woff2"), url("boschsans_light_woff.woff") format("woff"), url("boschsans_light_truetype.ttf") format("truetype"), url("boschsans_light_svg.svg") format("svg");
+}

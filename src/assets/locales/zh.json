@@ -1,0 +1,12 @@
+{
+    "system.account": "账号",
+    "system.password": "密码",
+    "system.login": "登录",
+    "system.logout": "注销",
+    "system.remember": "记住账号",
+    "system.login.other": "选择登录方式",
+    "system.login.sso": "单点登录",
+    "system.login.ssoing": "获取登录信息中，请耐心等待",
+    "system.upload": "拖拽文件至此处或点击上传",
+    "system.supportFormat": "支持格式"
+}

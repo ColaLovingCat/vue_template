@@ -1,0 +1,24 @@
+@import url(@/assets/styles/reset.css);
+
+@import url(@/assets/styles/empty.css);
+@import url(@/assets/styles/loading.css);
+
+@import url(@/assets/styles/pages.css);
+@import url(@/assets/styles/btns.css);
+
+@import url(/systems/fonts/boschsans/boschsans.css);
+
+.ant-form-item .ant-form-item-label>label {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+i.fa-solid+span {
+    margin-left: 10px;
+}
+
+.box-login {
+    input.ant-input {
+        font-size: 18px;
+    }
+}
