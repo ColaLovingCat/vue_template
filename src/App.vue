@@ -7,17 +7,20 @@ import { useI18n } from 'vue-i18n'
 import { useLoadingStore } from '@/commons/stores/index'
 const loadingStore = useLoadingStore()
 const loadingStatus = computed(() => loadingStore.status)
+
 import { useUserInfosStore } from '@/commons/stores/index'
 const userInfosStore = useUserInfosStore()
+
 import { useSystemInfosStore } from '@/commons/stores/index'
 const systemStore = useSystemInfosStore()
 const headerStatus = computed(() => systemStore.systemInfos.headerStatus)
+const theme = computed(() => systemStore.systemInfos.theme)
 
 import { usePageGo } from '@/commons/composables/routers'
 const { pageGo } = usePageGo()
 
-import { SystemData } from '@/commons/datas/datas.system'
-import layout from '@/components/layouts/layout.vue'
+import * as systemDB from '@/commons/datas/datas.system'
+import layout from '@/components/layouts/layout-platform.vue'
 
 import * as extend from '@/commons/utils/extends'
 import * as messageBox from '@/commons/utils/messages'
@@ -27,6 +30,11 @@ onMounted(() => {
   // 设置语言，默认en
   let lang = extend.LocalStore.get('lang')
   locale.value = lang ? lang : 'en'
+
+  //
+  const theme = extend.LocalStore.get('theme')
+  themesStatus.value = theme == 'default'
+  setTheme(theme)
 
   // 检测token
   let token = extend.LocalStore.get('token')
@@ -45,6 +53,20 @@ const changeLanguage = (lang: string) => {
   locale.value = lang
   //
   extend.LocalStore.set('lang', lang)
+}
+
+//
+const themesStatus = ref(true)
+const toggleThemes = () => {
+  const theme = themesStatus.value ? 'default' : 'dark'
+  setTheme(theme)
+}
+const setTheme = (theme: string) => {
+  // css样式
+  document.documentElement.setAttribute('data-theme', theme)
+  // 全局状态
+  extend.LocalStore.set('theme', theme)
+  systemStore.setTheme(theme)
 }
 
 // 用于后续统一跳转主页
@@ -80,6 +102,8 @@ const getinfosUser = () => {
       }
     },
     (error: any) => {
+      loadingStore.end()
+      //
       console.log('Testing: ', error)
       logout()
     }
@@ -87,7 +111,7 @@ const getinfosUser = () => {
 }
 // 获取菜单
 const getlistMenus = () => {
-  menus.value = [...SystemData.menus]
+  menus.value = [...systemDB.menus]
 }
 // 注销
 const logout = () => {
@@ -116,12 +140,12 @@ const clearSystem = () => {
 </script>
 
 <template>
-  <layout :menus="menus" :status="headerStatus">
+  <layout :datas="menus" :status="headerStatus">
     <!-- Logo -->
     <template #logos>
       <img
         class="logo"
-        src="/systems/bosch/bosch_logo.png"
+        :src="`/systems/bosch/bosch_logo${theme == 'default' ? '' : '-white'}.png`"
         alt=""
         srcset=""
         @click="pageGo('/home')"
@@ -138,6 +162,15 @@ const clearSystem = () => {
     </template>
     <!-- Right -->
     <template #infos>
+      <!-- 主题 -->
+      <div class="themes">
+        <a-switch
+          v-model:checked="themesStatus"
+          checked-children="亮"
+          un-checked-children="暗"
+          @change="toggleThemes"
+        />
+      </div>
       <!-- 语言 -->
       <div class="langs">
         <img

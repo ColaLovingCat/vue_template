@@ -1,12 +1,13 @@
 <script lang="ts">
-import { ref, reactive, onMounted, defineComponent, computed, watch } from 'vue'
+import { ref, defineComponent, computed, watch } from 'vue'
 
 import menuItem from './menu-item.vue'
+import type { MenuInfos } from '@/commons/datas/datas.types'
 
 export default defineComponent({
   props: {
-    menus: {
-      type: Array as () => Array<any>,
+    datas: {
+      type: Array as () => Array<MenuInfos>,
       default: () => []
     },
     status: {
@@ -21,9 +22,9 @@ export default defineComponent({
 
     const headerStatus = computed(() => props.status)
 
-    const menus = ref(props.menus)
+    const menus = ref(props.datas)
     watch(
-      () => props.menus,
+      () => props.datas,
       (newValue, oldValue) => {
         menus.value = newValue
       }
@@ -47,9 +48,8 @@ export default defineComponent({
         </div>
         <div class="menus menus-inline">
           <a-menu v-model:selectedKeys="current" mode="horizontal">
-            <template v-for="item in menus">
-              <menuItem :item="item">
-              </menuItem>
+            <template v-for="item in menus" :key="item.id">
+              <menuItem :item="item"> </menuItem>
             </template>
           </a-menu>
         </div>

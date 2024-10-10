@@ -1,0 +1,11 @@
+html[data-theme='default'] {
+    --color-page-bg: #fff;
+    --color-page-text: #171717;
+    --color-content-bg: #f4f6f8;
+}
+
+html[data-theme='dark'] {
+    --color-page-bg: #000;
+    --color-page-text: #fff;
+    --color-content-bg: #212121;
+}

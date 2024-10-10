@@ -10,19 +10,22 @@ import * as extend from '@/commons/utils/extends'
 import * as messageBox from '@/commons/utils/messages'
 import * as current from './login.service'
 
+const activeDynamic = false
 const canvas: any = ref(null)
 let ctx: any = null
 let circles: any[] = []
 const colors = ['#836fff', '#15f5ba', '#692ff']
 
 onMounted(() => {
-  systemInfosStore.setHeader(false)
+  // systemInfosStore.setHeader(false)
   // 背景
-  ctx = canvas.value.getContext('2d');
-  console.log('Testing: ', ctx);
-  resizeCanvas();
-  initialCircle();
-  animate();
+  if (activeDynamic) {
+    ctx = canvas.value.getContext('2d')
+    console.log('Testing: ', ctx)
+    resizeCanvas()
+    initialCircle()
+    animate()
+  }
   // 回车触发登录
   window.addEventListener('keydown', onKeyDown)
   // 记住用户名
@@ -36,7 +39,7 @@ onMounted(() => {
   if (params.type) {
     switch (params.type) {
       case 'logout': {
-        ; (window as any).eventBus.clearSystem()
+        ;(window as any).eventBus.clearSystem()
         break
       }
       default: {
@@ -59,50 +62,55 @@ const onKeyDown = (event: any) => {
 
 // Back
 const initialCircle = () => {
-  circles = [];
+  circles = []
   //
-  let circleCount = window.innerWidth / 100;
+  let circleCount = window.innerWidth / 100
   for (let loop = 0; loop < circleCount; loop++) {
-    let radius = window.innerWidth / 4;
-    let x = extend.ExNumber.createRand(radius, canvas.value.width - radius);
-    let y = extend.ExNumber.createRand(radius, canvas.value.height - radius);
-    let dx = extend.ExNumber.createRand(window.innerWidth / -2000, window.innerWidth / 2000);
-    let dy = extend.ExNumber.createRand(window.innerWidth / -2000, window.innerWidth / 2000);
+    let radius = window.innerWidth / 4
+    let x = extend.ExNumber.createRand(radius, canvas.value.width - radius)
+    let y = extend.ExNumber.createRand(radius, canvas.value.height - radius)
+    let dx = extend.ExNumber.createRand(window.innerWidth / -2000, window.innerWidth / 2000)
+    let dy = extend.ExNumber.createRand(window.innerWidth / -2000, window.innerWidth / 2000)
     //
-    let color = colors[Math.floor(Math.random() * colors.length)];
+    let color = colors[Math.floor(Math.random() * colors.length)]
     circles.push({
-      x, y, dx, dy, radius, color
+      x,
+      y,
+      dx,
+      dy,
+      radius,
+      color
     })
   }
 }
 const drawCircle = (circle: any) => {
-  ctx.beginPath();
-  ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2, false);
-  ctx.fillStyle = circle.color;
-  ctx.fill();
-  ctx.closePath();
+  ctx.beginPath()
+  ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2, false)
+  ctx.fillStyle = circle.color
+  ctx.fill()
+  ctx.closePath()
 }
 const animate = () => {
-  requestAnimationFrame(animate);
-  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
+  requestAnimationFrame(animate)
+  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
   //
   circles.map((circle: any) => {
     if (circle.x + circle.radius > canvas.value.width || circle.x - circle.radius < 0) {
-      circle.dx = -circle.dx;
+      circle.dx = -circle.dx
     }
     if (circle.y + circle.radius > canvas.value.height || circle.y - circle.radius < 0) {
-      circle.dy = -circle.dy;
+      circle.dy = -circle.dy
     }
     //
-    circle.x += circle.dx;
-    circle.y += circle.dy;
+    circle.x += circle.dx
+    circle.y += circle.dy
     //
     drawCircle(circle)
   })
 }
 const resizeCanvas = () => {
-  canvas.value.width = window.innerWidth * 1.5;
-  canvas.value.height = window.innerHeight * 1.5;
+  canvas.value.width = window.innerWidth * 1.5
+  canvas.value.height = window.innerHeight * 1.5
   //
   initialCircle()
 }
@@ -134,9 +142,9 @@ const login = () => {
       //
       const { isSuccess, message } = resp
       if (isSuccess) {
-        ; (window as any).eventBus.getinfosUser()
-          //
-          ; (window as any).eventBus.jumpHome()
+        ;(window as any).eventBus.getinfosUser()
+        //
+        ;(window as any).eventBus.jumpHome()
       } else {
         messageBox.showError(message)
       }
@@ -164,13 +172,16 @@ const loginSSO = () => {
 
 <template>
   <div class="contents">
-    <img class="bg-img" src="/systems/login/demo08.png" alt="" srcset="">
+    <img class="bg-img" src="/systems/login/demo08.png" alt="" srcset="" />
     <canvas ref="canvas" width="500" height="500"></canvas>
     <div class="box-contents">
       <div class="col-left">
         <div class="box-img">
           <div class="login-titles">
-            <p>Login to <br> Open the World</p>
+            <p>
+              Login to <br />
+              Open the World
+            </p>
           </div>
           <!-- <img src="/systems/login/demo07.png" alt="" srcset="" />-->
         </div>
@@ -178,15 +189,27 @@ const loginSSO = () => {
       <div class="col-right">
         <div class="box-login">
           <div class="titles">{{ systemInfosStore.systemInfos.name }}</div>
-          <a-form :model="loginForm" layout="vertical" name="basic" :label-col="{ span: 5 }" autocomplete="off"
-            @finish="login">
-            <a-form-item :label="$t('system.account')" name="account"
-              :rules="[{ required: true, message: 'Please input your account!' }]">
+          <a-form
+            :model="loginForm"
+            layout="vertical"
+            name="basic"
+            :label-col="{ span: 5 }"
+            autocomplete="off"
+            @finish="login"
+          >
+            <a-form-item
+              :label="$t('system.account')"
+              name="account"
+              :rules="[{ required: true, message: 'Please input your account!' }]"
+            >
               <a-input v-model:value="loginForm.account" />
             </a-form-item>
 
-            <a-form-item :label="$t('system.password')" name="password"
-              :rules="[{ required: true, message: 'Please input your password!' }]">
+            <a-form-item
+              :label="$t('system.password')"
+              name="password"
+              :rules="[{ required: true, message: 'Please input your password!' }]"
+            >
               <a-input-password v-model:value="loginForm.password" />
             </a-form-item>
 
@@ -225,7 +248,7 @@ const loginSSO = () => {
 .contents {
   position: relative;
   overflow: hidden;
-  background: #d5f1ff;
+  background: var(--color-content-bg);
 
   .bg-img {
     display: none;
@@ -281,7 +304,7 @@ const loginSSO = () => {
     padding: 70px 0;
 
     &::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 15%;
       left: 0;

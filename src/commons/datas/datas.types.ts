@@ -17,15 +17,17 @@ export interface SystemInfos {
   tenant: string
   //
   headerStatus: boolean
+  theme: string
 }
 
 export interface MenuInfos {
   index: number | string
   key: string
-  icon?: string
   title: string
-  lang?: string
+  lang: string
   path: string
+  icon?: string
+  infos?: any
   children?: MenuInfos[]
 }
 
