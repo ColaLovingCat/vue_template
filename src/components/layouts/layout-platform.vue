@@ -193,6 +193,8 @@ export default defineComponent({
   display: flex;
 
   .menu-item {
+    color: var(--color-page-text);
+
     .item-title {
       height: 60px;
       padding: 0 20px;
@@ -225,7 +227,7 @@ export default defineComponent({
   overflow: hidden;
   z-index: 10;
   transition: height 0.5s ease;
-  background-color: #fff;
+  background-color: var(--color-content-bg);
   box-shadow: rgba(0, 0, 0, 0.09) 0px 12px 11px 0px;
 
   .btn-close {

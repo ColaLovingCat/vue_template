@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import btns from '@/components/btn-group/btn-group.vue'
-
+import comp from '@/components/upload-form/view.vue'
 </script>
 
 <template>
