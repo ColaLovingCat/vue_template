@@ -60,58 +60,86 @@ npm run test:e2e
 npm run lint
 ```
 
+```sh
 npm init vite@latest
+```
 
 # dotenv
 
+```sh
 npm install dotenv
+```
 
 # unplugin
 
+```sh
 npm install -D unplugin-auto-import unplugin-vue-components
+```
 
 # vue-router
 
+```sh
 npm install vue-router@4
+```
 
 # vue-i18n
 
+```sh
 npm install vue-i18n
+```
 
 # Pinia
 
+```sh
 npm install pinia pinia-plugin-persistedstate
+```
 
 # Ant Design
 
+```sh
 npm install ant-design-vue@next @ant-design/icons-vue
+```
 
 # sass
 
+```sh
 npm install -D sass
+```
 
 # fontawesome
 
+```sh
 npm install @fortawesome/fontawesome-free
+```
 
 # axios
 
+```sh
 npm install axios
+```
 
 # echarts
 
+```sh
 npm install echarts
+```
 
 # signalr
 
+```sh
 npm install @microsoft/signalr
+```
 
 # @univerjs/core
 
 # xlsx
+
+```sh
 npm install xlsx
+```
 
 # antv/x6
+```sh
 npm install @antv/x6
 npm install @antv/x6-vue-shape
 npm install @antv/x6-plugin-transform 
@@ -123,16 +151,23 @@ npm install @antv/x6-plugin-clipboard
 npm install @antv/x6-plugin-history
 npm install @antv/x6-plugin-dnd
 npm install @antv/x6-plugin-minimap
+```
 
 # @tresjs/core three @tweenjs/tween.js
 
+```sh
 npm install three @tresjs/core @tresjs/cientos
 npm install tweakpane
 npm install -D @types/three
+```
 
 # gsap
+```sh
 npm instal gasp
+```
 
 # @vitejs/plugin-basic-ssl
 
+```sh
 npm install @vitejs/plugin-basic-ssl
+```

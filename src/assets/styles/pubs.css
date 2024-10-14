@@ -1,0 +1,40 @@
+/* 元素居中 */
+.ele-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 清除浮动 */
+.clearfix::after {
+    content: " ";
+    clear: both;
+    display: block;
+}
+
+/* 多行文本溢出显示省略 */
+.txts-ellipsis {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+
+/* 文本超出省略显示 */
+.clearfix-txt {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+/* 隐藏滚动条的宽度 */
+.box-scroll {
+    overflow: hidden;
+}
+
+.box-scroll>* {
+    height: 100%;
+    overflow: auto;
+    margin-right: -15px;
+}

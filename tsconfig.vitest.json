@@ -7,6 +7,6 @@
     "lib": [],
     "types": ["node", "jsdom"]
   },
-  "include": [],
+  "include": ["src/**/*.ts", "src/**/*.vue"],
   "exclude": ["node_modules"]
 }

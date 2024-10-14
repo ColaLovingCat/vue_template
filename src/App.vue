@@ -32,7 +32,9 @@ onMounted(() => {
   locale.value = lang ? lang : 'en'
 
   //
-  const theme = extend.LocalStore.get('theme')
+  let theme = extend.LocalStore.get('theme')
+  theme = theme ? theme : 'default'
+  //
   themesStatus.value = theme == 'default'
   setTheme(theme)
 
