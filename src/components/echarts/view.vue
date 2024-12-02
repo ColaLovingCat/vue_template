@@ -1,170 +1,312 @@
-<script lang="ts">
-import { defineComponent, onMounted, onBeforeUnmount, onUnmounted, ref, watch } from 'vue'
+<script lang="ts" setup>
+import { onMounted, onBeforeUnmount, onUnmounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
 
-export default defineComponent({
-  props: {
-    // 定义属性
-    options: {},
-    width: {
-      type: String,
-      default: '100%' // 默认宽度
-    },
-    height: {
-      type: String,
-      default: '100%' // 默认高度
-    },
-    changeMark: {
-      type: Boolean
+const defaultOptions: any = {
+  // 全局样式
+  color: [
+    '#c23531',
+    '#2f4554',
+    '#61a0a8',
+    '#d48265',
+    '#91c7ae',
+    '#749f83',
+    '#ca8622',
+    '#bda29a',
+    '#6e7074',
+    '#546570',
+    '#c4ccd3'
+  ],
+  backgroundColor: '#00000000',
+  textStyle: {
+    color: '#071c43',
+    fontWeight: 500,
+    fontSize: 18
+  },
+  //
+  title: {
+    show: false,
+    left: 'center',
+    //
+    text: '',
+    textStyle: {},
+    subtext: '',
+    subtextStyle: {},
+    //
+    link: '',
+    target: 'blank'
+  },
+  //
+  grid: {
+    left: 0,
+    bottom: 0,
+    containLabel: true
+  },
+  //
+  legend: {
+    show: true,
+    data: [],
+    orient: 'vertical', // vertical| horizontal
+    x: 'right', // left| center| right
+    y: 'middle', // top| middle| bottom
+    // 分页
+    type: 'scroll',
+    height: 600,
+    textStyle: {}
+  },
+  tooltip: {
+    show: true,
+    trigger: 'axis', // item| axis
+    axisPointer: {
+      type: 'cross' // line| cross| shadow
     }
   },
-  emits: ['chartClick'],
-  setup(props, { emit }) {
-    const echartsRef: any = ref(null)
-    let chartInstance: any = null
-
-    const error = ref(false)
-
-    onMounted(() => {
-      chartInstance = echarts.init(echartsRef.value)
-      //
-      refreshChart()
-    })
-
-    onBeforeUnmount(() => {
-      window.removeEventListener('resize', resizeChart)
-    })
-
-    onUnmounted(() => {
-      chartInstance.dispose()
-    })
-
-    watch(
-      () => props.changeMark,
-      () => {
-        chartInstance.clear()
-        refreshChart()
+  //
+  xAxis: {
+    show: true,
+    type: 'category', // category| value| time
+    name: '',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    boundaryGap: false, // 边界不留空隙
+    // 标签
+    axisLabel: {
+      show: false,
+      formatter: '{value} %'
+    },
+    // 轴线
+    axisLine: {
+      show: false,
+      lineStyle: {
+        type: 'solid'
       }
-    )
-
-    const refreshChart = () => {
-      try {
-        // 初始化图表
-        chartInstance.setOption(props.options)
-        //
-        window.addEventListener('resize', resizeChart)
-        //
-        chartInstance.on('click', (params: any) => {
-          emit('chartClick', params)
-        })
-      } catch (err) {
-        error.value = true
-      }
+    },
+    // 刻度线
+    axisTick: {
+      show: false
+    },
+    // 网格线分割
+    splitLine: {
+      show: false
+    },
+    // 网格颜色分割
+    splitArea: {
+      show: false
     }
-
-    const resizeChart = () => {
-      if (echartsRef.value) {
-        echartsRef.value.resize()
-      }
-    }
-
-    const defaultOptions = {
-      title: {
-        text: '',
-        left: 'center',
-        textStyle: {
-          color: '#333',
-          fontWeight: 500,
-          fontSize: 18
-        },
-        subtext: ''
-      },
-      //
-      color: [
-        '#c23531',
-        '#2f4554',
-        '#61a0a8',
-        '#d48265',
-        '#91c7ae',
-        '#749f83',
-        '#ca8622',
-        '#bda29a',
-        '#6e7074',
-        '#546570',
-        '#c4ccd3'
-      ],
-      grid: {
-        left: 0,
-        bottom: 0,
-        containLabel: true
-      },
-      //
-      legend: {
-        type: 'scroll',
-        show: true,
-        orient: 'vertical', // vertical| horizontal
-        left: 'right',
-        top: 'middle'
-      },
-      tooltip: {
-        show: true,
-        trigger: 'axis', // item| axis
-        axisPointer: {
-          type: 'cross'
+  },
+  yAxis: [
+    {
+      type: 'value',
+      scale: true,
+      splitLine: {
+        lineStyle: {
+          type: 'dashed',
+          opacity: 0.6
         }
       },
-      //
-      xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      },
-      yAxis: [
-        {
-          type: 'value'
-        },
-        {
-          type: 'value'
-        }
-      ],
-      //
-      series: [
-        {
-          name: 'Demo',
-          type: 'line',
-          data: [820, 932, 901, 934, 1290, 1330, 1320]
-        },
-        {
-          name: 'Demo',
-          type: 'line',
-          yAxisIndex: 1,
-          data: [10, 12, 15, 17, 21, 8, 2]
-        }
-      ]
+      axisLabel: {
+        color: '#fff',
+        fontSize: 14
+      }
+    },
+    {
+      type: 'value'
     }
-
-    return {
-      echartsRef,
-      error
+  ],
+  //
+  series: [
+    {
+      name: 'Demo',
+      type: 'bar',
+      stack: '',
+      data: [820, 932, 901, 934, 1290, 1330, 1320],
+      color: '#ea0016',
+      barWidth: 30,
+      itemStyle: {
+        // 柱状图样式配置
+        color: {
+          // 设置颜色为渐变色
+          type: 'linear', // 渐变类型为线性渐变
+          x: 0, // 渐变起点为 x 轴坐标 0
+          y: 0, // 渐变起点为 y 轴坐标 0
+          x2: 0, // 渐变终点为 x 轴坐标 0
+          y2: 1, // 渐变终点为 y 轴坐标 1
+          colorStops: [
+            {
+              // 渐变颜色点列表
+              offset: 0, // 渐变颜色点的偏移值（0-1）
+              color: '#007bc0' // 第一个颜色点的颜色为红色
+            },
+            {
+              offset: 1, // 渐变颜色点的偏移值（0-1）
+              color: '#007bc03d' // 第二个颜色点的颜色为绿色
+            }
+          ]
+        }
+      },
+      label: {
+        show: false,
+        color: '#fff',
+        fontWeight: 'normal',
+        fontSize: 12
+      },
+      // 刻度线
+      markLine: {}
+    },
+    {
+      name: 'Demo',
+      type: 'line',
+      yAxisIndex: 1,
+      data: [10, 12, 15, 17, 21, 8, 2],
+      symbol: 'none',
+      smooth: false,
+      lineStyle: {
+        type: 'dashed',
+        width: 4
+      },
+      // 区域图
+      areaStyle: {
+        color: {
+          // 设置颜色为渐变色
+          type: 'linear', // 渐变类型为线性渐变
+          x: 0, // 渐变起点为 x 轴坐标 0
+          y: 0, // 渐变起点为 y 轴坐标 0
+          x2: 0, // 渐变终点为 x 轴坐标 0
+          y2: 1, // 渐变终点为 y 轴坐标 1
+          colorStops: [
+            {
+              // 渐变颜色点列表
+              offset: 0, // 渐变颜色点的偏移值（0-1）
+              color: '#B7E88F8D' // 第一个颜色点的颜色为红色
+            },
+            {
+              offset: 1, // 渐变颜色点的偏移值（0-1）
+              color: '#B7E88F2D' // 第二个颜色点的颜色为绿色
+            }
+          ]
+        }
+      }
+    }
+  ],
+  //
+  dataZoom: [
+    {
+      type: 'inside' // 支持鼠标滚轮缩放
+    },
+    {
+      type: 'slider' // 底部带滑块的缩放
+    }
+  ],
+  toolbox: {
+    feature: {
+      dataZoom: {},
+      restore: {}
     }
   }
+}
+
+// name
+defineOptions({
+  name: 'custom-name'
 })
+
+// props
+const props = defineProps({
+  options: {
+    type: Object,
+    default: () => ({})
+  },
+  width: {
+    type: String,
+    default: '100%'
+  },
+  height: {
+    type: String,
+    default: '100%'
+  },
+  changeMark: {
+    type: Boolean,
+    require: false
+  }
+})
+
+// emits
+const emit = defineEmits<{
+  (event: 'chartClick', values: any): void
+}>()
+
+const echartsRef: any = ref(null)
+let chartInstance: any = null
+
+const error = ref(false)
+
+onMounted(() => {
+  chartInstance = echarts.init(echartsRef.value)
+  //
+  refreshChart()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', resizeChart)
+})
+
+onUnmounted(() => {
+  chartInstance.dispose()
+})
+
+watch(
+  () => props.changeMark,
+  () => {
+    chartInstance.clear()
+    refreshChart()
+  }
+)
+
+const refreshChart = () => {
+  error.value = false
+  //
+  try {
+    // 初始化图表
+    chartInstance.setOption(props.options)
+    //
+    window.addEventListener('resize', resizeChart)
+    //
+    chartInstance.on('click', (params: any) => {
+      emit('chartClick', params)
+    })
+  } catch (err) {
+    error.value = true
+  }
+}
+
+const resizeChart = () => {
+  if (echartsRef.value) {
+    echartsRef.value.resize()
+  }
+}
 </script>
 
 <template>
-  <div class="echart-ele" v-if="!error" :style="{ width: width, height: height }" ref="echartsRef"></div>
+  <div class="echart-ele" :style="{ width: width, height: height }" ref="echartsRef"></div>
   <div class="echart-error" v-if="error" :style="{ width: width, height: height }">
     图表初始化失败，请检查数据或配置
   </div>
 </template>
 
-<style scoped>
-.echart-error {
-  color: #5a5a5f4d;
-  font-size: 16px;
-  border: 2px dashed #c4cecf6d;
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+<style scoped lang="scss">
+:host {
+  position: relative;
+
+  .echart-error {
+    position: absolute;
+    top: 0;
+    color: #5a5a5f4d;
+    font-size: 16px;
+    border: 2px dashed #c4cecf6d;
+    border-radius: 8px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 </style>
