@@ -1,9 +1,8 @@
-import { useRouter } from 'vue-router'
 import { Modal } from 'ant-design-vue'
+import { useRouter } from 'vue-router'
 
 export const usePageGo = () => {
   const router = useRouter()
-
   const pageGo = (path: string, query = {}) => {
     router.push({
       path,
@@ -24,6 +23,4 @@ export const usePageGo = () => {
   }
 
   return { pageGo, showLogout }
-
-  return { pageGo }
 }

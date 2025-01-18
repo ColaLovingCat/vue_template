@@ -16,11 +16,11 @@ const systemStore = useSystemInfosStore()
 const headerStatus = computed(() => systemStore.systemInfos.headerStatus)
 const theme = computed(() => systemStore.systemInfos.theme)
 
-import { usePageGo } from '@/commons/composables/routers'
+import { usePageGo } from '@/commons/utils/routers'
 const { pageGo } = usePageGo()
 
 import * as systemDB from '@/commons/datas/datas.system'
-import layout from '@/components/layouts/layout-platform.vue'
+import layout from '@/components/layouts/layout.vue'
 
 import * as extend from '@/commons/utils/extends'
 import * as messageBox from '@/commons/utils/messages'
@@ -44,8 +44,6 @@ onMounted(() => {
     // 如果有token则加载用户信息和菜单
     getinfosUser()
     jumpHome()
-  } else {
-    getlistMenus()
   }
 })
 
@@ -115,6 +113,7 @@ const getinfosUser = () => {
 const getlistMenus = () => {
   menus.value = [...systemDB.menus]
 }
+
 // 注销
 const logout = () => {
   clearSystem()

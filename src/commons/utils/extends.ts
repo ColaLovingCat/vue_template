@@ -418,6 +418,12 @@ export const ExArray = {
     }
   },
   /**
+   * @summary 去重后获取单一元素的数组
+   */
+  uniqueSingle: function (arr: any[], prop: string) {
+    return [...new Set(arr.map((item: any) => item[prop]))]
+  },
+  /**
    * @summary 去重
    */
   unique: function (arr: any[]) {
@@ -451,8 +457,8 @@ export const ExArray = {
   filter: function (arr: any[], filterTxt: string, fun: Function) {
     return filterTxt !== ''
       ? arr.filter((item) => {
-        return fun(item).toLocaleLowerCase().indexOf(filterTxt.toLocaleLowerCase()) != -1
-      })
+          return fun(item).toLocaleLowerCase().indexOf(filterTxt.toLocaleLowerCase()) != -1
+        })
       : arr
   },
   /**
@@ -1349,7 +1355,7 @@ export class ExInterval {
    * @summary 停止所有定时器
    */
   clearAll() {
-    const end = window.setInterval(function () { }, 100 * 1000)
+    const end = window.setInterval(function () {}, 100 * 1000)
     for (let loop = 0; loop <= end; loop++) {
       clearInterval(loop)
     }

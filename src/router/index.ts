@@ -4,9 +4,24 @@ const routes = [
   // 添加重定向
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/home'
   },
-  // 主要页面
+
+  // 业务页面
+  {
+    path: '/',
+    name: '/',
+    component: () => import('@/components/layouts/contents.vue'),
+    children: [
+      {
+        path: '/home',
+        name: 'home',
+        component: () => import('@/views/home/view.vue')
+      }
+    ]
+  },
+
+  // 登录页面
   {
     path: '/login',
     name: 'login',
@@ -17,11 +32,7 @@ const routes = [
     name: 'ssoAuth',
     component: () => import('@/views/login/sso-auth.vue')
   },
-  {
-    path: '/home',
-    name: 'home',
-    component: () => import('@/views/home/view.vue')
-  },
+
   // 配置404页面
   {
     path: '/:catchAll(.*)',

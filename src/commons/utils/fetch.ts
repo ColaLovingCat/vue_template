@@ -76,6 +76,18 @@ export const fetchRequest = (url: string, options: any = {}, remarks = '') => {
           }
         }
         remarks != '' ? console.log(remarks + ': ', data) : void 0
+        // 需要获取头部信息
+        if (options.activeBody) {
+          const headers: { [key: string]: any } = {}
+          res.headers.forEach((value, name) => {
+            headers[name] = value
+          })
+          resolve({
+            headers: headers,
+            body: data
+          })
+        }
+        //
         resolve(data)
       })
       .catch(function (err) {
