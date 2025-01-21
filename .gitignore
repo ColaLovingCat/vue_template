@@ -28,3 +28,6 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+pnpm-lock.yaml
+src/auto-import.d.ts
+src/auto-import.d.ts
