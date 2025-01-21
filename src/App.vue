@@ -3,6 +3,8 @@ import { ref, onMounted, computed } from 'vue'
 import type { Ref } from 'vue'
 
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 import { useLoadingStore } from '@/commons/stores/index'
 const loadingStore = useLoadingStore()
@@ -13,11 +15,8 @@ const userInfosStore = useUserInfosStore()
 
 import { useSystemInfosStore } from '@/commons/stores/index'
 const systemStore = useSystemInfosStore()
-const headerStatus = computed(() => systemStore.systemInfos.headerStatus)
-const theme = computed(() => systemStore.systemInfos.theme)
-
-import { usePageGo } from '@/commons/utils/routers'
-const { pageGo } = usePageGo()
+const headerStatus = computed(() => systemStore.systemStatus.headerShow)
+const theme = computed(() => systemStore.systemStatus.theme)
 
 import * as systemDB from '@/commons/datas/datas.system'
 import layout from '@/components/layouts/layout.vue'
@@ -119,6 +118,12 @@ const logout = () => {
   clearSystem()
   pageGo('/login', {
     type: 'logout'
+  })
+}
+const pageGo = (path: string, query: any = {}) => {
+  router.push({
+    path,
+    query
   })
 }
 const clearSystem = () => {

@@ -1,5 +1,7 @@
 import * as extend from './extends'
 
+import { useSystemInfosStore } from '@/commons/stores/index'
+
 export const fetchRequest = (url: string, options: any = {}, remarks = '') => {
   const opts: any = {}
   // 请求方式
@@ -49,6 +51,9 @@ export const fetchRequest = (url: string, options: any = {}, remarks = '') => {
         if (res.status == 401) {
           extend.LocalStore.delete('token')
           reject(res)
+          // 信息失效重新登录
+          // const systemStore = useSystemInfosStore()
+          // systemStore.showLogout()
         }
         // response.status 表示响应的http状态码
         if (res.status !== 200) {

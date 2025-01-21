@@ -303,11 +303,15 @@ export const ExNumber = {
 }
 
 /**
- * @summary Array拓展方法
+ * @summary Array 拓展
+ * @argument initial 初始化简单数组
+ * @argument initial 初始化简单数组
  */
 export const ExArray = {
   /**
    * @summary 初始化简单数组
+   * @param length 数组长度
+   * @returns [0,1,2,3,4,5...]
    */
   initial: function (length: number, startIndex = 0): number[] {
     const result: number[] = []
@@ -317,14 +321,17 @@ export const ExArray = {
     return result
   },
   /**
-   * @summary 添加相应index的元素
+   * @summary 在指定位置 index 添加元素obj
+   * @param index 指定位置
+   * @param obj 指定元素
    */
   insert: function (arr: any[], index: number, obj: any) {
     arr.splice(index, 0, obj)
     return arr
   },
   /**
-   * @summary 删除相应index的元素
+   * @summary 删除指定位置 index 的元素
+   * @param index 指定位置
    */
   delete: function (arr: any[], index: number) {
     const len = arr.length - 1
@@ -334,6 +341,7 @@ export const ExArray = {
   },
   /**
    * @summary 检查索引是否可用
+   * @param index 指定位置
    */
   checkIndex: function (arr: any[], index: number) {
     return index > -1 && index < arr.length
@@ -341,9 +349,12 @@ export const ExArray = {
   /**
    * @summary 检查元素是否在数组中，注意区分数据类型
    */
-  checkExist: function (arr: any[], obj: any) {
+  checkExist: function (arr: any[], obj: string | number | boolean) {
     return arr.indexOf(obj)
   },
+  /**
+   * @summary 检查元素是否在数组中，需要指定元素的某一特定属性
+   */
   checkExistbyEle: function (arr: any[], obj: any, prop: string) {
     return arr.findIndex((item) => item[prop] == obj[prop]) != -1
   },

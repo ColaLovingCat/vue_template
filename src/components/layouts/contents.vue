@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue'
 
-import { usePageGo } from '@/commons/utils/routers'
-const { pageGo, showLogout } = usePageGo()
+import { useSystemInfosStore } from '@/commons/stores/index'
+const systemStore = useSystemInfosStore()
 
 import * as extend from '@/commons/utils/extends'
 
@@ -17,11 +17,7 @@ onMounted(() => {
   if (token && token != '') {
     // 有token
   } else {
-    showLogout()
-    // 没token
-    pageGo('/login', {
-      type: 'logout'
-    })
+    systemStore.showLogout()
   }
 })
 </script>

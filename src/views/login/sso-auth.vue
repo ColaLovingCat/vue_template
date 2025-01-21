@@ -1,11 +1,14 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue'
 
-import * as extend from '../../commons/utils/extends'
-import * as meessageBox from '../../commons/utils/messages'
+import { useRouter } from 'vue-router'
+const routers = useRouter()
+
 import { useLoadingStore } from '../../commons/stores/index'
 const loadingStore = useLoadingStore()
 
+import * as extend from '../../commons/utils/extends'
+import * as meessageBox from '../../commons/utils/messages'
 import * as login from './login.service'
 
 onMounted(() => {
@@ -27,7 +30,14 @@ onMounted(() => {
           extend.LocalStore.set('token', message)
           ;(window as any).eventBus.getinfosUser()
           //
-          ;(window as any).eventBus.jumpHome()
+          if (params.state) {
+            let path = decodeURIComponent(decodeURIComponent(params.state))
+            routers.push({
+              path
+            })
+          } else {
+            ;(window as any).eventBus.jumpHome()
+          }
         } else {
           meessageBox.showError(message)
         }

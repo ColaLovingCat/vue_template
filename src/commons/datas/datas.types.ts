@@ -15,9 +15,6 @@ export interface SystemInfos {
   autoSSO: boolean
   clientID: string
   tenant: string
-  //
-  headerStatus: boolean
-  theme: string
 }
 
 export interface MenuInfos {
