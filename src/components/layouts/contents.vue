@@ -17,7 +17,9 @@ onMounted(() => {
   if (token && token != '') {
     // 有token
   } else {
-    systemStore.showLogout()
+    systemStore.showLogout(() => {
+      ;(window as any).eventBus.logout()
+    })
   }
 })
 </script>

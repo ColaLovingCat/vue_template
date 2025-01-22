@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { useRouter } from 'vue-router'
 import { Modal } from 'ant-design-vue'
 
 import type { SystemInfos } from '../datas/datas.types'
@@ -30,22 +29,17 @@ export const useSystemInfosStore = defineStore('systemInfos', {
       this.systemStatus.theme = theme
     },
     //
-    showLogout() {
+    showLogout(callback: Function) {
       if (!this.systemStatus.logoutShow) {
         this.systemStatus.logoutShow = true
         //
-        const router = useRouter()
         Modal.warning({
           title: 'Authentication Required',
           content: 'You will be redirected to the Login page.',
           onOk: () => {
             this.systemStatus.logoutShow = false
-            router.push({
-              path: '/login',
-              query: {
-                type: 'logout'
-              }
-            })
+            //
+            callback()
           }
         })
       }

@@ -53,7 +53,9 @@ export const fetchRequest = (url: string, options: any = {}, remarks = '') => {
           reject(res)
           // 信息失效重新登录
           // const systemStore = useSystemInfosStore()
-          // systemStore.showLogout()
+          // systemStore.showLogout(() => {
+          //   ;(window as any).eventBus.logout()
+          // })
         }
         // response.status 表示响应的http状态码
         if (res.status !== 200) {
@@ -108,8 +110,10 @@ const checkAPI = (url: string) => {
   if (check) return url
 
   // 前端部署在wwwroot中
+  //@ts-ignore
   if (import.meta.env.VITE_APP_ROOT == 'true') return url
 
   // 默认地址
+  //@ts-ignore
   return import.meta.env.VITE_APP_API_URL + url
 }
