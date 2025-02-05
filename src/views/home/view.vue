@@ -1,16 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import comp from '@/components/upload-form/view.vue'
-
-import * as extend from '@/commons/utils/extends'
-
-const datas: any = []
-
-onMounted(() => {
-  console.log('Testing: ', extend.ExArray.insert([0, 1, 2, 3, 4, 5], 1, 6))
-})
+import { ref } from 'vue'
 </script>
 
-<template>Empty</template>
+<template>
+  Home
+</template>
 
 <style scoped lang="scss"></style>
