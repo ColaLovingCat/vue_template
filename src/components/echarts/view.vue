@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, onBeforeUnmount, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onBeforeUnmount, onUnmounted, ref, watch, useTemplateRef } from 'vue'
 import * as echarts from 'echarts'
 
 const defaultOptions: any = {
@@ -234,19 +234,20 @@ const emit = defineEmits<{
   (event: 'chartClick', values: any): void
 }>()
 
-const echartsRef: any = ref(null)
+const echartsRef: any = useTemplateRef('echartsRef')
 let chartInstance: any = null
 
 const error = ref(false)
 
 onMounted(() => {
-  chartInstance = echarts.init(echartsRef.value)
+  resizeObserver.observe(echartsRef.value.parentElement);
   //
+  chartInstance = echarts.init(echartsRef.value)
   refreshChart()
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', resizeChart)
+  resizeObserver.disconnect();
 })
 
 onUnmounted(() => {
@@ -268,8 +269,6 @@ const refreshChart = () => {
     // 初始化图表
     chartInstance.setOption(props.options)
     //
-    window.addEventListener('resize', resizeChart)
-    //
     chartInstance.on('click', (params: any) => {
       emit('chartClick', params)
     })
@@ -278,11 +277,12 @@ const refreshChart = () => {
   }
 }
 
-const resizeChart = () => {
-  if (echartsRef.value) {
-    echartsRef.value.resize()
+const resizeObserver = new ResizeObserver(() => {
+  if (chartInstance) {
+      console.log('[eChart] resize')
+      chartInstance.resize();
   }
-}
+});
 </script>
 
 <template>
