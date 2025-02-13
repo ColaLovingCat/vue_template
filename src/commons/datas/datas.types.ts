@@ -20,21 +20,20 @@ export interface SystemInfos {
 export interface MenuInfos {
   index: number | string
   key: string
+  icon?: string
   title: string
   lang: string
   path: string
-  icon?: string
   infos?: any
   children?: MenuInfos[]
 }
-
 export class MenuClass {
-  index: number | string = ''
-  key: string = ''
+  index?: number | string = ''
+  key?: string = ''
   icon?: string = ''
-  title: string = ''
+  title?: string = ''
   lang?: string = ''
-  path: string = ''
+  path?: string = ''
   children?: MenuInfos[] = []
 }
 
@@ -58,4 +57,21 @@ export class LoadingInfos {
   clear = () => {
     this._value = 0
   }
+}
+
+export interface TableInfos {
+  pagination: Pagination
+  columns: ColumInfos[]
+  rows: any[]
+}
+export interface Pagination {
+  total: number
+  index: number
+  size: number
+  options: number[]
+}
+export interface ColumInfos {
+  key: string | number
+  name: string
+  visiable?: boolean
 }

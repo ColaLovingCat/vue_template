@@ -1,0 +1,264 @@
+.app-chat {
+  position: relative;
+  padding: 10px 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.box-chat {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+
+  .btn {
+    padding: 0;
+  }
+
+  .list-chat {
+    position: relative;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 25px;
+
+    .chat-item {
+      display: flex;
+      flex-direction: column;
+
+      .item-icon {
+        width: 24px;
+        height: 24px;
+        text-align: center;
+        color: #fff;
+        font-size: 14px;
+        line-height: 24px;
+        border-radius: 50%;
+        background: #00a8b0;
+      }
+
+      .item-content {
+        overflow-x: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        .item-name {
+          margin-bottom: 6px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          column-gap: 5px;
+        }
+
+        .item-messages {
+          width: fit-content;
+          max-width: min(95%, 750px);
+          overflow-x: auto;
+          padding: 10px 15px;
+          border-radius: 12px;
+          border: 1px solid rgba(196, 206, 207, 0.3647058824);
+          color: var(--color-page-text);
+          background: var(--color-content-bg);
+        }
+
+        .item-message {
+          margin-bottom: 5px;
+          line-height: 1.5rem;
+        }
+      }
+
+      .item-tools {
+        display: none;
+        justify-content: end;
+
+        .btn {
+          color: var(--color-page-text-9d);
+          font-size: 13px;
+          background: unset;
+
+          span {
+            margin-right: 5px;
+          }
+        }
+      }
+
+      .item-txt {
+        font-size: 1rem;
+        line-height: 1.8rem;
+
+        h1 {
+          font-size: 1.3rem !important; /* 强制生效 */
+        }
+      }
+
+      &.item-user {
+        .item-name {
+          display: none;
+        }
+
+        .item-content {
+          align-items: end;
+        }
+
+        .item-messages {
+          color: #fff;
+          background: #00a8b0b3;
+        }
+
+        .item-tools {
+          display: flex;
+        }
+
+        .item-infos {
+          align-items: end;
+
+          .item-user {
+            text-align: right;
+          }
+        }
+      }
+    }
+  }
+
+  .list-sugs {
+    margin: 8px 0;
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+
+    .sug-item {
+      cursor: pointer;
+      text-decoration: underline;
+      color: #008ecf;
+      font-size: 1rem;
+    }
+  }
+
+  .box-table {
+    color: var(--color-page-text);
+    background: var(--color-content-bg);
+    overflow-x: auto;
+
+    .table {
+      margin-top: 30px;
+
+      th,
+      td {
+        padding: 10px;
+      }
+
+      td {
+        max-width: 150px;
+        word-wrap: break-word;
+      }
+    }
+  }
+}
+
+// 页面滚动按钮
+.box-top {
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  opacity: 0.3;
+  display: flex;
+  flex-direction: column;
+  row-gap: 15px;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  .btn {
+    padding: 0;
+    color: #000000;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+      rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+      rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+  }
+}
+
+// 输入信息
+.box-footer {
+  padding: 5px;
+
+  .box-input {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      padding-right: 55px;
+      border: 1px solid #e3e3e3;
+      border-radius: 12cap;
+    }
+
+    .btn {
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      transform: translateY(-50%);
+      padding: 0;
+      font-size: 21px;
+      border: unset;
+
+      &.btn-speech {
+        right: 54px;
+
+        &.speech {
+          color: #4096ff;
+          animation: outline-pulse 2s infinite;
+        }
+      }
+    }
+  }
+}
+
+// 等待状态动画
+.dots {
+  width: 3.5em;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+
+  div {
+    width: 0.8em;
+    height: 0.8em;
+    border-radius: 50%;
+    background-color: #3cefff;
+    animation: fade 0.8s ease-in-out alternate infinite;
+  }
+
+  div:nth-of-type(1) {
+    animation-delay: -0.4s;
+  }
+
+  div:nth-of-type(2) {
+    animation-delay: -0.2s;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes outline-pulse {
+  0% {
+    outline: 1px solid #4096ff;
+  }
+  100% {
+    outline: 6px solid white;
+  }
+}
