@@ -72,6 +72,6 @@ export interface Pagination {
 }
 export interface ColumInfos {
   key: string | number
-  name: string
+  title: string
   visiable?: boolean
 }
