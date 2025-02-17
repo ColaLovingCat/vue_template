@@ -88,9 +88,29 @@
       .item-txt {
         font-size: 1rem;
         line-height: 1.8rem;
+      }
 
-        h1 {
-          font-size: 1.3rem !important; /* 强制生效 */
+      .item-suggests {
+        margin-top: 10px;
+        padding-left: 15px;
+        display: flex;
+        flex-direction: column;
+        row-gap: 5px;
+
+        .suggest-item {
+          cursor: pointer;
+          width: max-content;
+          padding: 10px 15px;
+          border-radius: 8px;
+          background: #e2f5e7;
+
+          &:hover {
+            background: #9be4b3;
+          }
+
+          .fa-solid {
+            margin-left: 5px;
+          }
         }
       }
 
@@ -214,7 +234,7 @@
       .btn-send {
         margin-left: 10px;
         color: #fff;
-        background: #008ecf;
+        background: #419e98;
 
         &:disabled {
           background: #d0d0d0;

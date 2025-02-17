@@ -25,7 +25,8 @@ interface ChatRecord {
   id: string
   name: string
   isBot: boolean
-  messages: MessageInfo[]
+  messages: MessageInfo[],
+  suggests?: string[]
 }
 interface MessageInfo {
   type: string;
@@ -55,6 +56,11 @@ const md = new MarkdownIt({
     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>'
   }
 }).use(markdownItKatex)
+md.renderer.rules.table_open = () => '<table class="table">\n';
+md.renderer.rules.heading_open = (tokens: any, idx: any) => {
+  const tag = tokens[idx].tag;
+  return `<${tag} class="chat-txt">`;
+};
 
 // 监听页面的滚动
 const container: Ref<any> = ref(null)
@@ -161,7 +167,7 @@ onMounted(async () => {
 onUnmounted(() => {
   // 清除计时器
   if (chatInfos.timer) {
-    cancelIdleCallback(chatInfos.timer);
+    clearInterval(chatInfos.timer);
   }
 
   // 断开websocket
@@ -194,7 +200,7 @@ watch(
 // 清除超时计时器
 const clearTimer = () => {
   chatInfos.count = 0
-  cancelIdleCallback(chatInfos.timer)
+  clearInterval(chatInfos.timer)
   chatInfos.timer = null
 }
 //
@@ -202,7 +208,7 @@ const startTimer = () => {
   if (chatInfos.timer) return;
 
   chatInfos.count = 0
-  chatInfos.timer = requestIdleCallback(() => {
+  chatInfos.timer = setInterval(() => {
     chatInfos.count++
     if (debug) console.log('[Chat] timer:', chatInfos.count)
 
@@ -212,7 +218,7 @@ const startTimer = () => {
       messages.showError('The conversation has timed out')
       outTimer()
     }
-  })
+  }, 1000)
 }
 // 已超时
 const outTimer = () => {
@@ -343,6 +349,12 @@ const handleChat = (message: string, id: string) => {
       params = {
         question: message,
         vehicle_name: props.configs.infos.vehicle
+      }
+      break
+    }
+    case 'kpi': {
+      params = {
+        prompt: message,
       }
       break
     }
@@ -650,7 +662,7 @@ defineExpose({
     <!-- 聊天窗口 -->
     <div class="chat-contents" ref="container" @wheel="handleUserScroll">
       <div class="list-chat">
-        <div class="chat-item" v-for="record in chatInfos.messages " :key="record.id"
+        <div class="chat-item" v-for="record in chatInfos.messages" :key="record.id"
           :class="record.isBot ? '' : 'item-user'">
           <div class="item-content">
             <div class="item-name">
@@ -723,14 +735,15 @@ defineExpose({
                 </template>
               </div>
               <!-- 空信息 -->
-              <!-- <div class="item-message item-empty" v-if="record.messages && record.messages.length == 0">
+              <div class="item-message item-empty" v-if="record.messages && record.messages.length == 0">
                 <div class="dots">
                   <div></div>
                   <div></div>
                   <div></div>
                 </div>
-              </div> -->
+              </div>
             </div>
+            <!-- Btns -->
             <div class="item-tools" v-if="!record.isBot">
               <a-tooltip placement="bottom">
                 <template #title>Copy</template>
@@ -765,6 +778,12 @@ defineExpose({
                 </a-button>
               </a-tooltip>
             </div>
+            <!-- Suggests -->
+            <div class="item-suggests">
+              <div class="suggest-item" v-for="suggest in record.suggests" :key="suggest" @click="regenerate(suggest)">
+                {{ suggest }} <i class="fa-solid fa-arrow-right"></i>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -774,7 +793,7 @@ defineExpose({
     <div class="chat-footer" v-if="props.configs.activeInput">
       <div class="box-input">
         <div class="input">
-          <a-textarea :autosize="{ minRows: 1, maxRows: 4 }" v-model:value="chatInfos.message"
+          <a-textarea :autoSize="{ minRows: 1, maxRows: 4 }" v-model:value="chatInfos.message"
             @keydown.enter="sendMessage" placeholder="Message here..." />
         </div>
         <div class="btns">
