@@ -184,7 +184,7 @@ watch(
       }
       // 问题
       else {
-        copyMessage(record.messages)
+        regenerate(record.messages)
       }
       scrollTo('bottom')
     }
@@ -265,14 +265,31 @@ const endChat = () => {
 }
 
 // 复制信息
-const copyMessage = (message: any) => {
-  if (debug) console.log('[Chat] copy')
-  chatInfos.message = message
-  //
-  if (!props.configs.activeInput) {
-    if (debug) console.log('[Chat] auto')
-    sendMessage()
+const copyToClipboard = async (message: any) => {
+  try {
+    await navigator.clipboard.writeText(message);
+  } catch (err) {
+    console.error("复制失败:", err);
   }
+};
+const regenerate = (message: any) => {
+  if (debug) console.log('[Chat] regenerate')
+  chatInfos.message = message
+  sendMessage()
+}
+//
+const voiceInfos = reactive({
+  show: false,
+})
+const startRecord = () => {
+  voiceInfos.show = !voiceInfos.show
+}
+const sendAudio = () => {
+
+}
+//
+const upload = () => {
+
 }
 // 正常使用聊天发送信息
 const sendMessage = () => {
@@ -317,9 +334,6 @@ const sendMessage = () => {
     })
     handleChat(message, id)
   }
-}
-const sendAudio = () => {
-
 }
 const handleChat = (message: string, id: string) => {
   // 请求回答
@@ -634,7 +648,7 @@ defineExpose({
 <template>
   <div class="app-chat">
     <!-- 聊天窗口 -->
-    <div class="box-chat" ref="container" @wheel="handleUserScroll">
+    <div class="chat-contents" ref="container" @wheel="handleUserScroll">
       <div class="list-chat">
         <div class="chat-item" v-for="record in chatInfos.messages " :key="record.id"
           :class="record.isBot ? '' : 'item-user'">
@@ -661,7 +675,7 @@ defineExpose({
                 <!-- 列表 -->
                 <template v-if="msg.type == 'list'">
                   <div class="list-sugs">
-                    <div class="sug-item" v-for="item in msg.data" :key="item" @click="copyMessage(item)">
+                    <div class="sug-item" v-for="item in msg.data" :key="item" @click="regenerate(item)">
                       {{ item }}
                     </div>
                   </div>
@@ -709,40 +723,105 @@ defineExpose({
                 </template>
               </div>
               <!-- 空信息 -->
-              <div class="item-message item-empty" v-if="record.messages && record.messages.length == 0">
+              <!-- <div class="item-message item-empty" v-if="record.messages && record.messages.length == 0">
                 <div class="dots">
                   <div></div>
                   <div></div>
                   <div></div>
                 </div>
-              </div>
+              </div> -->
             </div>
-
-          </div>
-          <div class="item-tools">
-            <a-button shape="circle" title="Copy" class="btn btn-tools" @click="copyMessage(record.messages[0].data)">
-              <i class="fa-solid fa-copy"></i>
-            </a-button>
-            <a-button shape="circle" title="Regenerate" class="btn btn-tools">
-              <i class="fa-solid fa-arrows-rotate"></i>
-            </a-button>
+            <div class="item-tools" v-if="!record.isBot">
+              <a-tooltip placement="bottom">
+                <template #title>Copy</template>
+                <a-button shape="circle" class="btn btn-tools" @click="copyToClipboard(record.messages[0].data)">
+                  <i class="fa-solid fa-copy"></i>
+                </a-button>
+              </a-tooltip>
+              <a-tooltip placement="bottom">
+                <template #title>Edit Message</template>
+                <a-button shape="circle" class="btn btn-tools">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </a-button>
+              </a-tooltip>
+            </div>
+            <div class="item-tools" v-if="false">
+              <a-tooltip placement="bottom">
+                <template #title>Copy</template>
+                <a-button shape="circle" class="btn btn-tools" @click="copyToClipboard(record.messages[0].data)">
+                  <i class="fa-solid fa-copy"></i>
+                </a-button>
+              </a-tooltip>
+              <a-tooltip placement="bottom">
+                <template #title>Regenerate</template>
+                <a-button shape="circle" class="btn btn-tools" @click="regenerate(record.messages[0].data)">
+                  <i class="fa-solid fa-arrows-rotate"></i>
+                </a-button>
+              </a-tooltip>
+              <a-tooltip placement="bottom">
+                <template #title>Read aloud</template>
+                <a-button shape="circle" class="btn btn-tools">
+                  <i class="fa-solid fa-volume-high"></i>
+                </a-button>
+              </a-tooltip>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 信息输入 -->
-    <div class="box-footer" v-if="props.configs.activeInput">
+    <div class="chat-footer" v-if="props.configs.activeInput">
       <div class="box-input">
-        <input type="text" v-model="chatInfos.message" @keydown.enter="sendMessage" placeholder="Message here..." />
-        <a-button shape="circle" class="btn btn-tools" @click="sendMessage">
-          <i class="fa-solid fa-envelope"></i>
-        </a-button>
+        <div class="input">
+          <a-textarea :autosize="{ minRows: 1, maxRows: 4 }" v-model:value="chatInfos.message"
+            @keydown.enter="sendMessage" placeholder="Message here..." />
+        </div>
+        <div class="btns">
+          <div class="btns-left">
+            <a-tooltip>
+              <template #title>Upload files</template>
+              <a-button shape="circle" class="btn btn-tools btn-upload" @click="upload">
+                <i class="fa-solid fa-paperclip"></i>
+              </a-button>
+            </a-tooltip>
+            <a-tooltip>
+              <template #title>Upload images</template>
+              <a-button shape="circle" class="btn btn-tools btn-upload" @click="upload">
+                <i class="fa-solid fa-images"></i>
+              </a-button>
+            </a-tooltip>
+          </div>
+          <div class="btns-right">
+            <a-popover v-model:open="voiceInfos.show" title="Recording" placement="leftBottom" trigger="click">
+              <template #content>
+                <div class="voice-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </template>
+              <a-tooltip>
+                <template #title>Voice input</template>
+                <a-button shape="circle" class="btn btn-tools btn-speech" @click="startRecord">
+                  <i class="fa-solid fa-microphone"></i>
+                </a-button>
+              </a-tooltip>
+            </a-popover>
+            <a-tooltip>
+              <template #title>Send Message</template>
+              <a-button shape="circle" class="btn btn-send" @click="sendMessage" :disabled="chatInfos.message == ''">
+                <i class="fa-solid fa-arrow-up"></i>
+              </a-button>
+            </a-tooltip>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- 滚动按钮 -->
-    <div class="box-top">
+    <div class="chat-top">
       <a-button shape="circle" title="Scroll to top" class="btn btn-tools" @click="scrollTo('top', true)">
         <i class="fa-solid fa-arrow-up"></i>
       </a-button>
