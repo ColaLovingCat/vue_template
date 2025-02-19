@@ -98,6 +98,7 @@ const emit = defineEmits<{
   (event: 'sended', values: any): void
   (event: 'received', values: any): void // 回答已接收完
   (event: 'cleared', values: any): void
+  (event: 'clickItem', values: any): void
 }>()
 // props
 const props = defineProps({
@@ -105,11 +106,8 @@ const props = defineProps({
     type: Object,
     default: () => {
       return {
-        code: 'default',
-        api: '',
         activeInput: true,
         activeToken: true,
-        infos: {}
       }
     }
   },
@@ -183,15 +181,38 @@ watch(
     if (props.record) {
       if (debug) console.log('[Chat] watch: ', props.record)
       let record: any = { ...props.record }
-      // 提示信息
-      if (record.isBot) {
-        record.id = extend.ExString.uuid()
-        chatInfos.messages.push(record)
+      //
+      switch (record.action) {
+        // 等待回答
+        case 'waiting': {
+          chatInfos.messages.push(record)
+          chatInfos.connectionID = record.id
+          // 替换问题的id
+          let q = chatInfos.messages.find((a: any) => a.id == record.messages[0].data)
+          if (q) q.id = chatInfos.connectionID
+          //
+          startTimer()
+          break
+        }
+        // 提示信息
+        case 'tips': {
+          chatInfos.messages.push(record)
+          break
+        }
+        case 'question': {
+          sendDirect(record.messages)
+          break
+        }
+        case 'error': {
+          pushError(record.id)
+          break
+        }
+        default: {
+          break
+        }
       }
-      // 问题
-      else {
-        regenerate(record.messages)
-      }
+      //
+      autoScroll = true
       scrollTo('bottom')
     }
   }
@@ -223,13 +244,13 @@ const startTimer = () => {
 // 已超时
 const outTimer = () => {
   if (debug) console.log('[Timer] timeout')
-  let temp = chatInfos.messages.find((a: any) => a.id == chatInfos.connectionID)
-  if (temp) {
-    temp.id = 'error'
+  let loadingChat = chatInfos.messages.find((a: any) => a.id == chatInfos.connectionID && a.isBot)
+  console.log('Testing: ', loadingChat)
+  if (loadingChat) {
     // 清除loading元素
-    temp.messages = temp.messages.filter((item: any) => item.type !== 'loading')
-    temp.messages = [
-      ...temp.messages,
+    loadingChat.messages = loadingChat.messages.filter((item: any) => item.type !== 'loading')
+    loadingChat.messages = [
+      ...loadingChat.messages,
       {
         type: 'text',
         data: 'server is busy, please try again later.'
@@ -274,29 +295,64 @@ const endChat = () => {
 const copyToClipboard = async (message: any) => {
   try {
     await navigator.clipboard.writeText(message);
+    messages.showInfo('The information has been copied to the clipboard.')
   } catch (err) {
     console.error("复制失败:", err);
   }
 };
-const regenerate = (message: any) => {
+// 重新生成该问题
+const regenerate = (values: any) => {
   if (debug) console.log('[Chat] regenerate')
+  const id = values.id
+  const message = values.messages[0].data
+  //
+  for (let i = chatInfos.messages.length - 1; i >= 0; i--) {
+    if (chatInfos.messages[i].id === id) {
+      chatInfos.messages.splice(i, 1);
+    }
+  }
+  //
+  sendDirect(message)
+}
+// 直接提问
+const sendDirect = (message: any) => {
+  if (debug) console.log('[Chat] send directly')
   chatInfos.message = message
   sendMessage()
 }
-//
-const voiceInfos = reactive({
+
+// 录音
+const voiceInfos: any = reactive({
   show: false,
+  count: 0,
+  timer: null
 })
 const startRecord = () => {
   voiceInfos.show = !voiceInfos.show
+  //
+  if (voiceInfos.show) {
+    voiceInfos.count = 0
+    voiceInfos.timer = setInterval(() => {
+      voiceInfos.count++
+    }, 1000);
+  } else {
+    voiceInfos.count = 0
+    clearInterval(voiceInfos.timer)
+    voiceInfos.timer = null
+    //
+    sendAudio()
+  }
+
 }
 const sendAudio = () => {
-
+  messages.showInfo("暂未开放")
 }
-//
+
+// 上传文件
 const upload = () => {
-
+  messages.showInfo("暂未开放")
 }
+
 // 正常使用聊天发送信息
 const sendMessage = () => {
   autoScroll = true
@@ -320,13 +376,12 @@ const sendMessage = () => {
     return false
   }
 
-  //
   const message = chatInfos.message
   if (message != '') {
     chatInfos.message = ''
 
     // 将发送的文本送入聊天窗口
-    let id = extend.ExString.uuid()
+    let id = extend.ExString.uuid() // 对话的id
     chatInfos.messages.push({
       id,
       name: 'You',
@@ -338,153 +393,97 @@ const sendMessage = () => {
         }
       ]
     })
-    handleChat(message, id)
+    emit('sended', {
+      id,
+      message,
+    })
+    // handleChat(message, id)
   }
-}
-const handleChat = (message: string, id: string) => {
-  // 请求回答
-  let params: any = {}
-  switch (props.configs.code) {
-    case 'lop': {
-      params = {
-        question: message,
-        vehicle_name: props.configs.infos.vehicle
-      }
-      break
-    }
-    case 'kpi': {
-      params = {
-        prompt: message,
-      }
-      break
-    }
-    default: {
-      params = {
-        token: extend.LocalStore.get('token'),
-        thread_id: chatInfos.thread_id,
-        prompt: message
-      }
-      break
-    }
-  }
-  current.chat(props.configs.api, params).then(
-    (resp: any) => {
-      const { status, result } = resp
-      if (status) {
-        // 记录对话，暂时无法接收新问题
-        chatInfos.connectionID = result.connectionID
-        if (debug) console.log('[Chat] receive connectionID:', result.connectionID)
-
-        // 拿到回答然后送入聊天窗口
-        let respBox = {
-          id: chatInfos.connectionID,
-          name: chatInfos.bot.name,
-          isBot: true,
-          messages: [
-            {
-              type: 'loading',
-              data: ''
-            }
-          ]
-        }
-        chatInfos.messages.push(respBox)
-        if (debug) console.log('[Chat] waiting resp')
-        scrollTo('bottom')
-        emit('sended', {
-          connectionID: chatInfos.connectionID
-        })
-
-        // 计时开始
-        startTimer()
-      }
-    },
-    (err: any) => {
-      console.error('Error', err)
-      // 报错
-      pushError()
-    }
-  )
 }
 
 // 处理回复信息
 const receiveMessage = (msg: any): void => {
-  // 重置当前计时器
-  if (chatInfos.timer && chatInfos.connectionID == msg.connectionID) {
-    chatInfos.count = 0
-    if (debug) console.log('[Chat] reset timer with receive')
-  }
+  if (chatInfos.connectionID == msg.connectionID) {
+    // 重置当前计时器
+    if (chatInfos.timer) {
+      clearTimer()
+      if (debug) console.log('[Chat] clear timer with receive')
+      // chatInfos.count = 0
+      // if (debug) console.log('[Chat] reset timer with receive')
+    }
 
-  let remarks = JSON.parse(msg.remarks)
-  switch (msg.category) {
-    case 'text': {
-      // 段落开始
-      if (remarks.paragraph_start) {
+    let remarks = JSON.parse(msg.remarks)
+    switch (msg.category) {
+      case 'text': {
+        // 段落开始
+        if (remarks.paragraph_start) {
+          pushMessage({
+            id: msg.connectionID,
+            messages: [
+              {
+                type: msg.category,
+                data: msg.message
+              }
+            ]
+          })
+        } else {
+          // 填补前一个段落
+          pushText({
+            id: msg.connectionID,
+            text: msg.message
+          })
+        }
+        break
+      }
+      default: {
         pushMessage({
           id: msg.connectionID,
           messages: [
             {
               type: msg.category,
+              data: JSON.parse(msg.message)
+            }
+          ]
+        })
+        break
+      }
+      case 'error': {
+        pushMessage({
+          id: msg.connectionID,
+          messages: [
+            {
+              type: 'text',
               data: msg.message
             }
           ]
         })
-      } else {
-        // 填补前一个段落
-        pushText({
-          id: msg.connectionID,
-          text: msg.message
-        })
+        break
       }
-      break
     }
-    default: {
-      pushMessage({
-        id: msg.connectionID,
-        messages: [
-          {
-            type: msg.category,
-            data: JSON.parse(msg.message)
-          }
-        ]
-      })
-      break
-    }
-    case 'error': {
-      pushMessage({
-        id: msg.connectionID,
-        messages: [
-          {
-            type: 'text',
-            data: msg.message
-          }
-        ]
-      })
-      break
-    }
-  }
 
-  if (!remarks.response_end) {
-    // 等待之后的内容
-    pushMessage({
-      id: msg.connectionID,
-      messages: [
-        {
-          type: 'loading',
-          data: ''
-        }
-      ]
-    })
-  } else {
-    // 对话结束
-    if (debug) console.log('[Chat] end with response_end')
-    endChat()
+    if (!remarks.response_end) {
+      // 等待之后的内容
+      pushMessage({
+        id: msg.connectionID,
+        messages: [
+          {
+            type: 'loading',
+            data: ''
+          }
+        ]
+      })
+    } else {
+      // 对话结束
+      if (debug) console.log('[Chat] end with response_end')
+      endChat()
+    }
   }
 }
 
 // 接收信息
 const pushMessage = (values: any) => {
   const { id, messages } = values
-  let temp = chatInfos.messages.find((a: any) => a.id == id)
+  let temp = chatInfos.messages.find((a: any) => a.id == id && a.isBot)
   if (temp) {
     // 清除loading元素
     temp.messages = temp.messages.filter((item: any) => item.type !== 'loading')
@@ -496,7 +495,7 @@ const pushMessage = (values: any) => {
 // 文本流
 const pushText = (values: any) => {
   const { id, text } = values
-  let temp = chatInfos.messages.find((a: any) => a.id == id)
+  let temp = chatInfos.messages.find((a: any) => a.id == id && a.isBot)
   if (temp) {
     // 清除loading元素
     temp.messages = temp.messages.filter((item: any) => item.type !== 'loading')
@@ -515,32 +514,38 @@ const pushText = (values: any) => {
   }
 }
 // Error
-const pushError = () => {
+const pushError = (id: string) => {
   let messageInfos = {
-    id: chatInfos.bot.id,
+    id,
     name: chatInfos.bot.name,
     isBot: true,
     messages: [
       {
         type: 'text',
-        data: 'Server Error'
+        data: 'server is busy, please try again later.'
       }
     ]
   }
   chatInfos.messages.push(messageInfos)
 }
 
+// 处理 Table
+const tableClick = (column: string, row: any) => {
+  emit('clickItem', {
+    action: 'table',
+    values: {
+      column,
+      row,
+    }
+  })
+}
+
 // 处理Chart
 const chartClick = (event: any) => {
-  const { name, data } = event
-  let params = { ...data[2] }
-  //
-  if (!('sub_family' in params)) {
-    Object.assign(params, { sub_family: name })
-  }
-  if (!('date' in params)) {
-    Object.assign(params, { date: name })
-  }
+  emit('clickItem', {
+    action: 'chart',
+    values: event
+  })
 }
 const getOptionBasic = (values: any) => {
   const options = {
@@ -588,7 +593,6 @@ const getOptionBasic = (values: any) => {
   return options
 }
 const getOptionPieces = (values: any) => {
-  let pieces: any[] = []
   let markArea: any = {
     data: []
   }
@@ -651,6 +655,108 @@ const getOptionPieces = (values: any) => {
   }
   return options
 }
+const getOptionForFPY = (values: any) => {
+  let params = {
+    title: values.Title,
+    category: values.Category,
+    First_Pass: formatFPY(values.First_Pass, values.parameter),
+    Pseudo_Failure: formatFPY(values.Pseudo_Failure, values.parameter),
+    Real_Failure: formatFPY(values.Real_Failure, values.parameter),
+    FPY: formatFPY(values.FPY, values.parameter),
+    FPY_Target: formatFPY(values.FPY_Target, values.parameter)
+  }
+  return {
+    title: {
+      text: params.title,
+      top: 5,
+      left: 'center'
+    },
+    grid: {
+      bottom: 100
+    },
+    //
+    legend: {
+      show: true,
+      orient: 'horizontal', // horizontal| vertical
+      x: 'center', // left| center| right
+      y: 'bottom' // top| middle| bottom
+    },
+    tooltip: {
+      show: true,
+      trigger: 'axis'
+    },
+    //
+    xAxis: {
+      type: 'category',
+      data: params.category,
+      axisLabel: {
+        rotate: 45
+      }
+    },
+    yAxis: [
+      {
+        type: 'value'
+      },
+      {
+        type: 'value',
+        min: 0,
+        max: 1,
+        axisLabel: {
+          formatter: function (value: any) {
+            return value * 100 + '%'
+          }
+        }
+      }
+    ],
+    //
+    series: [
+      {
+        type: 'bar',
+        name: '1st Pass',
+        stack: 'Failure',
+        colr: '#92d050',
+        data: params.First_Pass
+      },
+      {
+        type: 'bar',
+        name: 'Pseudo Failure',
+        stack: 'Failure',
+        colr: '#00b0f0',
+        data: params.Pseudo_Failure
+      },
+      {
+        type: 'bar',
+        name: 'Real Failure',
+        stack: 'Failure',
+        colr: '#ff0000',
+        data: params.Real_Failure
+      },
+      {
+        type: 'line',
+        name: 'FPY',
+        colr: '#8064a2',
+        yAxisIndex: 1,
+        data: params.FPY
+      },
+      {
+        type: 'line',
+        name: 'FPY Target',
+        colr: '#20ba66',
+        yAxisIndex: 1,
+        data: params.FPY_Target
+      }
+    ]
+  }
+}
+const formatFPY = (arr: any, params: any) => {
+  let result: any = []
+  if (arr && arr.length > 0) {
+    arr.map((item: any, index: number) => {
+      result.push([index, item, params])
+    })
+  }
+  return result
+}
 
 defineExpose({
   clearChat
@@ -686,9 +792,9 @@ defineExpose({
                 </template>
                 <!-- 列表 -->
                 <template v-if="msg.type == 'list'">
-                  <div class="list-sugs">
-                    <div class="sug-item" v-for="item in msg.data" :key="item" @click="regenerate(item)">
-                      {{ item }}
+                  <div class="list-suggests">
+                    <div class="suggest-item" v-for="item in msg.data" :key="item" @click="sendDirect(item)">
+                      {{ item }} <i class="fa-solid fa-arrow-right"></i>
                     </div>
                   </div>
                 </template>
@@ -698,12 +804,14 @@ defineExpose({
                     <table class="table">
                       <thead>
                         <tr>
-                          <th v-for="th in msg.data.columns" :key="th">{{ th }}</th>
+                          <th v-for="th in msg.data.columns" :key="th.name">{{ th.name }}</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-for="tr in msg.data.rows" :key="tr">
-                          <td v-for="td in msg.data.columns" :key="td">{{ tr[td] }}</td>
+                        <tr v-for="row in msg.data.rows" :key="row.name">
+                          <td v-for="column in msg.data.columns" :key="column.name" @click="tableClick(column, row)">
+                            {{ row[column.name] }}
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -725,13 +833,20 @@ defineExpose({
                 </template>
                 <!-- Chart Basic -->
                 <template v-if="msg.type == 'chart_basic'">
-                  <echarts width="100%" height="300px" :options="getOptionBasic(msg.data)">
+                  <echarts width="100%" height="300px" :options="getOptionBasic(msg.data)" @chartClick="chartClick">
                   </echarts>
                 </template>
                 <!-- Chart Pieces -->
                 <template v-if="msg.type == 'chart_pieces'">
-                  <echarts width="100%" height="300px" :options="getOptionPieces(msg.data)">
+                  <echarts width="100%" height="300px" :options="getOptionPieces(msg.data)" @chartClick="chartClick">
                   </echarts>
+                </template>
+                <!-- Chart FPY -->
+                <template v-if="msg.type == 'chart_fpy'">
+                  <div v-for="data in msg.data" :key="data">
+                    <echarts width="500px" height="300px" :options="getOptionForFPY(data)" @chartClick="chartClick">
+                    </echarts>
+                  </div>
                 </template>
               </div>
               <!-- 空信息 -->
@@ -752,6 +867,12 @@ defineExpose({
                 </a-button>
               </a-tooltip>
               <a-tooltip placement="bottom">
+                <template #title>Regenerate</template>
+                <a-button shape="circle" class="btn btn-tools" @click="regenerate(record)">
+                  <i class="fa-solid fa-arrows-rotate"></i>
+                </a-button>
+              </a-tooltip>
+              <a-tooltip placement="bottom">
                 <template #title>Edit Message</template>
                 <a-button shape="circle" class="btn btn-tools">
                   <i class="fa-solid fa-pen-to-square"></i>
@@ -766,12 +887,6 @@ defineExpose({
                 </a-button>
               </a-tooltip>
               <a-tooltip placement="bottom">
-                <template #title>Regenerate</template>
-                <a-button shape="circle" class="btn btn-tools" @click="regenerate(record.messages[0].data)">
-                  <i class="fa-solid fa-arrows-rotate"></i>
-                </a-button>
-              </a-tooltip>
-              <a-tooltip placement="bottom">
                 <template #title>Read aloud</template>
                 <a-button shape="circle" class="btn btn-tools">
                   <i class="fa-solid fa-volume-high"></i>
@@ -780,7 +895,7 @@ defineExpose({
             </div>
             <!-- Suggests -->
             <div class="item-suggests">
-              <div class="suggest-item" v-for="suggest in record.suggests" :key="suggest" @click="regenerate(suggest)">
+              <div class="suggest-item" v-for="suggest in record.suggests" :key="suggest" @click="sendDirect(suggest)">
                 {{ suggest }} <i class="fa-solid fa-arrow-right"></i>
               </div>
             </div>
@@ -812,7 +927,8 @@ defineExpose({
             </a-tooltip>
           </div>
           <div class="btns-right">
-            <a-popover v-model:open="voiceInfos.show" title="Recording" placement="leftBottom" trigger="click">
+            <a-popover v-model:open="voiceInfos.show" :title="`Recording: ${voiceInfos.count}s`" placement="leftBottom"
+              trigger="click">
               <template #content>
                 <div class="voice-dots">
                   <span></span>

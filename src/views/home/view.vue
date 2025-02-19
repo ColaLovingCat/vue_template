@@ -3,32 +3,52 @@ import { ref, reactive, onMounted } from 'vue'
 import chats from '@/components/chats/view.vue'
 
 const chatRef: any = ref(null)
-
-let chatRecord: any = null
-const chatAPI =
-  'https://szhlinvma72.apac.bosch.com:51006/api/ai_platform/logistic_demand_forecast/chat_response/'
-const chatMark = ref(false)
-
-const afterSend = (e: any) => {
-  console.log('Testing: After Send')
+const chatConfigs = {
+  activeInput: true,
+  activeToken: false,
 }
-const afterReceive = (e: any) => { }
+let chatRecord: any = null
+const chatMark = ref(false)
+//
+const sendChat = (record: any) => {
+  chatRecord = { ...record }
+  chatMark.value = !chatMark.value
+  //
+  setTimeout(() => {
+    chatRecord = null
+  }, 500)
+}
+//
+const afterSend = (event: any) => {
+  console.log('afterSend', event)
+  const { id, message } = event
+  sendChat({
+    action: 'waiting',
+    id: "",
+    name: '小博',
+    isBot: true,
+    messages: [
+      {
+        type: 'loading',
+        data: id
+      }
+    ]
+  })
+}
+const afterReceive = (event: any) => {
+  console.log('afterReceive', event)
+}
 const afterClear = () => { }
+const clickItem = (event: any) => {
+  console.log('clickItem', event)
+}
 </script>
 
 <template>
   Home
   <div class="box-chats">
-    <chats ref="chatRef" :configs="{
-      code: 'lop',
-      api: chatAPI,
-      activeInput: true,
-      activeToken: false,
-      infos: {
-        vehicle: '理想MEGA'
-      }
-    }" :record="chatRecord" :change-mark="chatMark" @sended="afterSend($event)" @received="afterReceive($event)"
-      @cleared="afterClear()"></chats>
+    <chats ref="chatRef" :configs="chatConfigs" :record="chatRecord" :change-mark="chatMark" @sended="afterSend($event)"
+      @received="afterReceive($event)" @cleared="afterClear()" @clickItem="clickItem($event)"></chats>
   </div>
 
 </template>
