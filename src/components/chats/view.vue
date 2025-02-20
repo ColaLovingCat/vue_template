@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted, watch, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
+import { useSystemInfosStore } from '@/commons/stores/index'
+import * as extend from '@/commons/utils/extends'
+import * as messages from '@/commons/utils/messages'
 
 //@ts-ignore
 import MarkdownIt from 'markdown-it'
@@ -11,31 +14,28 @@ import 'katex/dist/katex.min.css'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.css'
 
-import { useSystemInfosStore } from '@/commons/stores/index'
-import { WebSocketService } from '@/commons/utils/websocket'
 import echarts from '@/components/echarts/view.vue'
-import * as extend from '@/commons/utils/extends'
-import * as messages from '@/commons/utils/messages'
+import { WebSocketService } from '@/commons/utils/websocket'
 
 const debug = true
 
 interface ChatRecord {
-  id: string
+  // id: string // 用于标记
+  connectionID: string
+  //
   name: string
   isBot: boolean
-  messages: MessageInfo[],
+  //
+  messages: {
+    type: string
+    data: any
+  }[],
   suggests?: string[]
-  think?: { isThinking: boolean, content: string, isShow: boolean, }
-}
-interface MessageInfo {
-  type: string;
-  data: any
-}
-
-// 获取图标
-const getIcon = (name: string) => {
-  if (name == '小博') return '🤖'
-  else return name[0]
+  think?: {
+    isThinking: boolean
+    content: string
+    isShow: boolean
+  }
 }
 
 // 富文本格式化
@@ -63,29 +63,26 @@ md.renderer.rules.heading_open = (tokens: any, idx: any) => {
 
 // 监听页面的滚动
 const container: Ref<any> = ref(null)
-let autoScroll = true
 const scrollTo = (action: string = 'bottom', force: boolean = false) => {
   // 强制滚动
-  if (force) autoScroll = true
+  if (force) chatInfos.isAutoScroll = true
 
-  if (autoScroll) {
+  if (chatInfos.isAutoScroll) {
     requestAnimationFrame(() => {
       container.value?.scrollTo({ top: action == 'bottom' ? container.value.scrollHeight : 0, behavior: "smooth" });
     });
   }
 }
 const handleUserScroll = () => {
-  autoScroll = false;
+  chatInfos.isAutoScroll = false;
 };
 
 // Token
 const getToken = () => {
+  // 不需要token
   if (!props.configs.activeToken) return 'noNeed'
   //
-  let token = extend.LocalStore.get('token')
-  if (token) return token
-  //
-  return null
+  return extend.LocalStore.get('token')
 }
 
 // name
@@ -94,10 +91,10 @@ defineOptions({
 })
 // emits
 const emit = defineEmits<{
-  (event: 'sended', values: any): void
+  (event: 'sended', values: any): void // 发送信息后触发外部方法
   (event: 'received', values: any): void // 回答已接收完
   (event: 'cleared', values: any): void
-  (event: 'clickItem', values: any): void
+  (event: 'clickItem', values: any): void // 点击了某一元素 table|chart
 }>()
 // props
 const props = defineProps({
@@ -126,13 +123,11 @@ const chatInfos: {
   //
   thread_id: string,
   connectionID: string,
-  bot: {
-    id: string,
-    name: string,
-  },
+  botName: string,
   //
   message: string,
   messages: ChatRecord[]
+  isAutoScroll: boolean,
   //
   count: number,
   limit: number,
@@ -140,18 +135,17 @@ const chatInfos: {
   //
   isThinking: boolean,
 } = reactive({
+  // wb状态
   host: 'wss://szhlinvma75.apac.bosch.com:59108/',
   isActive: false,
   //
-  thread_id: '', // 聊天的唯一ID
+  thread_id: '', // 聊天的唯一ID，可以连接上下文
   connectionID: '', // 当前对话的ID
-  bot: {
-    id: '',
-    name: '小博'
-  },
+  botName: '小博',
   //
   message: '',
   messages: [],
+  isAutoScroll: true,  // 是否自动滚动
   // 计时器
   limit: 5,
   count: 0,
@@ -176,10 +170,8 @@ onMounted(async () => {
   wss.connect()
 })
 onUnmounted(() => {
-  // 清除计时器
-  if (chatInfos.timer) {
-    clearInterval(chatInfos.timer);
-  }
+  // 结束聊天
+  endChat()
 
   // 断开websocket
   if (wss) {
@@ -196,28 +188,31 @@ watch(
       let record: any = { ...props.record }
       //
       switch (record.action) {
-        // 等待回答
-        case 'waiting': {
-          chatInfos.messages.push(record)
-          chatInfos.connectionID = record.id
-          // 替换问题的id
-          let q = chatInfos.messages.find((a: any) => a.id == record.messages[0].data)
-          if (q) q.id = chatInfos.connectionID
-          //
-          startTimer()
-          break
-        }
         // 提示信息
         case 'tips': {
           chatInfos.messages.push(record)
           break
         }
+        // 外部直接提问
         case 'question': {
           sendDirect(record.messages)
           break
         }
+        // 等待回答
+        case 'waiting': {
+          chatInfos.messages.push(record)
+          // 记录下当前的 connectionID
+          chatInfos.connectionID = record.connectionID
+          // 替换问题的临时id
+          let q = chatInfos.messages.find((a: any) => a.connectionID == record.messages[0].data)
+          if (q) q.connectionID = chatInfos.connectionID
+          // 开始计时
+          startTimer()
+          break
+        }
+        // 外部的接口出现报错
         case 'error': {
-          pushError(record.id)
+          pushError()
           break
         }
         default: {
@@ -225,112 +220,68 @@ watch(
         }
       }
       //
-      autoScroll = true
+      chatInfos.isAutoScroll = true
       scrollTo('bottom')
     }
   }
 )
 
-// 清除超时计时器
-const clearTimer = () => {
-  chatInfos.count = 0
-  clearInterval(chatInfos.timer)
-  chatInfos.timer = null
-}
-//
-const startTimer = () => {
-  if (chatInfos.timer) return;
-
-  chatInfos.count = 0
-  chatInfos.timer = setInterval(() => {
-    chatInfos.count++
-    if (debug) console.log('[Chat] timer:', chatInfos.count)
-
-    // 已超时
-    if (chatInfos.count > chatInfos.limit) {
-      if (debug) console.log('[Chat] clear timer with timeout')
-      messages.showError('The conversation has timed out')
-      outTimer()
-    }
-  }, 1000)
-}
-// 已超时
-const outTimer = () => {
-  if (debug) console.log('[Timer] timeout')
-  let loadingChat = chatInfos.messages.find((a: any) => a.id == chatInfos.connectionID && a.isBot)
-  if (loadingChat) {
-    // 清除loading元素
-    loadingChat.messages = loadingChat.messages.filter((item: any) => item.type !== 'loading')
-    loadingChat.messages = [
-      ...loadingChat.messages,
-      {
-        type: 'text',
-        data: 'server is busy, please try again later.'
-      }
-    ]
+// Send
+// 发送信息
+const sendMessage = () => {
+  // 是否连接正常
+  if (!chatInfos.isActive) {
+    messages.showError("the connection to the Websocket was lost!")
+    return false
   }
-  //
-  if (debug) console.log('[Chat] end with timeout')
-  endChat()
-}
 
-// 初始化聊天信息
-const clearChat = (mark: boolean = false) => {
-  // 判断 当前是否有对话正在进行中
-  if (debug) console.log('[Chat] end with clear')
-  endChat()
-  //
-  chatInfos.messages = []
-  if (debug) console.log('[Trans] clear')
-  emit('cleared', {})
-
-  // 开启新聊天的时候重新生成一个ID
-  if (mark) {
-    chatInfos.thread_id = extend.ExString.uuid()
-  }
-}
-// 对话结束
-const endChat = () => {
-  // 通知父组件
+  // 是否有其他聊天正在继续
   if (chatInfos.connectionID != '') {
-    if (debug) console.log('[Trans] received')
-    emit('received', {
-      connectionID: chatInfos.connectionID
-    })
+    if (debug) console.log('[Chat] another conversation wait')
+    messages.showInfo(
+      'Another conversation is currently in progress. Please wait until it is completed.'
+    )
+    return false
   }
-  // 结束对话
-  chatInfos.connectionID = ''
-  clearTimer()
-}
 
-// 复制信息
-const copyToClipboard = async (message: any) => {
-  try {
-    await navigator.clipboard.writeText(message);
-    messages.showInfo('The information has been copied to the clipboard.')
-  } catch (err) {
-    console.error("复制失败:", err);
+  // 验证用户信息
+  let token = getToken()
+  if (!token) {
+    const systemStore = useSystemInfosStore()
+    systemStore.showLogout(() => {
+      ; (window as any).eventBus.logout()
+    })
+    return false
   }
-};
-// 重新生成该问题
-const regenerate = (values: any) => {
-  if (debug) console.log('[Chat] regenerate')
-  const id = values.id
-  const message = values.messages[0].data
-  //
-  for (let i = chatInfos.messages.length - 1; i >= 0; i--) {
-    if (chatInfos.messages[i].id === id) {
-      chatInfos.messages.splice(i, 1);
-    }
+
+  chatInfos.isAutoScroll = true
+  const message = chatInfos.message
+  if (message != '') {
+
+    // 对话的临时id
+    let id = extend.ExString.uuid()
+    // 将发送的文本送入聊天窗口
+    chatInfos.messages.push({
+      connectionID: id,
+      name: 'You',
+      isBot: false,
+      messages: [
+        {
+          type: 'text',
+          data: message
+        }
+      ]
+    })
+    // 通知外部已开始对话
+    emit('sended', {
+      id,
+      message,
+    })
+    //
+    chatInfos.message = ''
+  } else {
+    messages.showError('please input something')
   }
-  //
-  sendDirect(message)
-}
-// 直接提问
-const sendDirect = (message: any) => {
-  if (debug) console.log('[Chat] send directly')
-  chatInfos.message = message
-  sendMessage()
 }
 
 // 录音
@@ -365,59 +316,110 @@ const upload = () => {
   messages.showInfo("暂未开放")
 }
 
-// 正常使用聊天发送信息
-const sendMessage = () => {
-  // 连接是否正常
-  if (!chatInfos.isActive) {
-    messages.showError("the connection to the Websocket was lost!")
-    return false
+// 复制信息
+const copyToClipboard = async (message: any) => {
+  try {
+    await navigator.clipboard.writeText(message);
+    messages.showInfo('The information has been copied to the clipboard.')
+  } catch (err) {
+    console.error("复制失败:", err);
   }
-
-  // 是否有其他聊天正在继续
-  if (chatInfos.connectionID != '') {
-    if (debug) console.log('[Chat] another conversation wait')
-    messages.showInfo(
-      'Another conversation is currently in progress. Please wait until it is completed.'
-    )
-    return false
+};
+// 重新生成该问题
+const regenerate = (values: any) => {
+  if (debug) console.log('[Chat] regenerate')
+  const connectionID = values.connectionID
+  const message = values.messages[0].data
+  //
+  for (let i = chatInfos.messages.length - 1; i >= 0; i--) {
+    if (chatInfos.messages[i].connectionID === connectionID) {
+      chatInfos.messages.splice(i, 1);
+    }
   }
-
-  // 验证用户信息
-  let token = getToken()
-  if (!token) {
-    const systemStore = useSystemInfosStore()
-    systemStore.showLogout(() => {
-      ; (window as any).eventBus.logout()
-    })
-    return false
-  }
-
-  autoScroll = true
-  const message = chatInfos.message
-  if (message != '') {
-    chatInfos.message = ''
-
-    // 将发送的文本送入聊天窗口
-    let id = extend.ExString.uuid() // 对话的id
-    chatInfos.messages.push({
-      id,
-      name: 'You',
-      isBot: false,
-      messages: [
-        {
-          type: 'text',
-          data: message
-        }
-      ]
-    })
-    emit('sended', {
-      id,
-      message,
-    })
-    // handleChat(message, id)
-  }
+  //
+  sendDirect(message)
+}
+// 直接提问
+const sendDirect = (message: any) => {
+  if (debug) console.log('[Chat] send directly')
+  chatInfos.message = message
+  sendMessage()
 }
 
+// 计时器
+const startTimer = () => {
+  // 已经在计时了
+  if (chatInfos.timer) return;
+
+  chatInfos.count = 0
+  chatInfos.timer = setInterval(() => {
+    chatInfos.count++
+    if (debug) console.log('[Chat] timer:', chatInfos.count)
+
+    // 已超时
+    if (chatInfos.count > chatInfos.limit) {
+      if (debug) console.log('[Chat] clear timer with timeout')
+      messages.showError('The conversation has timed out')
+      outTimer()
+    }
+  }, 1000)
+}
+// 已超时
+const outTimer = () => {
+  if (debug) console.log('[Timer] timeout')
+  let loadingChat = chatInfos.messages.find((a: any) => a.connectionID == chatInfos.connectionID && a.isBot)
+  if (loadingChat) {
+    // 清除loading元素
+    loadingChat.messages = loadingChat.messages.filter((item: any) => item.type !== 'loading')
+    loadingChat.messages = [
+      ...loadingChat.messages,
+      {
+        type: 'text',
+        data: 'server is busy, please try again later.'
+      }
+    ]
+  }
+  // 结束对话
+  if (debug) console.log('[Chat] end with timeout')
+  endChat()
+}
+// 清除超时计时器
+const clearTimer = () => {
+  chatInfos.count = 0
+  clearInterval(chatInfos.timer)
+  chatInfos.timer = null
+}
+
+// 初始化聊天信息
+const clearChat = (mark: boolean = false) => {
+  // 判断 当前是否有对话正在进行中
+  if (debug) console.log('[Chat] end with clear')
+  endChat()
+  //
+  chatInfos.messages = []
+  if (debug) console.log('[Trans] clear')
+  emit('cleared', {})
+
+  // 开启新聊天的时候重新生成一个ID
+  if (mark) {
+    chatInfos.thread_id = extend.ExString.uuid()
+  }
+}
+// 对话结束
+const endChat = () => {
+  // 通知父组件
+  if (chatInfos.connectionID != '') {
+    if (debug) console.log('[Trans] received')
+    emit('received', {
+      connectionID: chatInfos.connectionID
+    })
+  }
+  // 结束对话
+  chatInfos.connectionID = ''
+  clearTimer()
+}
+
+// Receive
 // 处理回复信息
 const receiveMessage = (msg: any): any => {
   if (chatInfos.connectionID == msg.connectionID) {
@@ -445,13 +447,13 @@ const receiveMessage = (msg: any): any => {
 
         if (chatInfos.isThinking) {
           pushThinking({
-            id: msg.connectionID,
+            connectionID: msg.connectionID,
             message: msg.message
           })
         } else {
           if (remarks.paragraph_start) {
             pushMessage({
-              id: msg.connectionID,
+              connectionID: msg.connectionID,
               messages: [
                 {
                   type: msg.category,
@@ -462,7 +464,7 @@ const receiveMessage = (msg: any): any => {
           } else {
             // 填补前一个段落
             pushText({
-              id: msg.connectionID,
+              connectionID: msg.connectionID,
               text: msg.message
             })
           }
@@ -471,7 +473,7 @@ const receiveMessage = (msg: any): any => {
       }
       default: {
         pushMessage({
-          id: msg.connectionID,
+          connectionID: msg.connectionID,
           messages: [
             {
               type: msg.category,
@@ -483,7 +485,7 @@ const receiveMessage = (msg: any): any => {
       }
       case 'error': {
         pushMessage({
-          id: msg.connectionID,
+          connectionID: msg.connectionID,
           messages: [
             {
               type: 'text',
@@ -498,7 +500,7 @@ const receiveMessage = (msg: any): any => {
     if (!remarks.response_end) {
       // 等待之后的内容
       pushMessage({
-        id: msg.connectionID,
+        connectionID: msg.connectionID,
         messages: [
           {
             type: 'loading',
@@ -516,8 +518,8 @@ const receiveMessage = (msg: any): any => {
 
 // 接收信息
 const pushMessage = (values: any) => {
-  const { id, messages } = values
-  let temp = chatInfos.messages.find((a: any) => a.id == id && a.isBot)
+  const { connectionID, messages } = values
+  let temp = chatInfos.messages.find((a: any) => a.connectionID == connectionID && a.isBot)
   if (temp) {
     // 清除loading元素
     temp.messages = temp.messages.filter((item: any) => item.type !== 'loading')
@@ -528,8 +530,8 @@ const pushMessage = (values: any) => {
 }
 // 文本流
 const pushText = (values: any) => {
-  const { id, text } = values
-  let temp = chatInfos.messages.find((a: any) => a.id == id && a.isBot)
+  const { connectionID, text } = values
+  let temp = chatInfos.messages.find((a: any) => a.connectionID == connectionID && a.isBot)
   if (temp) {
     // 清除loading元素
     temp.messages = temp.messages.filter((item: any) => item.type !== 'loading')
@@ -549,8 +551,8 @@ const pushText = (values: any) => {
 }
 //
 const pushThinking = (values: any) => {
-  const { id, message } = values
-  let temp = chatInfos.messages.find((a: any) => a.id == id && a.isBot)
+  const { connectionID, message } = values
+  let temp = chatInfos.messages.find((a: any) => a.connectionID == connectionID && a.isBot)
   if (temp) {
     if (temp.think) {
       temp.think.content += message
@@ -563,17 +565,17 @@ const pushThinking = (values: any) => {
     }
   }
 }
-const endThinking = (id: string) => {
-  let temp = chatInfos.messages.find((a: any) => a.id == id && a.isBot)
+const endThinking = (connectionID: string) => {
+  let temp = chatInfos.messages.find((a: any) => a.connectionID == connectionID && a.isBot)
   if (temp && temp.think) {
     temp.think.isThinking = false
   }
 }
 // Error
-const pushError = (id: string) => {
+const pushError = () => {
   let messageInfos = {
-    id,
-    name: chatInfos.bot.name,
+    connectionID: '',
+    name: chatInfos.botName,
     isBot: true,
     messages: [
       {
@@ -824,11 +826,11 @@ defineExpose({
     <!-- 聊天窗口 -->
     <div class="chat-contents" ref="container" @wheel="handleUserScroll">
       <div class="list-chat">
-        <div class="chat-item" v-for="record in chatInfos.messages" :key="record.id"
+        <div class="chat-item" v-for="record in chatInfos.messages" :key="record.connectionID"
           :class="record.isBot ? '' : 'item-user'">
           <div class="item-content">
             <div class="item-name">
-              <div class="item-icon">{{ getIcon(record.name) }}</div>
+              <div class="item-icon">🤖</div>
               <span>{{ record.name }}</span>
               <template v-if="record.think">
                 <button type="button" class="btn-toggle" @click="record.think.isShow = !record.think.isShow">
