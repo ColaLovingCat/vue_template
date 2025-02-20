@@ -70,6 +70,46 @@
         }
       }
 
+      .btn-toggle {
+        cursor: pointer;
+        padding: 7px 14px;
+        width: fit-content;
+        color: #262626;
+        font-size: 14px;
+        line-height: 18px;
+        border: unset;
+        border-radius: 10px;
+        background: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        column-gap: 5px;
+
+        .fa-solid {
+          font-size: 12px;
+        }
+
+        span {
+          margin: unset;
+        }
+      }
+
+      .item-thinks {
+        max-width: 80%;
+        margin-bottom: 10px;
+        padding-left: 20px;
+
+        .think-contents {
+          position: relative;
+          margin: 0;
+          padding: 0 0 0 13px;
+          color: #8b8b8b;
+          line-height: 26px;
+          white-space: pre-wrap;
+          border-left: 2px solid #e5e5e5;
+        }
+      }
+
       .item-tools {
         padding: 0 30px;
         justify-content: end;
@@ -113,6 +153,10 @@
             margin-left: 5px;
           }
         }
+      }
+
+      .item-chart {
+        min-width: 270px;
       }
 
       &.item-user {

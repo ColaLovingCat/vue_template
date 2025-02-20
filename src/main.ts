@@ -3,6 +3,7 @@ import App from './App.vue'
 
 // 自定义样式
 import './styles.scss'
+import "./tailwind.css";
 // 图标库
 import '@fortawesome/fontawesome-free/css/all.css'
 

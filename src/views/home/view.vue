@@ -45,7 +45,9 @@ const clickItem = (event: any) => {
 </script>
 
 <template>
-  Home
+  <div class="bg-blue-500 text-white p-4 text-center">
+    Home
+  </div>
   <div class="box-chats">
     <chats ref="chatRef" :configs="chatConfigs" :record="chatRecord" :change-mark="chatMark" @sended="afterSend($event)"
       @received="afterReceive($event)" @cleared="afterClear()" @clickItem="clickItem($event)"></chats>

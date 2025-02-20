@@ -27,6 +27,7 @@ interface ChatRecord {
   isBot: boolean
   messages: MessageInfo[],
   suggests?: string[]
+  think?: { isThinking: boolean, content: string, isShow: boolean, }
 }
 interface MessageInfo {
   type: string;
@@ -123,33 +124,42 @@ const props = defineProps({
 
 const chatInfos: {
   host: string,
+  isActive: boolean,
+  //
+  thread_id: string,
+  connectionID: string,
   bot: {
     id: string,
     name: string,
   },
-  thread_id: string,
-  connectionID: string,
+  //
   message: string,
   messages: ChatRecord[]
+  //
   count: number,
   limit: number,
   timer: any,
+  //
+  isThinking: boolean,
 } = reactive({
   host: 'wss://szhlinvma75.apac.bosch.com:59108/',
+  isActive: false,
+  //
+  thread_id: '', // 聊天的唯一ID
+  connectionID: '', // 当前对话的ID
   bot: {
     id: '',
     name: '小博'
   },
-  //
-  thread_id: '', // 聊天的唯一ID
-  connectionID: '', // 当前对话的ID
   //
   message: '',
   messages: [],
   // 计时器
   limit: 5,
   count: 0,
-  timer: null
+  timer: null,
+  //
+  isThinking: false,
 })
 
 let wss: WebSocketService | null = null;
@@ -159,7 +169,12 @@ onMounted(async () => {
   if (debug) console.log('[Chat] thread_id:', chatInfos.thread_id)
 
   // 启用websocket服务
-  wss = new WebSocketService(chatInfos.host, receiveMessage)
+  wss = new WebSocketService(chatInfos.host, receiveMessage,
+    () => {
+      chatInfos.isActive = true
+    }, (status: boolean) => {
+      chatInfos.isActive = false
+    })
   wss.connect()
 })
 onUnmounted(() => {
@@ -355,7 +370,11 @@ const upload = () => {
 
 // 正常使用聊天发送信息
 const sendMessage = () => {
-  autoScroll = true
+  // 连接是否正常
+  if (!chatInfos.isActive) {
+    messages.showError("the connection to the Websocket was lost!")
+    return false
+  }
 
   // 是否有其他聊天正在继续
   if (chatInfos.connectionID != '') {
@@ -376,6 +395,7 @@ const sendMessage = () => {
     return false
   }
 
+  autoScroll = true
   const message = chatInfos.message
   if (message != '') {
     chatInfos.message = ''
@@ -402,7 +422,7 @@ const sendMessage = () => {
 }
 
 // 处理回复信息
-const receiveMessage = (msg: any): void => {
+const receiveMessage = (msg: any): any => {
   if (chatInfos.connectionID == msg.connectionID) {
     // 重置当前计时器
     if (chatInfos.timer) {
@@ -416,22 +436,40 @@ const receiveMessage = (msg: any): void => {
     switch (msg.category) {
       case 'text': {
         // 段落开始
-        if (remarks.paragraph_start) {
-          pushMessage({
+        console.log('Testing: ', msg.message)
+        if (msg.message == '<think>') {
+          chatInfos.isThinking = true
+          return false
+        }
+        if (msg.message == '</think>') {
+          chatInfos.isThinking = false
+          endThinking(msg.connectionID)
+          return false
+        }
+
+        if (chatInfos.isThinking) {
+          pushThinking({
             id: msg.connectionID,
-            messages: [
-              {
-                type: msg.category,
-                data: msg.message
-              }
-            ]
+            message: msg.message
           })
         } else {
-          // 填补前一个段落
-          pushText({
-            id: msg.connectionID,
-            text: msg.message
-          })
+          if (remarks.paragraph_start) {
+            pushMessage({
+              id: msg.connectionID,
+              messages: [
+                {
+                  type: msg.category,
+                  data: msg.message
+                }
+              ]
+            })
+          } else {
+            // 填补前一个段落
+            pushText({
+              id: msg.connectionID,
+              text: msg.message
+            })
+          }
         }
         break
       }
@@ -511,6 +549,28 @@ const pushText = (values: any) => {
     }
     //
     scrollTo('bottom')
+  }
+}
+//
+const pushThinking = (values: any) => {
+  const { id, message } = values
+  let temp = chatInfos.messages.find((a: any) => a.id == id && a.isBot)
+  if (temp) {
+    if (temp.think) {
+      temp.think.content += message
+    } else {
+      temp.think = {
+        isThinking: true,
+        content: message,
+        isShow: true
+      }
+    }
+  }
+}
+const endThinking = (id: string) => {
+  let temp = chatInfos.messages.find((a: any) => a.id == id && a.isBot)
+  if (temp && temp.think) {
+    temp.think.isThinking = false
   }
 }
 // Error
@@ -774,6 +834,17 @@ defineExpose({
             <div class="item-name">
               <div class="item-icon">{{ getIcon(record.name) }}</div>
               <span>{{ record.name }}</span>
+              <template v-if="record.think">
+                <button type="button" class="btn-toggle" @click="record.think.isShow = !record.think.isShow">
+                  <i class="fa-solid fa-atom"></i>
+                  <span>{{ record.think.isThinking ? 'Thinking' : 'Thought' }}</span>
+                  <i v-if="!record.think.isShow" class="fa-solid fa-angle-down"></i>
+                  <i v-if="record.think.isShow" class="fa-solid fa-angle-up"></i>
+                </button>
+              </template>
+            </div>
+            <div class="item-thinks" v-if="record.think">
+              <p class="think-contents" v-if="record.think.isShow">{{ record.think.content }}</p>
             </div>
             <div class="item-messages">
               <!-- 信息 -->
@@ -833,19 +904,25 @@ defineExpose({
                 </template>
                 <!-- Chart Basic -->
                 <template v-if="msg.type == 'chart_basic'">
-                  <echarts width="100%" height="300px" :options="getOptionBasic(msg.data)" @chartClick="chartClick">
-                  </echarts>
+                  <div class="item-chart">
+                    <echarts width="100%" height="300px" :options="getOptionBasic(msg.data)" @chartClick="chartClick">
+                    </echarts>
+                  </div>
                 </template>
                 <!-- Chart Pieces -->
                 <template v-if="msg.type == 'chart_pieces'">
-                  <echarts width="100%" height="300px" :options="getOptionPieces(msg.data)" @chartClick="chartClick">
-                  </echarts>
+                  <div class="item-chart">
+                    <echarts width="100%" height="300px" :options="getOptionPieces(msg.data)" @chartClick="chartClick">
+                    </echarts>
+                  </div>
                 </template>
                 <!-- Chart FPY -->
                 <template v-if="msg.type == 'chart_fpy'">
-                  <div v-for="data in msg.data" :key="data">
-                    <echarts width="500px" height="300px" :options="getOptionForFPY(data)" @chartClick="chartClick">
-                    </echarts>
+                  <div class="item-chart">
+                    <div v-for="data in msg.data" :key="data">
+                      <echarts width="500px" height="300px" :options="getOptionForFPY(data)" @chartClick="chartClick">
+                      </echarts>
+                    </div>
                   </div>
                 </template>
               </div>
