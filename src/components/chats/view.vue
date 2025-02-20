@@ -17,8 +17,6 @@ import echarts from '@/components/echarts/view.vue'
 import * as extend from '@/commons/utils/extends'
 import * as messages from '@/commons/utils/messages'
 
-import * as current from './index.services'
-
 const debug = true
 
 interface ChatRecord {
@@ -260,7 +258,6 @@ const startTimer = () => {
 const outTimer = () => {
   if (debug) console.log('[Timer] timeout')
   let loadingChat = chatInfos.messages.find((a: any) => a.id == chatInfos.connectionID && a.isBot)
-  console.log('Testing: ', loadingChat)
   if (loadingChat) {
     // 清除loading元素
     loadingChat.messages = loadingChat.messages.filter((item: any) => item.type !== 'loading')
@@ -436,7 +433,6 @@ const receiveMessage = (msg: any): any => {
     switch (msg.category) {
       case 'text': {
         // 段落开始
-        console.log('Testing: ', msg.message)
         if (msg.message == '<think>') {
           chatInfos.isThinking = true
           return false
@@ -837,7 +833,7 @@ defineExpose({
               <template v-if="record.think">
                 <button type="button" class="btn-toggle" @click="record.think.isShow = !record.think.isShow">
                   <i class="fa-solid fa-atom"></i>
-                  <span>{{ record.think.isThinking ? 'Thinking' : 'Thought' }}</span>
+                  <span>{{ record.think.isThinking ? 'Thinking...' : 'Thought' }}</span>
                   <i v-if="!record.think.isShow" class="fa-solid fa-angle-down"></i>
                   <i v-if="record.think.isShow" class="fa-solid fa-angle-up"></i>
                 </button>
@@ -949,26 +945,26 @@ defineExpose({
                   <i class="fa-solid fa-arrows-rotate"></i>
                 </a-button>
               </a-tooltip>
-              <a-tooltip placement="bottom">
+              <!-- <a-tooltip placement="bottom">
                 <template #title>Edit Message</template>
                 <a-button shape="circle" class="btn btn-tools">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </a-button>
-              </a-tooltip>
+              </a-tooltip> -->
             </div>
-            <div class="item-tools" v-if="false">
-              <a-tooltip placement="bottom">
+            <div class="item-tools" v-if="record.isBot">
+              <!-- <a-tooltip placement="bottom">
                 <template #title>Copy</template>
                 <a-button shape="circle" class="btn btn-tools" @click="copyToClipboard(record.messages[0].data)">
                   <i class="fa-solid fa-copy"></i>
                 </a-button>
-              </a-tooltip>
-              <a-tooltip placement="bottom">
+              </a-tooltip> -->
+              <!-- <a-tooltip placement="bottom">
                 <template #title>Read aloud</template>
                 <a-button shape="circle" class="btn btn-tools">
                   <i class="fa-solid fa-volume-high"></i>
                 </a-button>
-              </a-tooltip>
+              </a-tooltip> -->
             </div>
             <!-- Suggests -->
             <div class="item-suggests">
