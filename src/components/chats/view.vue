@@ -1,21 +1,19 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted, watch, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
-import { useSystemInfosStore } from '@/commons/stores/index'
+
 import * as extend from '@/commons/utils/extends'
 import * as messages from '@/commons/utils/messages'
 
+import { WebSocketService } from '@/commons/utils/websocket'
+import echarts from '@/components/echarts/view.vue'
+
 //@ts-ignore
 import MarkdownIt from 'markdown-it'
-//@ts-ignore
-import markdownItKatex from 'markdown-it-katex'
 import 'katex/dist/katex.min.css'
 //@ts-ignore
 import hljs from 'highlight.js'
-import 'highlight.js/styles/atom-one-dark.css'
-
-import echarts from '@/components/echarts/view.vue'
-import { WebSocketService } from '@/commons/utils/websocket'
+import 'highlight.js/styles/github-dark.css'
 
 const debug = true
 
@@ -35,7 +33,7 @@ interface ChatRecord {
     isThinking: boolean
     content: string
     isShow: boolean
-  }
+  } | null
 }
 
 // 富文本格式化
@@ -43,18 +41,40 @@ const md = new MarkdownIt({
   highlight: function (str: string, lang: any) {
     if (lang && hljs.getLanguage(lang)) {
       try {
-        return (
-          '<pre class="hljs"><code>' +
-          hljs.highlight(str, { language: lang }).value +
-          '</code></pre>'
-        )
-      } catch (__) {
-        //
-      }
+        return hljs.highlight(str, { language: lang }).value;
+      } catch (__) {/** empty **/ }
     }
-    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>'
+    return md.utils.escapeHtml(str);
+  },
+});
+md.renderer.rules.fence = (tokens: any, idx: any) => {
+  const token = tokens[idx];
+  const language = token.info ? token.info : "";
+  const highlightedCode = md.options.highlight
+    ? md.options.highlight(token.content, token.info)
+    : md.utils.escapeHtml(token.content);
+
+  return `
+    <div class="code-block">
+      <span class="code-type">#${language}</span>
+      <button class="code-copy">Copy</button>
+      <pre class="hljs language-${language}"><code>${highlightedCode}</code></pre>
+    </div>
+  `;
+};
+document.addEventListener("click", (event) => {
+  const target = event.target as HTMLElement;
+  if (target.classList.contains("code-copy")) {
+    const codeElement = target.nextElementSibling?.querySelector("code");
+    if (codeElement) {
+      navigator.clipboard.writeText(codeElement.innerText).then(() => {
+        target.innerText = "Copied";
+        setTimeout(() => (target.innerText = "Copy"), 1500);
+      });
+    }
   }
-}).use(markdownItKatex)
+});
+//
 md.renderer.rules.table_open = () => '<table class="table">\n';
 md.renderer.rules.heading_open = (tokens: any, idx: any) => {
   const tag = tokens[idx].tag;
@@ -77,14 +97,6 @@ const handleUserScroll = () => {
   chatInfos.isAutoScroll = false;
 };
 
-// Token
-const getToken = () => {
-  // 不需要token
-  if (!props.configs.activeToken) return 'noNeed'
-  //
-  return extend.LocalStore.get('token')
-}
-
 // name
 defineOptions({
   name: 'app-chat'
@@ -95,6 +107,7 @@ const emit = defineEmits<{
   (event: 'received', values: any): void // 回答已接收完
   (event: 'cleared', values: any): void
   (event: 'clickItem', values: any): void // 点击了某一元素 table|chart
+  (event: 'update:thread_id', values: any): void // 点击了某一元素 table|chart
 }>()
 // props
 const props = defineProps({
@@ -103,9 +116,13 @@ const props = defineProps({
     default: () => {
       return {
         activeInput: true,
-        activeToken: true,
+        limit: 5,
       }
     }
+  },
+  thread_id: {
+    type: String,
+    default: ''
   },
   record: {
     type: Object,
@@ -129,8 +146,8 @@ const chatInfos: {
   messages: ChatRecord[]
   isAutoScroll: boolean,
   //
+  // limit: number,
   count: number,
-  limit: number,
   timer: any,
   //
   isThinking: boolean,
@@ -147,7 +164,7 @@ const chatInfos: {
   messages: [],
   isAutoScroll: true,  // 是否自动滚动
   // 计时器
-  limit: 5,
+  // limit: 5,
   count: 0,
   timer: null,
   //
@@ -158,6 +175,7 @@ let wss: WebSocketService | null = null;
 onMounted(async () => {
   // 生成唯一ID
   chatInfos.thread_id = extend.ExString.uuid()
+  emit('update:thread_id', chatInfos.thread_id);
   if (debug) console.log('[Chat] thread_id:', chatInfos.thread_id)
 
   // 启用websocket服务
@@ -207,7 +225,9 @@ watch(
           let q = chatInfos.messages.find((a: any) => a.connectionID == record.messages[0].data)
           if (q) q.connectionID = chatInfos.connectionID
           // 开始计时
-          startTimer()
+          if (props.configs.limit > 0) {
+            startTimer()
+          }
           break
         }
         // 外部的接口出现报错
@@ -225,6 +245,9 @@ watch(
     }
   }
 )
+watch(() => props.thread_id, (newValue) => {
+  chatInfos.thread_id = newValue;
+});
 
 // Send
 // 发送信息
@@ -241,16 +264,6 @@ const sendMessage = () => {
     messages.showInfo(
       'Another conversation is currently in progress. Please wait until it is completed.'
     )
-    return false
-  }
-
-  // 验证用户信息
-  let token = getToken()
-  if (!token) {
-    const systemStore = useSystemInfosStore()
-    systemStore.showLogout(() => {
-      ; (window as any).eventBus.logout()
-    })
     return false
   }
 
@@ -275,6 +288,7 @@ const sendMessage = () => {
     // 通知外部已开始对话
     emit('sended', {
       id,
+      thread_id: chatInfos.thread_id,
       message,
     })
     //
@@ -357,7 +371,7 @@ const startTimer = () => {
     if (debug) console.log('[Chat] timer:', chatInfos.count)
 
     // 已超时
-    if (chatInfos.count > chatInfos.limit) {
+    if (chatInfos.count > props.configs.limit) {
       if (debug) console.log('[Chat] clear timer with timeout')
       messages.showError('The conversation has timed out')
       outTimer()
@@ -403,6 +417,7 @@ const clearChat = (mark: boolean = false) => {
   // 开启新聊天的时候重新生成一个ID
   if (mark) {
     chatInfos.thread_id = extend.ExString.uuid()
+    emit('update:thread_id', chatInfos.thread_id);
   }
 }
 // 对话结束
@@ -434,11 +449,12 @@ const receiveMessage = (msg: any): any => {
     let remarks = JSON.parse(msg.remarks)
     switch (msg.category) {
       case 'text': {
-        // 段落开始
+        // 思考开始
         if (msg.message == '<think>') {
           chatInfos.isThinking = true
           return false
         }
+        // 思考结束
         if (msg.message == '</think>') {
           chatInfos.isThinking = false
           endThinking(msg.connectionID)
@@ -537,13 +553,13 @@ const pushText = (values: any) => {
     temp.messages = temp.messages.filter((item: any) => item.type !== 'loading')
     // 检查是否最后的类型是text，不是则补充一个新的
     let latestMessage = temp.messages[temp.messages.length - 1]
-    if (latestMessage.type != 'text') {
+    if (latestMessage && latestMessage.type == 'text') {
+      latestMessage.data += text
+    } else {
       temp.messages.push({
         type: 'text',
         data: text
       })
-    } else {
-      latestMessage.data += text
     }
     //
     scrollTo('bottom')
@@ -569,7 +585,15 @@ const endThinking = (connectionID: string) => {
   let temp = chatInfos.messages.find((a: any) => a.connectionID == connectionID && a.isBot)
   if (temp && temp.think) {
     temp.think.isThinking = false
+    //
+    if (checkEmpty(temp.think.content)) {
+      temp.think = null
+    }
   }
+}
+const checkEmpty = (str: string) => {
+  const sWithoutNewlines = str.replace(/\n/g, '');
+  return sWithoutNewlines.length === 0;
 }
 // Error
 const pushError = () => {
