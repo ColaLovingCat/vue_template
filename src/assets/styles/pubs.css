@@ -13,18 +13,17 @@
     display: block;
 }
 
+/* 文本超出省略显示 */
+.txts-nowrap {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
 /* 多行文本溢出显示省略 */
 .txts-ellipsis {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
-    overflow: hidden;
-}
-
-/* 文本超出省略显示 */
-.clearfix-txt {
-    white-space: nowrap;
-    text-overflow: ellipsis;
     overflow: hidden;
 }
 
