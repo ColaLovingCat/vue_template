@@ -197,10 +197,11 @@ onUnmounted(() => {
   }
 })
 
+const sleep = (ms: any) => new Promise(resolve => setTimeout(resolve, ms))
 // 监听到父元素的信息，并且展示
 watch(
   () => props.changeMark,
-  () => {
+  async () => {
     if (props.record) {
       if (debug) console.log('[Chat] watch: ', props.record)
       let record: any = { ...props.record }
@@ -209,6 +210,27 @@ watch(
         // 提示信息
         case 'tips': {
           chatInfos.messages.push(record)
+          break
+        }
+        // 将外部的文本处理成流式
+        case 'flows': {
+          const text = record.messages[0].data
+          //
+          record.messages = [
+            {
+              type: 'loading'
+            }
+          ]
+          chatInfos.messages.push(record)
+          //
+          const words = text.split(" ");
+          for (const word of words) {
+            pushText({
+              connectionID: record.connectionID,
+              text: word + ' '
+            })
+            await sleep(200)
+          }
           break
         }
         // 外部直接提问

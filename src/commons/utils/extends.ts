@@ -1461,3 +1461,28 @@ export const compareObj = function (obj1: any, obj2: any, props: any = null): bo
   }
   return true
 }
+
+/**
+ * @summary 每天定时run任务的示例
+ */
+let timer = null
+const scheduleNextUpdate = (callback: Function, triggerTime: any) => {
+  const now = new Date()
+  const target = new Date()
+  target.setHours(triggerTime.hour, triggerTime.minute, 0, 0)
+
+  if (now > target) {
+    target.setDate(target.getDate() + 1)
+  }
+
+  const delay = target.getTime() - now.getTime() // 计算时间差（毫秒）
+
+  console.log(
+    `[Timer] next: ${target.toLocaleString()}, left: ${(delay / 1000 / 60).toFixed(1)} mins`
+  )
+
+  timer = setTimeout(() => {
+    callback()
+    scheduleNextUpdate(callback, triggerTime) // 重新安排下一次
+  }, delay)
+}
