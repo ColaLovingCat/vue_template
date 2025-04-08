@@ -172,7 +172,7 @@ const loginSSO = () => {
 
 <template>
   <div class="contents">
-    <img class="bg-img" src="/systems/login/demo08.png" alt="" srcset="" />
+    <img class="bg-img" src="/systems/login/demo01.png" alt="" srcset="" />
     <canvas ref="canvas" width="500" height="500"></canvas>
     <div class="box-contents">
       <div class="col-left">
