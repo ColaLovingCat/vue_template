@@ -7,6 +7,12 @@ const routes = [
     redirect: '/home'
   },
 
+  {
+    path: '/forms',
+    name: 'forms',
+    component: () => import('@/components/forms/using.vue')
+  },
+
   // 业务页面
   {
     path: '/',

@@ -1,5 +1,5 @@
 /* 表单 */
-.forms,
+/* .forms,
 .form-row,
 .form-item {
     width: 100%;
@@ -7,7 +7,6 @@
     column-gap: 10px;
     row-gap: 10px;
     flex-direction: column;
-    align-items: center;
 }
 
 .inline {
@@ -53,4 +52,4 @@
 .form-item.col-2,
 .form-item .col-2 {
     width: clac(16.6% - 5px);
-}
+} */
