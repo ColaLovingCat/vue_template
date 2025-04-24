@@ -2,8 +2,11 @@
 </script>
 
 <template>
-  <div class="sections">Home</div>
+  <div class="sections">
+    <i class="bosch-ic bosch-ic-home"></i> Home
+  </div>
 </template>
 
 <style scoped lang="scss">
+
 </style>
