@@ -5,6 +5,12 @@
   "type": "module",
   "scripts": {
     "start": "vite --open --host localhost --mode development",
+    "build:Development": "vue-tsc && vite build --mode development",
+    "build:dev": "vue-tsc && vite build --mode development",
+    "build:Test": "vue-tsc && vite build --mode test",
+    "build:test": "vue-tsc && vite build --mode test",
+    "build:Production": "vue-tsc && vite build --mode production",
+    "build:prod": "vue-tsc && vite build --mode production",
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview"
