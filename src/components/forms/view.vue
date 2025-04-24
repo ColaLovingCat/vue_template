@@ -10,9 +10,13 @@ export interface FormItem {
   type: string;
   key: string;
   label: string;
-  //
+  // Common
   required?: boolean,
   disabled?: boolean,
+  activeClear?: boolean,
+  // Input
+  isPassword?: boolean,
+  // Select
   list?: DrpItem[]
 }
 
@@ -29,7 +33,7 @@ const props = defineProps<{
   changeMark?: boolean
 }>()
 
-const emit = defineEmits(['update:values', 'submit'])
+const emit = defineEmits(['update:values', 'changed'])
 
 const formValues = reactive({ ...props.values })
 watch(() => props.values, (newVal) => {
@@ -47,11 +51,23 @@ watch(formValues, (newVal) => {
         <label for="">{{ form.label }}<span v-if="form.required" class="required">*</span></label>
         <!-- Input -->
         <template v-if="form.type == 'input'">
-          <a-input :placeholder="form.label" v-model:value="formValues[form.key]" />
+          <template v-if="!form.isPassword">
+            <a-input :placeholder="form.label" v-model:value="formValues[form.key]"
+              @change="emit('changed', form.key)" />
+          </template>
+          <template v-else>
+            <a-input-password :placeholder="form.label" v-model:value="formValues[form.key]"
+              @change="emit('changed', form.key)" />
+          </template>
+        </template>
+        <!-- Textarea -->
+        <template v-if="form.type == 'textarea'">
+          <a-textarea :placeholder="form.label" v-model:value="formValues[form.key]" show-count />
         </template>
         <!-- Select -->
         <template v-if="form.type == 'select'">
-          <a-select ref="select" style="width: 100%;" :placeholder="form.label" v-model:value="formValues[form.key]">
+          <a-select ref="select" style="width: 100%;" :placeholder="form.label" v-model:value="formValues[form.key]"
+            @change="emit('changed', form.key)">
             <a-select-option v-for="option in form.list" :key="option.value" :value="option.value">
               {{ option.label }}
             </a-select-option>
@@ -59,19 +75,28 @@ watch(formValues, (newVal) => {
         </template>
         <!-- Radio -->
         <template v-if="form.type == 'radios'">
-          <a-radio-group :name="form.key" v-model:value="formValues[form.key]">
+          <a-radio-group :name="form.key" v-model:value="formValues[form.key]" @change="emit('changed', form.key)">
             <a-radio v-for="option in form.list" :key="option.value" :value="option.value">
               {{ option.label }}
             </a-radio>
           </a-radio-group>
         </template>
+        <!-- Checks -->
+        <template v-if="form.type == 'checks'">
+          <a-checkbox-group :name="form.key" v-model:value="formValues[form.key]" @change="emit('changed', form.key)">
+            <a-checkbox v-for="option in form.list" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </a-checkbox>
+          </a-checkbox-group>
+        </template>
         <!-- Date -->
         <template v-if="form.type == 'date'">
-          <a-date-picker v-model:value="formValues[form.key]" />
+          <a-date-picker v-model:value="formValues[form.key]" @change="emit('changed', form.key)" />
         </template>
         <!-- Date Range -->
         <template v-if="form.type == 'date-range'">
-          <a-range-picker style="width: 100%;" v-model:value="formValues[form.key]" />
+          <a-range-picker style="width: 100%;" v-model:value="formValues[form.key]"
+            @change="emit('changed', form.key)" />
         </template>
       </div>
     </template>
