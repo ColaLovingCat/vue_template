@@ -53,12 +53,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="contents">{{ $t('system.login.ssoing') }}</div>
+  <div class="sections">{{ $t('system.login.ssoing') }}</div>
 </template>
 
 <style scoped>
-.contents {
+.sections {
   font-size: 35px;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;

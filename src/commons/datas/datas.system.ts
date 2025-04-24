@@ -13,7 +13,7 @@ export const menus: MenuInfos[] = [
     index: "2",
     key: "test",
     title: "测试",
-    lang: "",
+    lang: "menu.about",
     path: "",
     icon: "",
   },

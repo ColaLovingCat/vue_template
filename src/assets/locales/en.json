@@ -9,5 +9,6 @@
     "system.login.ssoing": "In the process of SSO login, please wait...",
     "system.upload": "Drag and Drop file here or Click",
     "system.supportFormat": "Support format",
-    "menu.home": "Home"
+    "menu.home": "Home",
+    "menu.about": "About"
 }

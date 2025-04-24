@@ -9,5 +9,6 @@
     "system.login.ssoing": "获取登录信息中，请耐心等待",
     "system.upload": "拖拽文件至此处或点击上传",
     "system.supportFormat": "支持格式",
-    "menu.home": "首页"
+    "menu.home": "首页",
+    "menu.about": "关于"
 }
