@@ -19,7 +19,7 @@ const headerStatus = computed(() => systemStore.systemStatus.headerShow)
 const theme = computed(() => systemStore.systemStatus.theme)
 
 import * as systemDB from '@/commons/datas/datas.system'
-import layout from '@/components/layouts/layout.vue'
+import layoutView from '@/components/layouts/layout.vue'
 
 import * as extend from '@/commons/utils/extends'
 import * as messageBox from '@/commons/utils/messages'
@@ -146,12 +146,12 @@ const clearSystem = () => {
 </script>
 
 <template>
-  <layout :datas="menus" :status="headerStatus">
+  <layoutView :datas="menus" :status="headerStatus">
     <!-- Logo -->
     <template #logos>
       <img
         class="logo"
-        :src="`/systems/bosch/bosch_logo${theme == 'default' ? '' : '-white'}.png`"
+        :src="`/systems/logos/bosch_logo${theme == 'default' ? '' : '-white'}.png`"
         alt=""
         srcset=""
         @click="pageGo('/home')"
@@ -160,7 +160,7 @@ const clearSystem = () => {
     <template #logos-mini>
       <img
         class="logo-mini"
-        src="/systems/bosch/bosch.png"
+        src="/systems/logos/bosch.png"
         alt=""
         srcset=""
         @click="pageGo('/home')"
@@ -201,7 +201,7 @@ const clearSystem = () => {
         </template>
       </a-dropdown>
     </template>
-  </layout>
+  </layoutView>
   <div class="loading" v-if="loadingStatus"></div>
 </template>
 

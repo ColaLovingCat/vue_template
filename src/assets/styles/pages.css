@@ -82,13 +82,13 @@
     background: var(--color-content-bg);
 }
 
-.contents {
+.sections {
     width: 100%;
     height: calc(100vh - 60px);
     padding: 20px;
 }
 
 .page-contents.full,
-.page-contents.full .contents {
+.page-contents.full .sections {
     height: 100vh;
 }

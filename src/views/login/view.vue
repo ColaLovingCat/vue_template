@@ -172,7 +172,6 @@ const loginSSO = () => {
 
 <template>
   <div class="contents">
-    <img class="bg-img" src="/systems/login/demo01.png" alt="" srcset="" />
     <canvas ref="canvas" width="500" height="500"></canvas>
     <div class="box-contents">
       <div class="col-left">
@@ -183,7 +182,6 @@ const loginSSO = () => {
               Open the World
             </p>
           </div>
-          <!-- <img src="/systems/login/demo07.png" alt="" srcset="" />-->
         </div>
       </div>
       <div class="col-right">
@@ -275,17 +273,6 @@ const loginSSO = () => {
     justify-content: center;
     align-items: center;
   }
-
-  // .box-contents::before {
-  //   content: "";
-  //   background: hsla(0, 0%, 41%, 0.25);
-  //   backdrop-filter: blur(70px);
-  //   position: absolute;
-  //   top: 0;
-  //   left: 0;
-  //   width: 100%;
-  //   height: 100%;
-  // }
 
   .col-left,
   .col-right {

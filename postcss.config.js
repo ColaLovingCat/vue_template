@@ -7,7 +7,7 @@ export default {
     extend: {},
   },
   plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
+    '@tailwindcss/postcss': {},
+    'autoprefixer': {},
   },
 }
