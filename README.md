@@ -84,6 +84,13 @@ pnpm install echarts
 pnpm install xlsx
 ```
 
+# mock.js
+
+```sh
+pnpm install vite-plugin-mock mockjs --save-dev
+pnpm i @types/mockjs --save-dev
+```
+
 # signalr
 
 ```sh

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+fetch('/api/user/list').then((resp: any) => {
+  console.log('Testing: ', resp)
+})
 </script>
 
 <template>
@@ -7,6 +10,4 @@
   </div>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

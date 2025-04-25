@@ -5,6 +5,8 @@ import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { AntDesignVueResolver } from "unplugin-vue-components/resolvers";
 
+import { viteMockServe } from "vite-plugin-mock";
+
 import path from "path";
 
 // https://vite.dev/config/
@@ -25,11 +27,18 @@ export default defineConfig({
       ],
       dts: "src/auto-import.d.ts", //存放位置
     }),
+    //
+    viteMockServe({
+      mockPath: "src/commons/mocks", // 你的 mock 文件夹
+      enable: true,
+    }),
   ],
-  base: "./", //不加打包后白屏
+  // 不加打包后白屏
+  base: "./",
+  // 关键配置@
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),  // 关键配置@
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });
