@@ -32,6 +32,23 @@ const routes = [
     name: "ssoAuth",
     component: () => import("@/views/login/sso-auth.vue"),
   },
+
+  // 组件测试页面
+  {
+    path: "/forms",
+    name: "forms",
+    component: () => import("@/components/forms/using.vue"),
+  },
+  {
+    path: "/echarts",
+    name: "echarts",
+    component: () => import("@/components/echarts/using.vue"),
+  },
+  {
+    path: "/chats",
+    name: "chats",
+    component: () => import("@/components/chats/using.vue"),
+  },
 ];
 
 const router = createRouter({

@@ -65,14 +65,12 @@ const defaultOptions: any = {
   xAxis: {
     show: true,
     type: 'category', // category| value| time
-    name: '',
     data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     boundaryGap: false, // 边界不留空隙
-    // 标签
-    axisLabel: {
-      show: false,
-      formatter: '{value} %'
-    },
+    //
+    name: '',
+    nameLocation: 'center',
+    nameGap: 15,
     // 轴线
     axisLine: {
       show: false,
@@ -84,9 +82,20 @@ const defaultOptions: any = {
     axisTick: {
       show: false
     },
+    // 标签
+    axisLabel: {
+      show: false,
+      color: '#fff',
+      fontSize: 14,
+      formatter: '{value} %'
+    },
     // 网格线分割
     splitLine: {
-      show: false
+      show: false,
+      lineStyle: {
+        type: 'dashed',
+        opacity: 0.6
+      }
     },
     // 网格颜色分割
     splitArea: {
@@ -96,17 +105,7 @@ const defaultOptions: any = {
   yAxis: [
     {
       type: 'value',
-      scale: true,
-      splitLine: {
-        lineStyle: {
-          type: 'dashed',
-          opacity: 0.6
-        }
-      },
-      axisLabel: {
-        color: '#fff',
-        fontSize: 14
-      }
+      offset: 0,
     },
     {
       type: 'value'
@@ -279,8 +278,8 @@ const refreshChart = () => {
 
 const resizeObserver = new ResizeObserver(() => {
   if (chartInstance) {
-      console.log('[eChart] resize')
-      chartInstance.resize();
+    console.log('[eChart] resize')
+    chartInstance.resize();
   }
 });
 </script>

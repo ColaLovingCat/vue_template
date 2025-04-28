@@ -6,7 +6,7 @@ import * as extend from '@/commons/utils/extends'
 import * as messages from '@/commons/utils/messages'
 
 import { WebSocketService } from '@/commons/utils/websocket'
-import echarts from '@/components/echarts/view.vue'
+import chartView from '@/components/echarts/view.vue'
 
 //@ts-ignore
 import MarkdownIt from 'markdown-it'
@@ -273,7 +273,9 @@ watch(() => props.thread_id, (newValue) => {
 
 // Send
 // 发送信息
-const sendMessage = () => {
+const sendMessage = (event?: KeyboardEvent) => {
+  if (event) event.preventDefault();
+
   // 是否连接正常
   if (!chatInfos.isActive) {
     messages.showError("the connection to the Websocket was lost!")
@@ -526,7 +528,7 @@ const receiveMessage = (msg: any): any => {
           connectionID: msg.connectionID,
           messages: [
             {
-              type: 'text',
+              type: 'error',
               data: msg.message
             }
           ]
@@ -625,7 +627,7 @@ const pushError = () => {
     isBot: true,
     messages: [
       {
-        type: 'text',
+        type: 'error',
         data: 'server is busy, please try again later.'
       }
     ]
@@ -905,6 +907,9 @@ defineExpose({
                 <template v-if="msg.type == 'text'">
                   <p class="item-txt" v-html="md.render(msg.data)"></p>
                 </template>
+                <template v-if="msg.type == 'error'">
+                  <p class="item-error" v-html="md.render(msg.data)"></p>
+                </template>
                 <!-- 列表 -->
                 <template v-if="msg.type == 'list'">
                   <div class="list-suggests">
@@ -949,23 +954,24 @@ defineExpose({
                 <!-- Chart Basic -->
                 <template v-if="msg.type == 'chart_basic'">
                   <div class="item-chart">
-                    <echarts width="100%" height="300px" :options="getOptionBasic(msg.data)" @chartClick="chartClick">
-                    </echarts>
+                    <chartView width="100%" height="300px" :options="getOptionBasic(msg.data)" @chartClick="chartClick">
+                    </chartView>
                   </div>
                 </template>
                 <!-- Chart Pieces -->
                 <template v-if="msg.type == 'chart_pieces'">
                   <div class="item-chart">
-                    <echarts width="100%" height="300px" :options="getOptionPieces(msg.data)" @chartClick="chartClick">
-                    </echarts>
+                    <chartView width="100%" height="300px" :options="getOptionPieces(msg.data)"
+                      @chartClick="chartClick">
+                    </chartView>
                   </div>
                 </template>
                 <!-- Chart FPY -->
                 <template v-if="msg.type == 'chart_fpy'">
                   <div class="item-chart">
                     <div v-for="data in msg.data" :key="data">
-                      <echarts width="500px" height="300px" :options="getOptionForFPY(data)" @chartClick="chartClick">
-                      </echarts>
+                      <chartView width="500px" height="300px" :options="getOptionForFPY(data)" @chartClick="chartClick">
+                      </chartView>
                     </div>
                   </div>
                 </template>
@@ -1067,7 +1073,8 @@ defineExpose({
             </a-popover>
             <a-tooltip>
               <template #title>Send Message</template>
-              <a-button shape="circle" class="btn btn-send" @click="sendMessage" :disabled="chatInfos.message == ''">
+              <a-button shape="circle" class="btn btn-send" @click="sendMessage()"
+                :disabled="chatInfos.message == ''">
                 <i class="fa-solid fa-arrow-up"></i>
               </a-button>
             </a-tooltip>

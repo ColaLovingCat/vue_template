@@ -1,17 +1,25 @@
 <script lang="ts" setup>
 import { reactive, ref, type Ref } from 'vue';
-import formView, { type FormItem } from './view.vue'
+import formView from './view.vue'
+import type { FormItem } from '@/commons/datas/datas.types';
 
 // name
 defineOptions({
     name: 'custom-name'
 })
 
+const formConfig = reactive({
+    class: {
+        forms: '',
+        items: 'inline',
+        labelCol: 2
+    },
+})
 const formList: Ref<FormItem[]> = ref([
     {
         type: 'input',
-        key: 'name',
-        label: 'Name',
+        key: 'username',
+        label: 'Username',
         required: true,
     },
     {
@@ -25,15 +33,25 @@ const formList: Ref<FormItem[]> = ref([
         type: 'textarea',
         key: 'desc',
         label: 'Description',
+        required: true,
+        activeClear: true,
     },
     {
         type: 'select',
-        key: 'sex',
-        label: 'Sex',
+        key: 'location',
+        label: 'Location',
+        required: true,
+        activeClear: true,
+        activeSearch: true,
         list: [
-            { value: '男', label: '男' },
-            { value: '女', label: '女' },
+            { value: 'Asia', label: 'Asia' },
+            { value: 'Europe', label: 'Europe' },
         ],
+    },
+    {
+        type: 'switch',
+        key: 'status',
+        label: 'Status',
     },
     {
         type: 'radios',
@@ -46,49 +64,80 @@ const formList: Ref<FormItem[]> = ref([
     },
     {
         type: 'checks',
-        key: 'sex',
-        label: 'Sex',
+        key: 'hobby',
+        label: 'Hobby',
+        required: true,
         list: [
-            { value: '男', label: '男' },
-            { value: '女', label: '女' },
+            { value: 'game', label: 'game' },
+            { value: 'book', label: 'book' },
+            { value: 'code', label: 'code' },
         ],
     },
     {
         type: 'date',
         key: 'birthday',
         label: 'Birthday',
+        required: true,
     },
     {
         type: 'date-range',
         key: 'fromto',
         label: 'From to',
+        required: true,
     },
 ])
-const formValue = reactive({
-    name: '',
-    sex: null,
+type FormValue = {
+    [key: string]: any;  // 可以是任何类型
+};
+const formValue: FormValue = ref({
+    username: '',
+    password: '',
+    desc: '',
+    location: null,
+    status: true,
+    sex: '女',
+    hobby: [],
     birthday: null,
+    fromto: [],
 })
 
-const onChange = (event: any) => {
-    console.log('Testing: ', event)
+const onChange = (key: string) => {
+    console.log('[Form] changed: ', key)
+}
+
+const formRef = ref();
+const onSubmit = () => {
+    if (formRef.value?.validate()) {
+        console.log('校验通过！可以提交')
+    } else {
+        console.log('校验失败！请修正错误')
+    }
 }
 </script>
 
 <template>
     <div class="box-forms">
-        <formView :forms="formList" v-model:values="formValue" @changed="onChange"></formView>
-    </div>
-    <div class="box-result">
-        <p>Name: {{ formValue.name }}</p>
-        <p>Sex: {{ formValue.sex }}</p>
-        <p>Birthday: {{ formValue.birthday }}</p>
+        <div class="box-form">
+            <formView ref="formRef" :config="formConfig" :forms="formList" v-model:values="formValue"
+                @changed="onChange"></formView>
+            <a-button type="primary" @click="onSubmit">Submit</a-button>
+        </div>
+        <div class="box-result">
+            <template v-for="item in formList">
+                <p>{{ item.label }}: {{ formValue[item.key] }}</p>
+            </template>
+        </div>
     </div>
 </template>
 
 <style scoped lang="scss">
 .box-forms {
-    width: 800px;
-    padding: 20px;
+    display: flex;
+    gap: 20px;
+
+    >* {
+        flex: 1;
+        padding: 20px;
+    }
 }
 </style>

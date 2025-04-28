@@ -36,8 +36,25 @@ export class MenuClass {
   children?: MenuInfos[] = [];
 }
 
+export interface FormItem {
+  type: string;
+  key: string;
+  label: string;
+  // Common
+  required?: boolean;
+  disabled?: boolean;
+  activeClear?: boolean;
+  // Input
+  isPassword?: boolean;
+  // Select
+  isMulti?: boolean;
+  activeSearch?: boolean;
+  list?: DrpItem[];
+}
+
 export interface DrpItem {
-  value: number | string;
+  key?: string | number;
+  value?: string | number;
   label: string;
 }
 
@@ -47,14 +64,14 @@ export interface TableInfos {
   rows: any[];
 }
 export interface Pagination {
-  total: number;
-  index: number;
-  size: number;
+  index: number; // 当前页数
+  total: number; // 总行数
+  size: number; // 每页行数
   options: number[];
 }
 export interface ColumInfos {
   key: string | number;
-  title: string;
+  label: string;
   visiable?: boolean;
 }
 

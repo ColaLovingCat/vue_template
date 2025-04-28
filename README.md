@@ -6,93 +6,92 @@ Learn more about the recommended Project Setup and IDE Support in the [Vue Docs 
 
 
 ## Project Setup
-
 ```sh
 npm create vite@latest
 pnpm install
 ```
 
 # sass
-
 ```sh
 pnpm install -D sass
 ```
 # types/node
-
 ```sh
 pnpm install -D @types/node
 ```
 
 # unplugin
-
 ```sh
 pnpm install -D unplugin-auto-import unplugin-vue-components
 ```
 
 # vue-router
-
 ```sh
 pnpm install vue-router@4
 ```
 
 # vue-i18n
-
 ```sh
 pnpm install vue-i18n
 ```
 
 # Pinia
-
 ```sh
 pnpm install pinia pinia-plugin-persistedstate
 ```
 
 # ant design
-
 ```sh
 pnpm install ant-design-vue@next @ant-design/icons-vue
 ```
 
-# tailwindcss
+# dayjs
+```sh
+pnpm install dayjs
+```
 
+# form 组件
+🔲表单列表
+🔲必填验证
+🔲日期格式匹配
+
+# tailwindcss
 ```sh
 pnpm install -D tailwindcss postcss @tailwindcss/postcss autoprefixer
 npx tailwindcss init -p
 ```
 
 # fontawesome
-
 ```sh
 pnpm install @fortawesome/fontawesome-free
 ```
 
 # axios
-
 ```sh
 pnpm install axios
 ```
 
 # echarts
-
 ```sh
 pnpm install echarts
 ```
 
-# xlsx
+# echarts 组件
+🔲表格初始化
+🔲尺寸自适应
 
+# xlsx
 ```sh
 pnpm install xlsx
 ```
 
 # mock.js
-
 ```sh
 pnpm install vite-plugin-mock mockjs --save-dev
 pnpm i @types/mockjs --save-dev
 ```
 
 # signalr
-
 ```sh
 pnpm install @microsoft/signalr
 ```
@@ -113,7 +112,6 @@ npm install @antv/x6-plugin-minimap
 ```
 
 # @tresjs/core three @tweenjs/tween.js
-
 ```sh
 pnpm install three @tresjs/core @tresjs/cientos
 pnpm install tweakpane
@@ -124,3 +122,12 @@ pnpm install -D @types/three
 ```sh
 pnpm instal gasp
 ```
+
+# markdown
+```sh
+pnpm install markdown-it katex highlight.js
+```
+# chats 组件
+🔲聊天对话
+🔲websocket流式数据
+🔲markdown格式文本
