@@ -99,6 +99,7 @@ pnpm install echarts
 
 ```sh
 pnpm install xlsx
+pnpm install --save-dev @types/xlsx
 ```
 
 # mock.js

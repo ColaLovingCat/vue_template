@@ -33,6 +33,8 @@ export default defineConfig({
       enable: true,
     }),
   ],
+  // excel
+  assetsInclude: ['**/*.xlsx'],
   // 不加打包后白屏
   base: "./",
   // 关键配置@
