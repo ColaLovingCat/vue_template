@@ -49,6 +49,11 @@ const routes = [
     name: "chats",
     component: () => import("@/components/chats/using.vue"),
   },
+  {
+    path: "/editors",
+    name: "editors",
+    component: () => import("@/components/editors/using.vue"),
+  },
 ];
 
 const router = createRouter({
