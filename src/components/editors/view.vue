@@ -193,32 +193,53 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
   <div class="box-editor">
     <div class="toolbars" v-if="props.editable">
       <!-- Undo -->
-      <button @click="editor.chain().focus().undo().run()">
-        <i class="fa-solid fa-rotate-left"></i>
-      </button>
-      <button @click="editor.chain().focus().redo().run()">
-        <i class="fa-solid fa-rotate-right"></i>
-      </button>
+      <a-tooltip placement="bottom">
+        <template #title>Undo</template>
+        <button @click="editor.chain().focus().undo().run()">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </a-tooltip>
+      <a-tooltip placement="bottom">
+        <template #title>Redo</template>
+        <button @click="editor.chain().focus().redo().run()">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+      </a-tooltip>
 
       <!-- Clear -->
-      <button @click="editor.chain().focus().clearContent().run()">
-        <i class="fa-solid fa-trash-can"></i>
-      </button>
+      <a-tooltip placement="bottom">
+        <template #title>Clear Contents</template>
+        <button @click="editor.chain().focus().clearContent().run()">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </a-tooltip>
 
       <div class="list-btns">
         <!-- Text -->
-        <button @click="editor.chain().focus().toggleBold().run()">
-          <i class="fa-solid fa-bold"></i>
-        </button>
-        <button @click="editor.chain().focus().toggleItalic().run()">
-          <i class="fa-solid fa-italic"></i>
-        </button>
-        <button @click="editor.chain().focus().toggleStrike().run()">
-          <i class="fa-solid fa-strikethrough"></i>
-        </button>
-        <button @click="editor.chain().focus().toggleUnderline().run()">
-          <i class="fa-solid fa-underline"></i>
-        </button>
+        <a-tooltip placement="bottom">
+          <template #title>Bold</template>
+          <button @click="editor.chain().focus().toggleBold().run()">
+            <i class="fa-solid fa-bold"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Italic</template>
+          <button @click="editor.chain().focus().toggleItalic().run()">
+            <i class="fa-solid fa-italic"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Strike</template>
+          <button @click="editor.chain().focus().toggleStrike().run()">
+            <i class="fa-solid fa-strikethrough"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Underline</template>
+          <button @click="editor.chain().focus().toggleUnderline().run()">
+            <i class="fa-solid fa-underline"></i>
+          </button>
+        </a-tooltip>
 
         <a-popover title="">
           <template #content>
@@ -231,7 +252,6 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
           </template>
           <button><i class="fa-solid fa-font"></i></button>
         </a-popover>
-
         <a-popover title="">
           <template #content>
             <div class="list-color">
@@ -244,20 +264,32 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
           <button><i class="fa-solid fa-highlighter"></i></button>
         </a-popover>
 
-        <button @click="editor.chain().focus().toggleCode().run()">
-          <i class="fa-solid fa-code"></i>
-        </button>
+        <a-tooltip placement="bottom">
+          <template #title>Code Span</template>
+          <button @click="editor.chain().focus().toggleCode().run()">
+            <i class="fa-solid fa-code"></i>
+          </button>
+        </a-tooltip>
 
         <!-- List -->
-        <button @click="editor.chain().focus().toggleBulletList().run()">
-          <i class="fa-solid fa-list-ul"></i>
-        </button>
-        <button @click="editor.chain().focus().toggleOrderedList().run()">
-          <i class="fa-solid fa-list-ol"></i>
-        </button>
-        <button @click="editor.chain().focus().toggleTaskList().run()">
-          <i class="fa-solid fa-list-check"></i>
-        </button>
+        <a-tooltip placement="bottom">
+          <template #title>Bullet List</template>
+          <button @click="editor.chain().focus().toggleBulletList().run()">
+            <i class="fa-solid fa-list-ul"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Ordered List</template>
+          <button @click="editor.chain().focus().toggleOrderedList().run()">
+            <i class="fa-solid fa-list-ol"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Task List</template>
+          <button @click="editor.chain().focus().toggleTaskList().run()">
+            <i class="fa-solid fa-list-check"></i>
+          </button>
+        </a-tooltip>
       </div>
 
       <div class="list-btns">
@@ -296,32 +328,52 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
         </a-dropdown>
 
         <!-- Algin -->
-        <button @click="editor.chain().focus().setTextAlign('left').run()">
-          <i class="fa-solid fa-align-left"></i>
-        </button>
-        <button @click="editor.chain().focus().setTextAlign('center').run()">
-          <i class="fa-solid fa-align-center"></i>
-        </button>
-        <button @click="editor.chain().focus().setTextAlign('right').run()">
-          <i class="fa-solid fa-align-right"></i>
-        </button>
-        <button @click="editor.chain().focus().setTextAlign('justify').run()">
-          <i class="fa-solid fa-align-justify"></i>
-        </button>
-
-        <button @click="editor.chain().focus().decreaseIndent().run()">
-          <i class="fa-solid fa-outdent"></i>
-        </button>
-        <button @click="editor.chain().focus().increaseIndent().run()">
-          <i class="fa-solid fa-indent"></i>
-        </button>
+        <a-tooltip placement="bottom">
+          <template #title>Left</template>
+          <button @click="editor.chain().focus().setTextAlign('left').run()">
+            <i class="fa-solid fa-align-left"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Center</template>
+          <button @click="editor.chain().focus().setTextAlign('center').run()">
+            <i class="fa-solid fa-align-center"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Right</template>
+          <button @click="editor.chain().focus().setTextAlign('right').run()">
+            <i class="fa-solid fa-align-right"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Justify</template>
+          <button @click="editor.chain().focus().setTextAlign('justify').run()">
+            <i class="fa-solid fa-align-justify"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Outdent</template>
+          <button @click="editor.chain().focus().decreaseIndent().run()">
+            <i class="fa-solid fa-outdent"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Indent</template>
+          <button @click="editor.chain().focus().increaseIndent().run()">
+            <i class="fa-solid fa-indent"></i>
+          </button>
+        </a-tooltip>
       </div>
 
       <!-- Insert -->
       <div class="list-btns">
-        <button @click="editor.chain().focus().setHorizontalRule().run()">
-          <i class="fa-solid fa-grip-lines"></i>
-        </button>
+        <a-tooltip placement="bottom">
+          <template #title>Divider Line</template>
+          <button @click="editor.chain().focus().setHorizontalRule().run()">
+            <i class="fa-solid fa-grip-lines"></i>
+          </button>
+        </a-tooltip>
 
         <!-- Table -->
         <a-dropdown>
@@ -357,13 +409,22 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
           </button>
         </a-dropdown>
 
-        <button @click="insertLink"><i class="fa-solid fa-link"></i></button>
-        <button @click="editor.chain().focus().toggleCodeBlock().run()">
-          <i class="fa-solid fa-terminal"></i>
-        </button>
-        <button @click="editor.chain().focus().toggleBlockquote().run()">
-          <i class="fa-solid fa-pen-nib"></i>
-        </button>
+        <a-tooltip placement="bottom">
+          <template #title>Hyperlink</template>
+          <button @click="insertLink"><i class="fa-solid fa-link"></i></button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Code Block</template>
+          <button @click="editor.chain().focus().toggleCodeBlock().run()">
+            <i class="fa-solid fa-terminal"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Blockquote</template>
+          <button @click="editor.chain().focus().toggleBlockquote().run()">
+            <i class="fa-solid fa-quote-left"></i>
+          </button>
+        </a-tooltip>
 
         <a-dropdown>
           <template #overlay>
@@ -383,8 +444,14 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
           </button>
         </a-dropdown>
 
-        <button @click="insertImage"><i class="fa-solid fa-image"></i></button>
-        <button @click="insertVideo"><i class="fa-solid fa-film"></i></button>
+        <a-tooltip placement="bottom">
+          <template #title>Image</template>
+          <button @click="insertImage"><i class="fa-solid fa-image"></i></button>
+        </a-tooltip>
+        <a-tooltip placement="bottom">
+          <template #title>Video</template>
+          <button @click="insertVideo"><i class="fa-solid fa-film"></i></button>
+        </a-tooltip>
 
       </div>
     </div>
