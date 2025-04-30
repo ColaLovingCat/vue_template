@@ -161,6 +161,10 @@ pnpm install markdown-it katex highlight.js
 
 ```sh
 pnpm install @tiptap/vue-3 @tiptap/pm @tiptap/starter-kit
-pnpm install @tiptap/extension-color @tiptap/extension-list-item @tiptap/extension-text-style
+pnpm install @tiptap/extension-highlight @tiptap/extension-typography
+pnpm install @tiptap/extension-dropcursor @tiptap/extension-image
+pnpm install @tiptap/extension-document @tiptap/extension-paragraph @tiptap/extension-text
+pnpm install @tiptap/extension-color @tiptap/extension-text-style @tiptap/extension-list-item
 pnpm install @tiptap/extension-table @tiptap/extension-table-cell @tiptap/extension-table-header @tiptap/extension-table-row
+pnpm install @tiptap/extension-task-list @tiptap/extension-task-item
 ```

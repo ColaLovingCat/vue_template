@@ -21,7 +21,6 @@ onMounted(() => {
   // 背景
   if (activeDynamic) {
     ctx = canvas.value.getContext('2d')
-    console.log('Testing: ', ctx)
     resizeCanvas()
     initialCircle()
     animate()

@@ -35,22 +35,22 @@ const routes = [
 
   // 组件测试页面
   {
-    path: "/forms",
+    path: "/forms-using",
     name: "forms",
     component: () => import("@/components/forms/using.vue"),
   },
   {
-    path: "/echarts",
+    path: "/echarts-using",
     name: "echarts",
     component: () => import("@/components/echarts/using.vue"),
   },
   {
-    path: "/chats",
+    path: "/chats-using",
     name: "chats",
     component: () => import("@/components/chats/using.vue"),
   },
   {
-    path: "/editors",
+    path: "/editors-using",
     name: "editors",
     component: () => import("@/components/editors/using.vue"),
   },
