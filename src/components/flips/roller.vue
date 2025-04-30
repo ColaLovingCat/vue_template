@@ -13,13 +13,17 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  auto: {
-    type: Boolean,
-    required: true,
-  },
   fontSize: {
     type: Number,
     default: 18, // 默认字体大小
+  },
+  auto: {
+    type: Boolean,
+    required: false,
+  },
+  timer: {
+    type: Number,
+    required: false,
   },
 })
 
@@ -52,7 +56,7 @@ watch(() => props.number, startRolling);
 onMounted(() => {
   startRolling();
   if (props.auto) {
-    intervalId = setInterval(startRolling, 5000);
+    intervalId = setInterval(startRolling, props.timer);
   }
 });
 </script>

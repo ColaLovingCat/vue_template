@@ -16,17 +16,20 @@ fetch('/api/user/list').then((resp: any) => {
 <template>
   <div class="sections">
     <div class="list-menu">
-      <div class="menu-item" @click="pageGo('/chats-using')">
-        <i class="fa-solid fa-comments"></i> chats
-      </div>
-      <div class="menu-item" @click="pageGo('/echarts-using')">
-        <i class="fa-solid fa-chart-line"></i> eCharts
+      <div class="menu-item" @click="pageGo('/forms-using')">
+        <i class="fa-solid fa-table-list"></i> forms
       </div>
       <div class="menu-item" @click="pageGo('/editors-using')">
         <i class="fa-solid fa-pen-to-square"></i> editors
       </div>
-      <div class="menu-item" @click="pageGo('/forms-using')">
-        <i class="fa-solid fa-table-list"></i> forms
+      <div class="menu-item" @click="pageGo('/echarts-using')">
+        <i class="fa-solid fa-chart-line"></i> eCharts
+      </div>
+      <div class="menu-item" @click="pageGo('/chats-using')">
+        <i class="fa-solid fa-comments"></i> chats
+      </div>
+      <div class="menu-item" @click="pageGo('/flips-using')">
+        <i class="fa-solid fa-arrow-down-1-9"></i> flips
       </div>
     </div>
   </div>
@@ -35,13 +38,14 @@ fetch('/api/user/list').then((resp: any) => {
 <style scoped lang="scss">
 .list-menu {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
 
   .menu-item {
     cursor: pointer;
     padding: 20px;
-    width: 180px;
+    width: 300px;
     font-size: 21px;
 
     &:hover {

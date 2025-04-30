@@ -33,6 +33,7 @@ declare module 'vue' {
     ATextarea: typeof import('ant-design-vue/es')['Textarea']
     ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     Contents: typeof import('./components/layouts/contents.vue')['default']
+    Empty: typeof import('./components/flips/empty.vue')['default']
     Flip: typeof import('./components/flips/flip.vue')['default']
     Group: typeof import('./components/flips/group.vue')['default']
     Layout: typeof import('./components/layouts/layout.vue')['default']

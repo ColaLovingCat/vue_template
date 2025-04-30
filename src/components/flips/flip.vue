@@ -52,13 +52,12 @@ const computedFontSize = computed(() => `${props.fontSize}px`);
 .flip-container {
   position: relative;
   width: 1em;
-  height: 1.5em;
-  text-align: center;
+  height: 1.2em;
   font-weight: 700;
+  line-height: 1.5em;
+  text-align: center;
   overflow: hidden;
   display: inline-block;
-  margin: 2px;
-  line-height: 1.5em;
 }
 
 .number {
@@ -67,6 +66,7 @@ const computedFontSize = computed(() => `${props.fontSize}px`);
   width: 100%;
   height: 100%;
   text-align: center;
+  font-weight: 700;
   border-radius: 5px;
 }
 

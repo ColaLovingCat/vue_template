@@ -54,6 +54,11 @@ const routes = [
     name: "editors",
     component: () => import("@/components/editors/using.vue"),
   },
+  {
+    path: "/flips-using",
+    name: "flips",
+    component: () => import("@/components/flips/using.vue"),
+  },
 ];
 
 const router = createRouter({
