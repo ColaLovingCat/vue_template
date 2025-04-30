@@ -118,18 +118,21 @@ pnpm install @microsoft/signalr
 # antv/x6
 
 ```sh
-pnpm install @antv/x6
-npm install @antv/x6-vue-shape
-npm install @antv/x6-plugin-transform
-npm install @antv/x6-plugin-stencil
-npm install @antv/x6-plugin-selection
-npm install @antv/x6-plugin-snapline
-npm install @antv/x6-plugin-keyboard
+pnpm install @antv/x6 @antv/x6-vue-shape
+pnpm install @antv/x6-plugin-stencil
+pnpm install @antv/x6-plugin-transform @antv/x6-plugin-selection @antv/x6-plugin-snapline @antv/x6-plugin-keyboard
+pnpm install dagre
 npm install @antv/x6-plugin-clipboard
 npm install @antv/x6-plugin-history
 npm install @antv/x6-plugin-dnd
 npm install @antv/x6-plugin-minimap
 ```
+
+# workflows 组件
+
+✔ 工具栏/画布
+✔ 加载/保存数据
+✔ 
 
 # @tresjs/core three @tweenjs/tween.js
 

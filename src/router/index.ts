@@ -36,28 +36,33 @@ const routes = [
   // 组件测试页面
   {
     path: "/forms-using",
-    name: "forms",
+    name: "forms-using",
     component: () => import("@/components/forms/using.vue"),
   },
   {
     path: "/echarts-using",
-    name: "echarts",
+    name: "echarts-using",
     component: () => import("@/components/echarts/using.vue"),
   },
   {
     path: "/chats-using",
-    name: "chats",
+    name: "chats-using",
     component: () => import("@/components/chats/using.vue"),
   },
   {
     path: "/editors-using",
-    name: "editors",
+    name: "editors-using",
     component: () => import("@/components/editors/using.vue"),
   },
   {
     path: "/flips-using",
-    name: "flips",
+    name: "flips-using",
     component: () => import("@/components/flips/using.vue"),
+  },
+  {
+    path: "/workflows-using",
+    name: "workflows-using",
+    component: () => import("@/components/workflows/using.vue"),
   },
 ];
 

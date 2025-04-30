@@ -31,6 +31,9 @@ fetch('/api/user/list').then((resp: any) => {
       <div class="menu-item" @click="pageGo('/flips-using')">
         <i class="fa-solid fa-arrow-down-1-9"></i> flips
       </div>
+      <div class="menu-item" @click="pageGo('/workflows-using')">
+        <i class="fa-solid fa-diagram-project"></i> workflows
+      </div>
     </div>
   </div>
 </template>
