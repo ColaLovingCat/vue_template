@@ -39,158 +39,95 @@ defineOptions({
 
 // props
 const props = defineProps({
-  datas: {
-    type: Object,
-    default: () => ({})
+  contents: {
+    type: String,
+    default: ''
   },
-  changeMark: {
+  editable: {
     type: Boolean,
-    require: false
+    default: true
   }
 })
 
 // emits
 const emit = defineEmits<{
-  (event: 'update', values: any): void
+  (event: 'update:contents', values: any): void
 }>()
 
-onMounted(() => { })
+onMounted(() => {
+})
 
-watch(
-  () => props.changeMark,
-  (newValue, oldValue) => { }
-)
-
-const demo = `
-        <h2>
-          Hi there,
-        </h2>
-        <p>
-          this is a <em>basic</em> example of <strong>Tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:
-        </p>
-        <ul>
-          <li>
-            That’s a bullet list with one …
-          </li>
-          <li>
-            … or two list items.
-          </li>
-        </ul>
-        <p>
-          Isn’t that great? And all of that is editable. But wait, there’s more. Let’s try a code block:
-        </p>
-        <pre><code class="language-css">body {
-  display: none;
-}</code></pre>
-        <p>
-          I know, I know, this is impressive. It’s only the tip of the iceberg though. Give it a try and click a little bit around. Don’t forget to check the other examples too.
-        </p>
-  <p>
-          Here is an example:
-        </p>
-
-        <table>
-          <tbody>
-            <tr>
-              <th>Name</th>
-              <th colspan="3">Description</th>
-            </tr>
-            <tr>
-              <td>Cyndi Lauper</td>
-              <td>Singer</td>
-              <td>Songwriter</td>
-              <td>Actress</td>
-            </tr>
-            <tr>
-              <td>Marie Curie</td>
-              <td>Scientist</td>
-              <td>Chemist</td>
-              <td>Physicist</td>
-            </tr>
-            <tr>
-              <td>Indira Gandhi</td>
-              <td>Prime minister</td>
-              <td colspan="2">Politician</td>
-            </tr>
-          </tbody>
-        </table>
-
-         <ul data-type="taskList">
-          <li data-type="taskItem" data-checked="true">flour</li>
-          <li data-type="taskItem" data-checked="true">baking powder</li>
-          <li data-type="taskItem" data-checked="true">salt</li>
-          <li data-type="taskItem" data-checked="false">sugar</li>
-          <li data-type="taskItem" data-checked="false">milk</li>
-          <li data-type="taskItem" data-checked="false">eggs</li>
-          <li data-type="taskItem" data-checked="false">butter</li>
-        </ul>
-
-         <p>
-          Markdown shortcuts make it easy to format the text while typing.
-        </p>
-        <p>
-          To test that, start a new line and type <code>#</code> followed by a space to get a heading. Try <code>#</code>, <code>##</code>, <code>###</code>, <code>####</code>, <code>#####</code>, <code>######</code> for different levels.
-        </p>
-        <p>
-          Those conventions are called input rules in Tiptap. Some of them are enabled by default. Try <code>></code> for blockquotes, <code>*</code>, <code>-</code> or <code>+</code> for bullet lists, or <code>\`foobar\`</code> to highlight code, <code>~~tildes~~</code> to strike text, or <code>==equal signs==</code> to highlight text.
-        </p>
-        <p>
-          You can overwrite existing input rules or add your own to nodes, marks and extensions.
-        </p>
-        <p>
-          For example, we added the <code>Typography</code> extension here. Try typing <code>(c)</code> to see how it’s converted to a proper © character. You can also try <code>-></code>, <code>>></code>, <code>1/2</code>, <code>!=</code>, or <code>--</code>.
-        </p>
-
-        <blockquote>
-          Wow, that’s amazing. Good work, boy! 👏
-          <br />
-          — Mom
-        </blockquote>
-      `
-const editor: any = useEditor({
-  content: demo,
-  extensions: [
-    StarterKit,
-    //
-    Color.configure({ types: [TextStyle.name, ListItem.name] }),
-    //@ts-ignore
-    TextStyle.configure({ types: [ListItem.name] }),
-    TextAlign.configure({
-      types: ['heading', 'paragraph'], // 可以添加更多支持的节点类型
-    }),
-    //@ts-ignore
-    BackgroundColor,
-    //@ts-ignore
-    ParagraphIndent,
-    //
-    Highlight,
-    Typography,
-    //
-    Document,
-    Paragraph,
-    Text,
-    Underline,
-    //
-    Table.configure({
-      resizable: true,
-    }),
-    TableCell,
-    TableRow,
-    TableHeader,
-    //
-    TaskList,
-    TaskItem,
-    //
-    Dropcursor,
-    Image,
-    //@ts-ignore
-    Video,
-  ],
+const extensions: any = [
+  StarterKit,
+  //
+  Color.configure({ types: [TextStyle.name, ListItem.name] }),
+  //@ts-ignore
+  TextStyle.configure({ types: [ListItem.name] }),
+  TextAlign.configure({
+    types: ['heading', 'paragraph'], // 可以添加更多支持的节点类型
+  }),
+  //@ts-ignore
+  BackgroundColor,
+  //@ts-ignore
+  ParagraphIndent,
+  //
+  Highlight,
+  Typography,
+  //
+  Document,
+  Paragraph,
+  Text,
+  Underline,
+  //
+  Table.configure({
+    resizable: true,
+  }),
+  TableCell,
+  TableRow,
+  TableHeader,
+  //
+  TaskList,
+  TaskItem,
+  //
+  Dropcursor,
+  Image,
+  //@ts-ignore
+  Video,
+]
+let editor: any = useEditor({
+  content: props.contents,
+  editable: props.editable,
+  extensions,
   editorProps: {
     attributes: {
       class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none',
     },
+    handleKeyDown(view, event) {
+      if (event.key === 'Tab' && event.shiftKey) {
+        editor?.value.chain().decreaseIndent().run()
+        event.preventDefault()
+        return true
+      }
+      if (event.key === 'Tab') {
+        editor?.value.chain().increaseIndent().run()
+        event.preventDefault()
+        return true
+      }
+    }
   },
+  onUpdate({ editor }) {
+    emit('update:contents', editor.getHTML())
+  }
+})
+watch(() => props.contents, (newVal) => {
+  if (editor.value && newVal !== editor.value.getHTML()) {
+    editor.value.commands.setContent(newVal)
+  }
+})
+watch(() => props.editable, (newVal) => {
+  if (editor.value) {
+    editor.value.setEditable(newVal)
+  }
 })
 
 // Config
@@ -254,7 +191,7 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
 
 <template>
   <div class="box-editor">
-    <div class="toolbars">
+    <div class="toolbars" v-if="props.editable">
       <!-- Undo -->
       <button @click="editor.chain().focus().undo().run()">
         <i class="fa-solid fa-rotate-left"></i>
@@ -451,11 +388,13 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
 
       </div>
     </div>
+
     <div class="editors">
       <editor-content :editor="editor" />
     </div>
   </div>
 
+  <!-- Emojis -->
   <a-modal v-model:open="emojiModal" title="Emojis" :footer="[]">
     <div class="list-emoji">
       <template v-for="emoji in emojis" :key="emoji">
@@ -466,6 +405,7 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
     </div>
   </a-modal>
 
+  <!-- Characters -->
   <a-modal v-model:open="characterModal" title="Special Characters" :footer="[]">
     <div class="list-character">
       <template v-for="character in characters" :key="character">

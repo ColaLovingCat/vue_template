@@ -153,7 +153,7 @@ pnpm install markdown-it katex highlight.js
 
 # chats 组件
 
-🔲 聊天对话
+🔲聊天对话
 🔲websocket 流式数据
 🔲markdown 格式文本
 
@@ -171,3 +171,10 @@ pnpm install @tiptap/extension-table @tiptap/extension-table-cell @tiptap/extens
 pnpm install @tiptap/extension-task-list @tiptap/extension-task-item
 pnpm install @tiptap/core
 ```
+
+# editors 组件
+
+🔲文本，样式，段落
+🔲表格操作
+🔲图片视频插入
+🔲画布
