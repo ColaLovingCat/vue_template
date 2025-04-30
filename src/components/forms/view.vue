@@ -59,7 +59,7 @@ const refreshValues = (values: any) => {
           break
         }
         case 'date-range': {
-          if (value.length == 2) {
+          if (value && value.length == 2) {
             formValues[key] = [dayjs(value[0]), dayjs(value[1])];
           } else {
             formValues[key] = []
@@ -97,9 +97,10 @@ const syncValues = () => {
         break
       }
       case 'date-range': {
-        if (values[form.key] && values[form.key].length > 2) {
+        if (values[form.key] && values[form.key].length == 2) {
           values[form.key] = [
-            dayjs(values[form.key][0]).format('YYYY-MM-DD'), dayjs(values[form.key][1]).format('YYYY-MM-DD')
+            dayjs(values[form.key][0]).format('YYYY-MM-DD'),
+            dayjs(values[form.key][1]).format('YYYY-MM-DD')
           ]
         }
         break
