@@ -19,6 +19,7 @@ declare module 'vue' {
     APopover: typeof import('ant-design-vue/es')['Popover']
     ASubMenu: typeof import('ant-design-vue/es')['SubMenu']
     ASwitch: typeof import('ant-design-vue/es')['Switch']
+    ATextarea: typeof import('ant-design-vue/es')['Textarea']
     ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     Contents: typeof import('./components/layouts/contents.vue')['default']
     Flip: typeof import('./components/flips/flip.vue')['default']

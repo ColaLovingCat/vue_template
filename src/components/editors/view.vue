@@ -515,7 +515,8 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
   }
 
   .list-btns {
-    padding-left: 3px;
+    margin-left: 3px;
+    padding-left: 5px;
     position: relative;
     display: flex;
     gap: 5px;

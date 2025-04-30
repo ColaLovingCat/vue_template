@@ -99,16 +99,29 @@ const pageInfos = reactive({
 </script>
 
 <template>
-  <a-switch v-model:checked="pageInfos.editable" /> 可编辑
   <div class="sections">
-    <editorView v-model:contents="pageInfos.contents" :editable="pageInfos.editable"></editorView>
+    <div class="box-show">
+      <editorView v-model:contents="pageInfos.contents" :editable="pageInfos.editable"></editorView>
+    </div>
+    <div class="box-configs">
+      <a-switch v-model:checked="pageInfos.editable" /> 可编辑
+      <a-textarea :rows="30" v-model:value="pageInfos.contents"></a-textarea>
+    </div>
+
   </div>
 </template>
 
 <style scoped lang="scss">
-.sections {
+.box-show {
   margin: 0 auto;
   padding: 20px;
   width: 1200px;
+}
+
+.box-configs {
+  position: fixed;
+  top: 100px;
+  left: 10px;
+  background: #fff;
 }
 </style>
