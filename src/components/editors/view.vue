@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue'
-import type { Ref } from 'vue'
+import { ref, onMounted, watch, reactive } from 'vue'
 
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
@@ -32,6 +31,8 @@ import TableRow from '@tiptap/extension-table-row'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 
+import * as db from './datas'
+
 // name
 defineOptions({
   name: 'custom-name'
@@ -55,6 +56,11 @@ const emit = defineEmits<{
 }>()
 
 onMounted(() => {
+  Object.assign(colors.standards, db.colors.standards)
+  Object.assign(colors.groups, db.colors.groups)
+  //
+  Object.assign(characters.value, db.characters)
+  Object.assign(emojis.value, db.emojis)
 })
 
 const extensions: any = [
@@ -131,16 +137,10 @@ watch(() => props.editable, (newVal) => {
 })
 
 // Config
-const colors = [
-  { name: 'Black', color: '#000000' },
-  { name: 'White', color: '#ffffff' },
-  { name: 'Gray', color: '#71767c' },
-  { name: 'Red', color: '#ed0007' },
-  { name: 'Purple', color: '#9e2896' },
-  { name: 'Blue', color: '#007bc0' },
-  { name: 'Turquoise', color: '#18837e' },
-  { name: 'Green', color: '#00884a' },
-]
+const colors = reactive({
+  standards: [] as any[],
+  groups: [] as any[],
+})
 const setTextColor = (color: string) => {
   editor.value.chain().focus().setColor(color).run()
 }
@@ -155,14 +155,14 @@ const clearBackColor = () => {
 }
 
 const emojiModal = ref(false)
-const emojis = ['😀', '😂', '🥲', '😍', '😎', '🥳', '😭', '👍', '🎉', '🔥']
+const emojis = ref([])
 const insertEmoji = (emoji: string) => {
   editor?.value.chain().focus().insertContent(emoji).run()
   emojiModal.value = false
 }
 
 const characterModal = ref(false)
-const characters = ['Ω']
+const characters = ref([])
 const insertCharacter = (character: string) => {
   editor?.value.chain().focus().insertContent(character).run()
   characterModal.value = false
@@ -243,23 +243,59 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
 
         <a-popover title="">
           <template #content>
-            <div class="list-color">
-              <template v-for="color in colors">
-                <div class="color-item" :style="`background:${color.color}`" @click="setTextColor(color.color)"></div>
-              </template>
+            <div class="box-color">
+              <div class="color-group">
+                <h5 class="titles">Standard Colors</h5>
+                <div class="list-colors">
+                  <template v-for="color in colors.standards">
+                    <div class="color-item" :style="`background:${color.color}`" @click="setTextColor(color.color)">
+                    </div>
+                  </template>
+                </div>
+                <h5 class="titles">Base Colors</h5>
+                <div class="list-colors">
+                  <template v-for="group in colors.groups">
+                    <div class="col-colors">
+                      <template v-for="color in group.list">
+                        <div class="color-item" :style="`background:${color.color}`" @click="setTextColor(color.color)">
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </div>
             </div>
-            <button @click="clearTextColor"><i class="fa-solid fa-eraser"></i></button>
+            <!-- <button @click="clearTextColor"><i class="fa-solid fa-eraser"></i></button> -->
           </template>
           <button><i class="fa-solid fa-font"></i></button>
         </a-popover>
         <a-popover title="">
           <template #content>
-            <div class="list-color">
-              <template v-for="color in colors">
-                <div class="color-item" :style="`background:${color.color}`" @click="setBackColor(color.color)"></div>
-              </template>
+            <div class="box-color">
+              <div class="color-group">
+                <div class="item-clear">
+                  <button @click="clearBackColor"><i class="fa-solid fa-eraser"></i> No Color</button>
+                </div>
+                <h5 class="titles">Standard Colors</h5>
+                <div class="list-colors">
+                  <template v-for="color in colors.standards">
+                    <div class="color-item" :style="`background:${color.color}`" @click="setBackColor(color.color)">
+                    </div>
+                  </template>
+                </div>
+                <h5 class="titles">Base Colors</h5>
+                <div class="list-colors">
+                  <template v-for="group in colors.groups">
+                    <div class="col-colors">
+                      <template v-for="color in group.list">
+                        <div class="color-item" :style="`background:${color.color}`" @click="setBackColor(color.color)">
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </div>
             </div>
-            <button @click="clearBackColor"><i class="fa-solid fa-eraser"></i></button>
           </template>
           <button><i class="fa-solid fa-highlighter"></i></button>
         </a-popover>
@@ -430,10 +466,10 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
           <template #overlay>
             <a-menu>
               <a-menu-item key="1" @click="emojiModal = !emojiModal">
-                <span>Emojis</span>
+                <i class="fa-solid fa-face-grin"></i><span>Emojis</span>
               </a-menu-item>
               <a-menu-item key="2" @click="characterModal = !characterModal">
-                <span>Characters</span>
+                <i class="fa-solid fa-dollar-sign"></i><span>Characters</span>
               </a-menu-item>
               <a-menu-divider />
             </a-menu>
@@ -534,19 +570,44 @@ const defaultTableConfig = { rows: 3, cols: 3, withHeaderRow: true }
   }
 }
 
-.list-color {
-  width: 86px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
+.color-group {
+  width: 152px;
 
-  .color-item {
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
-    border: 1px solid #c4cecf4d;
+  .item-clear {
+    button {
+      cursor: pointer;
+      padding: 2px 0;
+      width: 100%;
+      font-size: 12px;
+      border: unset;
+      background: unset;
+
+      &:hover {
+        background: #c4cecf4d;
+      }
+    }
+  }
+
+  .titles {
+    margin-top: 5px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .list-colors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+
+    .color-item {
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      border: 1px solid #c4cecf4d;
+    }
   }
 }
+
 
 .list-emoji {
   display: flex;
