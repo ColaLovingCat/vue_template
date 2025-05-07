@@ -14,6 +14,10 @@ const formConfig = reactive({
         items: 'inline',
         labelCol: 2
     },
+    format: {
+        date: 'YYYY-MM-DD',
+        time: 'HH:mm:ss'
+    }
 })
 const formList: Ref<FormItem[]> = ref([
     {
@@ -80,10 +84,22 @@ const formList: Ref<FormItem[]> = ref([
         required: true,
     },
     {
+        type: 'datetime',
+        key: 'datetime',
+        label: 'Datetime',
+        required: false,
+    },
+    {
         type: 'date-range',
         key: 'fromto',
         label: 'From to',
         required: true,
+    },
+    {
+        type: 'datetime-range',
+        key: 'fromtotime',
+        label: 'From to',
+        required: false,
     },
 ])
 type FormValue = {
@@ -98,7 +114,9 @@ const formValue: FormValue = ref({
     sex: '女',
     hobby: [],
     birthday: null,
+    datetime: null,
     fromto: [],
+    fromtotime: [],
 })
 
 const onChange = (key: string) => {
@@ -123,7 +141,7 @@ const onSubmit = () => {
             <a-button type="primary" @click="onSubmit">Submit</a-button>
         </div>
         <div class="box-result">
-            <template v-for="item in formList">
+            <template v-for="item in formList" :key="item.key">
                 <p>{{ item.label }}: {{ formValue[item.key] }}</p>
             </template>
         </div>

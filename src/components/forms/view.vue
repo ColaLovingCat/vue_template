@@ -18,6 +18,10 @@ const props = defineProps({
         forms: '',
         items: '',
         labelCol: 12,
+      },
+      format: {
+        date: 'YYYY-MM-DD',
+        time: 'HH:mm'
       }
     })
   },
@@ -50,7 +54,8 @@ const refreshValues = (values: any) => {
     const value = values[key]
     if (temp) {
       switch (temp.type) {
-        case 'date': {
+        case 'date':
+        case 'datetime': {
           if (value) {
             formValues[key] = dayjs(value);
           } else {
@@ -58,7 +63,8 @@ const refreshValues = (values: any) => {
           }
           break
         }
-        case 'date-range': {
+        case 'date-range':
+        case 'datetime-range': {
           if (value && value.length == 2) {
             formValues[key] = [dayjs(value[0]), dayjs(value[1])];
           } else {
@@ -92,15 +98,30 @@ const syncValues = () => {
     switch (form.type) {
       case 'date': {
         if (values[form.key]) {
-          values[form.key] = dayjs(values[form.key]).format('YYYY-MM-DD')
+          values[form.key] = dayjs(values[form.key]).format(props.config.format.date)
+        }
+        break
+      }
+      case 'datetime': {
+        if (values[form.key]) {
+          values[form.key] = dayjs(values[form.key]).format(`${props.config.format.date} ${props.config.format.time}`)
         }
         break
       }
       case 'date-range': {
         if (values[form.key] && values[form.key].length == 2) {
           values[form.key] = [
-            dayjs(values[form.key][0]).format('YYYY-MM-DD'),
-            dayjs(values[form.key][1]).format('YYYY-MM-DD')
+            dayjs(values[form.key][0]).format(props.config.format.date),
+            dayjs(values[form.key][1]).format(props.config.format.date)
+          ]
+        }
+        break
+      }
+      case 'datetime-range': {
+        if (values[form.key] && values[form.key].length == 2) {
+          values[form.key] = [
+            dayjs(values[form.key][0]).format(`${props.config.format.date} ${props.config.format.time}`),
+            dayjs(values[form.key][1]).format(`${props.config.format.date} ${props.config.format.time}`)
           ]
         }
         break
@@ -220,13 +241,29 @@ defineExpose({
 
         <!-- Date -->
         <template v-if="form.type == 'date'">
-          <a-date-picker style="width: 100%;" v-model:value="formValues[form.key]" @change="onChanged(form)"
-            :disabled="form.disabled" :allowClear="form.activeClear" :status="errorInfos[form.key] ? 'error' : ''" />
+          <a-date-picker style="width: 100%;" :format="props.config.format.date" v-model:value="formValues[form.key]"
+            @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
+            :status="errorInfos[form.key] ? 'error' : ''" />
+        </template>
+        <!-- Datetime -->
+        <template v-if="form.type == 'datetime'">
+          <a-date-picker style="width: 100%;" :format="props.config.format.date + ' ' + props.config.format.time"
+            :show-time="{ format: props.config.format.time }" v-model:value="formValues[form.key]"
+            @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
+            :status="errorInfos[form.key] ? 'error' : ''" />
         </template>
         <!-- Date Range -->
         <template v-if="form.type == 'date-range'">
-          <a-range-picker style="width: 100%;" v-model:value="formValues[form.key]" @change="onChanged(form)"
-            :disabled="form.disabled" :allowClear="form.activeClear" :status="errorInfos[form.key] ? 'error' : ''" />
+          <a-range-picker style="width: 100%;" :format="props.config.format.date" v-model:value="formValues[form.key]"
+            @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
+            :status="errorInfos[form.key] ? 'error' : ''" />
+        </template>
+        <!-- Datetime Range -->
+        <template v-if="form.type == 'datetime-range'">
+          <a-range-picker style="width: 100%;" :format="props.config.format.date + ' ' + props.config.format.time"
+            :show-time="{ format: props.config.format.time }" v-model:value="formValues[form.key]"
+            @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
+            :status="errorInfos[form.key] ? 'error' : ''" />
         </template>
       </div>
     </template>
