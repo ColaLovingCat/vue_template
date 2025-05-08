@@ -189,3 +189,9 @@ pnpm install @tiptap/core
 🔲格式刷
 🔲拼写检查
 🔲全屏
+
+# RxJS
+
+```sh
+npm install rxjs/Rx vue-rx
+```
