@@ -64,6 +64,11 @@ const routes = [
     name: "workflows-using",
     component: () => import("@/components/workflows/using.vue"),
   },
+  {
+    path: "/gsap-using",
+    name: "gsap-using",
+    component: () => import("@/components/gsap/using.vue"),
+  },
 ];
 
 const router = createRouter({

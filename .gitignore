@@ -22,4 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Custom
+package-lock.json
 pnpm-lock.yaml
+src/auto-import.d.ts

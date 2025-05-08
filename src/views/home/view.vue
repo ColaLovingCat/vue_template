@@ -34,6 +34,9 @@ fetch('/api/user/list').then((resp: any) => {
       <div class="menu-item" @click="pageGo('/workflows-using')">
         <i class="fa-solid fa-diagram-project"></i> workflows
       </div>
+      <div class="menu-item" @click="pageGo('/gsap-using')">
+        <i class="fa-solid fa-diagram-project"></i> gsap
+      </div>
     </div>
   </div>
 </template>

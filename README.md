@@ -145,7 +145,7 @@ pnpm install -D @types/three
 # gsap
 
 ```sh
-pnpm instal gasp
+pnpm install gsap
 ```
 
 # markdown
