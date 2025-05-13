@@ -4,11 +4,12 @@ export default [
   {
     url: "/api/user/list",
     method: "get",
-    response: () => {
+    response: ({ query }: any) => {
+      const size = parseInt(query.size) || 5;
       return {
         status: 1,
         result: Mock.mock({
-          "list|5": [
+          [`list|${size}`]: [
             {
               id: "@id",
               guid: "@guid",

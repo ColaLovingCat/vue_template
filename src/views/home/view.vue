@@ -8,9 +8,19 @@ const pageGo = (path: string, query: any = {}) => {
   })
 }
 
-fetch('/api/user/list').then((resp: any) => {
-  console.log('Testing: ', resp)
-})
+fetch('/api/user/list')
+  .then((resp: any) => {
+    if (!resp.ok) {
+      throw new Error(`HTTP error! status: ${resp.status}`);
+    }
+    return resp.json();
+  })
+  .then((resp: any) => {
+    console.log('Testing: ', resp)
+  })
+  .catch(err => {
+    console.error('Fetch 错误:', err);
+  });
 </script>
 
 <template>
@@ -36,6 +46,9 @@ fetch('/api/user/list').then((resp: any) => {
       </div>
       <div class="menu-item" @click="pageGo('/gsap-using')">
         <i class="fa-solid fa-diagram-project"></i> gsap
+      </div>
+      <div class="menu-item" @click="pageGo('/directives-using')">
+        <i class="fa-solid fa-keyboard"></i> directives
       </div>
     </div>
   </div>

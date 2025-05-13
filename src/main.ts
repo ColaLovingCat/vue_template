@@ -47,4 +47,8 @@ app.use(pinia);
 import router from "./router/index";
 app.use(router);
 
+// 注册所有自定义指令
+import directives from '@/commons/directives'
+app.use(directives)
+
 app.mount("#app");

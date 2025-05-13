@@ -69,6 +69,11 @@ const routes = [
     name: "gsap-using",
     component: () => import("@/components/gsap/using.vue"),
   },
+  {
+    path: "/directives-using",
+    name: "directives-using",
+    component: () => import("@/commons/directives/using.vue"),
+  },
 ];
 
 const router = createRouter({

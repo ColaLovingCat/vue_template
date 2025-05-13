@@ -195,3 +195,14 @@ pnpm install @tiptap/core
 ```sh
 npm install rxjs/Rx vue-rx
 ```
+
+# 自定义指令
+✔ v-debounce 防抖
+✔ v-throttle 节流
+✔ v-date-format 日期格式化
+✔ v-data-fixed 数值保留小数位
+✔ v-scroll-load 滚动到底部自动触发加载
+🔲v-drag 实现拖拽移动元素
+🔲v-lazy 图片进入视窗后加载
+✔ v-resize 监听元素大小变化
+🔲v-click-outside 点击元素外部时触发事件
