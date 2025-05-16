@@ -41,6 +41,12 @@ pnpm install vue-router@4
 pnpm install vue-i18n
 ```
 
+# mitt eventBus
+
+```sh
+pnpm install mitt
+```
+
 # Pinia
 
 ```sh

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue'
+import eventBus from '@/commons/utils/eventBus'
 
 import { useRouter } from 'vue-router'
 const routers = useRouter()
@@ -28,7 +29,7 @@ onMounted(() => {
         const { isSuccess, message } = resp
         if (isSuccess) {
           extend.LocalStore.set('token', message)
-          ;(window as any).eventBus.getinfosUser()
+          eventBus.emit('getinfosUser')
           //
           if (params.state) {
             let path = decodeURIComponent(decodeURIComponent(params.state))
@@ -36,7 +37,7 @@ onMounted(() => {
               path
             })
           } else {
-            ;(window as any).eventBus.jumpHome()
+            eventBus.emit('jumpHome')
           }
         } else {
           meessageBox.showError(message)

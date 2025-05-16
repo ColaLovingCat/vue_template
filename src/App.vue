@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { onMounted, onUnmounted, ref, computed } from 'vue'
 import type { Ref } from 'vue'
+import eventBus from '@/commons/utils/eventBus'
 
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -44,6 +45,19 @@ onMounted(() => {
     getinfosUser()
     jumpHome()
   }
+
+  //
+  eventBus.on('getinfosUser', getinfosUser)
+  eventBus.on('jumpHome', jumpHome)
+  eventBus.on('clearSystem', clearSystem)
+  eventBus.on('logout', logout)
+})
+
+onUnmounted(() => {
+  eventBus.off('getinfosUser', getinfosUser)
+  eventBus.off('jumpHome', jumpHome)
+  eventBus.off('clearSystem', clearSystem)
+  eventBus.off('logout', logout)
 })
 
 // 语言
@@ -133,57 +147,28 @@ const clearSystem = () => {
   // 清除菜单
   menus.value = []
 }
-
-// 在其他页面也可以调用
-;(window as any).eventBus = {
-  getinfosUser,
-  //
-  jumpHome,
-  //
-  clearSystem,
-  logout
-}
 </script>
 
 <template>
   <layoutView :datas="menus" :status="headerStatus">
     <!-- Logo -->
     <template #logos>
-      <img
-        class="logo"
-        :src="`/systems/logos/bosch_logo${theme == 'default' ? '' : '-white'}.png`"
-        alt=""
-        srcset=""
-        @click="pageGo('/home')"
-      />
+      <img class="logo" :src="`/systems/logos/bosch_logo${theme == 'default' ? '' : '-white'}.png`" alt="" srcset=""
+        @click="pageGo('/home')" />
     </template>
     <template #logos-mini>
-      <img
-        class="logo-mini"
-        src="/systems/logos/bosch.png"
-        alt=""
-        srcset=""
-        @click="pageGo('/home')"
-      />
+      <img class="logo-mini" src="/systems/logos/bosch.png" alt="" srcset="" @click="pageGo('/home')" />
     </template>
     <!-- Right -->
     <template #infos>
       <!-- 主题 -->
       <div class="themes">
-        <a-switch
-          v-model:checked="themesStatus"
-          checked-children="亮"
-          un-checked-children="暗"
-          @change="toggleThemes"
-        />
+        <a-switch v-model:checked="themesStatus" checked-children="亮" un-checked-children="暗" @change="toggleThemes" />
       </div>
       <!-- 语言 -->
       <div class="langs">
-        <img
-          class="img-lan"
-          :src="`/systems/lan/lan-${locale}.png`"
-          @click="changeLanguage(locale == 'zh' ? 'en' : 'zh')"
-        />
+        <img class="img-lan" :src="`/systems/lan/lan-${locale}.png`"
+          @click="changeLanguage(locale == 'zh' ? 'en' : 'zh')" />
       </div>
       <!-- 用户 -->
       <a-dropdown class="users">

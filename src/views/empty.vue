@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue'
-import type { Ref } from 'vue'
+import { onMounted, ref, reactive, computed, watch } from 'vue'
 
 // name
 defineOptions({
@@ -20,15 +19,15 @@ const props = defineProps({
 })
 
 // emits
-const emit = defineEmits<{
+const emits = defineEmits<{
   (event: 'update', values: any): void
 }>()
 
-onMounted(() => {})
+onMounted(() => { })
 
 watch(
   () => props.changeMark,
-  (newValue, oldValue) => {}
+  (newValue, oldValue) => { }
 )
 </script>
 

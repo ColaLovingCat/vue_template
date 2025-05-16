@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import eventBus from '@/commons/utils/eventBus'
 
 import { useSystemInfosStore } from '@/commons/stores/index'
 const systemInfosStore = useSystemInfosStore()
@@ -38,7 +39,7 @@ onMounted(() => {
   if (params.type) {
     switch (params.type) {
       case 'logout': {
-        ;(window as any).eventBus.clearSystem()
+          eventBus.emit('clearSystem')
         break
       }
       default: {
@@ -141,9 +142,9 @@ const login = () => {
       //
       const { isSuccess, message } = resp
       if (isSuccess) {
-        ;(window as any).eventBus.getinfosUser()
+          eventBus.emit('getinfosUser')
         //
-        ;(window as any).eventBus.jumpHome()
+          eventBus.emit('jumpHome')
       } else {
         messageBox.showError(message)
       }
