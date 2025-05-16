@@ -1,119 +1,130 @@
-import * as extend from './extends'
+import * as extend from "./extends";
 
-import { useSystemInfosStore } from '@/commons/stores/index'
-
-export const fetchRequest = (url: string, options: any = {}, remarks = '') => {
-  const opts: any = {}
+export const fetchRequest = (
+  url: string,
+  options: FetchOptions = {},
+  remarks = ""
+) => {
+  const opts: any = {};
   // 请求方式
-  opts.method = (options.method || 'GET').toUpperCase()
+  opts.method = (options.method || "GET").toUpperCase();
   // 头部信息
   opts.headers =
-    options.type != 'none'
+    options.type != "none"
       ? {
-          'Content-Type': options.type || 'application/json; charset=utf-8',
-          Accept: 'application/json,text/plain,*/*'
+          "Content-Type": options.type || "application/json; charset=utf-8",
+          Accept: "application/json,text/plain,*/*",
         }
-      : {}
-  Object.assign(opts.headers, options.headers)
+      : {};
+  Object.assign(opts.headers, options.headers);
   // 获取token信息
-  const token = extend.LocalStore.get('token')
+  const token = extend.LocalStore.get("token");
   if (token) {
     Object.assign(opts.headers, {
-      Authorization: token
-    })
+      Authorization: token,
+    });
   }
   // opts.credentials = options.credentials || 'include'; // 设置cookie是否一起发送 omit | same-origin | include
   // opts.mode= options.mode || 'no-cors', // 跨域设置 cors | no-cors | same-origin
   // 格式化参数
   switch (opts.method) {
     // 拼接GET参数
-    case 'GET': {
+    case "GET": {
       if (options.data) {
-        url += '?' + extend.ExObject.stringfyParams(options.data)
+        url += "?" + extend.ExObject.stringfyParams(options.data);
       }
-      break
+      break;
     }
     // body存入POST参数
-    case 'POST':
+    case "POST":
     default: {
-      opts.body = !options.type ? JSON.stringify(options.data) : options.data
-      break
+      opts.body = !options.type ? JSON.stringify(options.data) : options.data;
+      break;
     }
   }
-  remarks != '' ? console.log(remarks + ' Request: ', url, opts) : void 0
+  remarks != "" ? console.log(remarks + " Request: ", url, opts) : void 0;
   // 返回数据的解析方式
-  const dataType = options.dataType || 'json'
+  const dataType = options.dataType || "json";
   //
   return new Promise((resolve, reject) => {
     fetch(checkAPI(url), opts)
       .then(async (res) => {
-        remarks != '' ? console.log(remarks + ' Status: ', res.status) : void 0
+        remarks != "" ? console.log(remarks + " Status: ", res.status) : void 0;
         if (res.status == 401) {
-          extend.LocalStore.delete('token')
-          reject(res)
-          // 信息失效重新登录
-          // const systemStore = useSystemInfosStore()
-          // systemStore.showLogout(() => {
-          //   ;(window as any).eventBus.logout()
-          // })
+          extend.LocalStore.delete("token");
+          reject(res);
         }
         // response.status 表示响应的http状态码
         if (res.status !== 200) {
-          reject(res)
+          reject(res);
         }
         // 刷新token
-        const token = res.headers.get('Token')
+        const token = res.headers.get("Token");
         if (token) {
-          extend.LocalStore.set('token', token)
+          extend.LocalStore.set("token", token);
         }
         // 处理返回的数据
-        let data = null
+        let data = null;
         switch (dataType) {
-          case 'text': {
-            data = await res.text()
-            break
+          case "text": {
+            data = await res.text();
+            break;
           }
-          case 'blob': {
-            data = await res.blob()
-            break
+          case "blob": {
+            data = await res.blob();
+            break;
           }
           default: {
-            data = await res.json()
-            break
+            data = await res.json();
+            break;
           }
         }
-        remarks != '' ? console.log(remarks + ': ', data) : void 0
+        remarks != "" ? console.log(remarks + ": ", data) : void 0;
         // 需要获取头部信息
         if (options.activeBody) {
-          const headers: { [key: string]: any } = {}
+          const headers: { [key: string]: any } = {};
           res.headers.forEach((value, name) => {
-            headers[name] = value
-          })
+            headers[name] = value;
+          });
           resolve({
             headers: headers,
-            body: data
-          })
+            body: data,
+          });
         }
         //
-        resolve(data)
+        resolve(data);
       })
       .catch(function (err) {
-        remarks != '' ? console.error(remarks + ': ', err) : void 0
-        reject(err)
-      })
-  })
-}
+        remarks != "" ? console.error(remarks + ": ", err) : void 0;
+        reject(err);
+      });
+  });
+};
 
-const checkAPI = (url: string) => {
+export interface FetchOptions {
+  // 默认
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  data?: any; // 请求体数据（POST/PUT等）或查询参数（GET）
+  // 头部
+  type?: string; // Content-Type，例：'application/json'，设为 'none' 则不设置
+  headers?: Record<string, string>;
+  // 返回
+  dataType?: "json" | "text" | "blob"; // 期望的响应数据类型，默认是 json
+  activeBody?: boolean; // 是否需要返回响应头信息 {headers,body}
+  // credentials?: RequestCredentials  // 可选：是否发送 cookie
+  // mode?: RequestMode                // 可选：请求的模式，通常用于跨域设置
+}
+export const checkAPI = (url: string) => {
   // 接口以http或https开头
-  const check = new RegExp('^http.*$').test(url) || new RegExp('^https.*$').test(url)
-  if (check) return url
+  const check =
+    new RegExp("^http.*$").test(url) || new RegExp("^https.*$").test(url);
+  if (check) return url;
 
   // 前端部署在wwwroot中
   //@ts-ignore
-  if (import.meta.env.VITE_APP_ROOT == 'true') return url
+  if (import.meta.env.VITE_APP_ROOT == "true") return url;
 
   // 默认地址
   //@ts-ignore
-  return import.meta.env.VITE_APP_API_URL + url
-}
+  return import.meta.env.VITE_APP_API_URL + url;
+};
