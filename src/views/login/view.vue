@@ -1,23 +1,20 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
-import eventBus from '@/commons/utils/eventBus'
+
+import appConfigs from '@/configs/app.config'
+const mode = appConfigs.loginMode
 
 import { useSystemInfosStore } from '@/commons/stores/index'
 const systemInfosStore = useSystemInfosStore()
 import { useLoadingStore } from '@/commons/stores/index'
 const loadingStore = useLoadingStore()
 
+import eventBus from '@/commons/utils/eventBus'
 import * as extend from '@/commons/utils/extends'
 import * as messageBox from '@/commons/utils/messages'
 import * as current from './login.service'
 
-const activeDynamic = false
-const canvas: any = ref(null)
-let ctx: any = null
-let circles: any[] = []
-const colors = ['#836fff', '#15f5ba', '#692ff']
-
-onMounted(() => {
+onMounted(async () => {
   // systemInfosStore.setHeader(false)
   // 背景
   if (activeDynamic) {
@@ -39,7 +36,7 @@ onMounted(() => {
   if (params.type) {
     switch (params.type) {
       case 'logout': {
-          eventBus.emit('clearSystem')
+        eventBus.emit('clearSystem')
         break
       }
       default: {
@@ -60,7 +57,12 @@ const onKeyDown = (event: any) => {
   }
 }
 
-// Back
+//#region Back
+const activeDynamic = false
+const canvas: any = ref(null)
+let ctx: any = null
+let circles: any[] = []
+const colors = ['#836fff', '#15f5ba', '#692ff']
 const initialCircle = () => {
   circles = []
   //
@@ -114,6 +116,7 @@ const resizeCanvas = () => {
   //
   initialCircle()
 }
+//#endregion
 
 // Login
 const loginForm = reactive({
@@ -132,40 +135,69 @@ const login = () => {
     })
   )
   //
-  let params = {
-    userName: loginForm.account,
-    password: loginForm.password
-  }
-  current.login(params).then(
-    (resp: any) => {
-      loadingStore.end()
-      //
-      const { isSuccess, message } = resp
-      if (isSuccess) {
-          eventBus.emit('getinfosUser')
-        //
-          eventBus.emit('jumpHome')
-      } else {
-        messageBox.showError(message)
+  switch (systemInfosStore.systemInfos.loginMode) {
+    case 'sso-local': {
+      const params = {
+        userno: loginForm.account,
+        password: loginForm.password
       }
-    },
-    (err: any) => {
-      loadingStore.end()
-      //
-      messageBox.showError(err)
+      current.login(params).then(
+        (resp: any) => {
+          loadingStore.end()
+          //
+          const { success, message } = resp
+          if (success) {
+            eventBus.emit('getinfosUser')
+            //
+            eventBus.emit('jumpHome')
+          } else {
+            messageBox.showError(message)
+          }
+        },
+        (err: any) => {
+          loadingStore.end()
+          //
+          messageBox.showError(err)
+        }
+      )
+      break
     }
-  )
-}
-const loginSSO = () => {
-  const redirectUrl = extend.ExWeb.url().server + '/sso-auth'
-  const { clientID, tenant } = systemInfosStore.systemInfos
-  let params = {
-    client_id: clientID,
-    scope: 'api://' + clientID + '/sso',
-    response_type: 'code',
-    redirect_uri: redirectUrl
+    case 'sso-iuser': {
+      let params = {
+        userName: loginForm.account,
+        password: loginForm.password
+      }
+      current.login(params).then(
+        (resp: any) => {
+          loadingStore.end()
+          //
+          const { isSuccess, message } = resp
+          if (isSuccess) {
+            eventBus.emit('getinfosUser')
+            //
+            eventBus.emit('jumpHome')
+          } else {
+            messageBox.showError(message)
+          }
+        },
+        (err: any) => {
+          loadingStore.end()
+          //
+          messageBox.showError(err)
+        }
+      )
+      break
+    }
+    default: {
+      break
+    }
   }
-  let url = `${tenant}?` + extend.ExObject.stringfyParams(params)
+}
+//
+const loginSSO = () => {
+  const redirect_uri = extend.ExWeb.url().server + '/sso-auth'
+  const { host, client_id, scope, response_type } = systemInfosStore.systemInfos.azureConfigs
+  let url = `${host}?` + extend.ExObject.stringfyParams({ client_id, scope, response_type, redirect_uri, })
   window.open(url, '_self')
 }
 </script>
@@ -187,53 +219,51 @@ const loginSSO = () => {
       <div class="col-right">
         <div class="box-login">
           <div class="titles">{{ systemInfosStore.systemInfos.name }}</div>
-          <a-form
-            :model="loginForm"
-            layout="vertical"
-            name="basic"
-            :label-col="{ span: 5 }"
-            autocomplete="off"
-            @finish="login"
-          >
-            <a-form-item
-              :label="$t('system.account')"
-              name="account"
-              :rules="[{ required: true, message: 'Please input your account!' }]"
-            >
-              <a-input v-model:value="loginForm.account" />
-            </a-form-item>
+          <div class="box-sso" v-if="mode == 'sso-only'">
+            <p class="title-second">- Login for employee -</p>
+            <p class="title-desc">Login only works from Bosch network</p>
+            <a-button type="primary" class="btn btn-sso" @click="loginSSO">
+              <i class="fa-solid fa-cloud"></i>
+              <span>{{ $t('system.login.sso') }}</span>
+            </a-button>
+          </div>
+          <div class="box-iuser" v-else>
+            <a-form :model="loginForm" layout="vertical" name="basic" :label-col="{ span: 5 }" autocomplete="off"
+              @finish="login">
+              <a-form-item :label="$t('system.account')" name="account"
+                :rules="[{ required: true, message: 'Please input your account!' }]">
+                <a-input v-model:value="loginForm.account" />
+              </a-form-item>
 
-            <a-form-item
-              :label="$t('system.password')"
-              name="password"
-              :rules="[{ required: true, message: 'Please input your password!' }]"
-            >
-              <a-input-password v-model:value="loginForm.password" />
-            </a-form-item>
+              <a-form-item :label="$t('system.password')" name="password"
+                :rules="[{ required: true, message: 'Please input your password!' }]">
+                <a-input-password v-model:value="loginForm.password" />
+              </a-form-item>
 
-            <a-form-item name="remember">
-              <a-checkbox v-model:checked="loginForm.remember" class="btn-check">
-                {{ $t('system.remember') }}
-              </a-checkbox>
-            </a-form-item>
+              <a-form-item name="remember">
+                <a-checkbox v-model:checked="loginForm.remember" class="btn-check">
+                  {{ $t('system.remember') }}
+                </a-checkbox>
+              </a-form-item>
 
-            <a-form-item>
-              <a-button type="primary" class="btn btn-login" html-type="submit">
-                {{ $t('system.login') }}
-              </a-button>
-            </a-form-item>
-          </a-form>
-          <div class="others">
-            <div class="line-divider">
-              <div class="line"></div>
-              <span>{{ $t('system.login.other') }}</span>
-              <div class="line"></div>
-            </div>
-            <div>
-              <a-button type="primary" class="btn btn-sso" @click="loginSSO">
-                <i class="fa-solid fa-cloud"></i>
-                <span>{{ $t('system.login.sso') }}</span>
-              </a-button>
+              <a-form-item>
+                <a-button type="primary" class="btn btn-login" html-type="submit">
+                  {{ $t('system.login') }}
+                </a-button>
+              </a-form-item>
+            </a-form>
+            <div class="others">
+              <div class="line-divider">
+                <div class="line"></div>
+                <span>{{ $t('system.login.other') }}</span>
+                <div class="line"></div>
+              </div>
+              <div class="btns">
+                <a-button type="primary" class="btn btn-sso" @click="loginSSO">
+                  <i class="fa-solid fa-cloud"></i>
+                  <span>{{ $t('system.login.sso') }}</span>
+                </a-button>
+              </div>
             </div>
           </div>
         </div>
@@ -388,6 +418,32 @@ const loginSSO = () => {
       font-size: 14px;
       font-weight: 500;
     }
+  }
+}
+
+.box-sso {
+  p {
+    text-align: center;
+  }
+
+  .title-second {
+    margin: 36px 0 24px;
+    color: #9da1a8;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+
+  .title-desc {
+    margin-bottom: 24px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 30px;
+  }
+
+  .btn-sso {
+    width: 100%;
+    border-radius: 30px;
   }
 }
 </style>

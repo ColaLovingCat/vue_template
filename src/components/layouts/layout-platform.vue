@@ -1,7 +1,7 @@
 <script lang="ts">
 import { ref, defineComponent, computed, watch } from 'vue'
 import type { Ref } from 'vue'
-import type { MenuInfos } from '@/commons/datas/datas.types'
+import type { MenuInfos } from '@/commons/types/datas.types'
 
 export default defineComponent({
   props: {

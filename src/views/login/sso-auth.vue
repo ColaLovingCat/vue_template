@@ -17,18 +17,17 @@ onMounted(() => {
   if (params.code) {
     loadingStore.loading()
     //
-    const redirectUrl = extend.ExWeb.url().server + '/sso-auth'
+    const redirect_uri = extend.ExWeb.url().server + '/sso-auth'
     let param = {
       code: params.code,
-      redirectUrl
+      redirectUri: redirect_uri
     }
-    login.checkCode(param).then(
+    login.loginAzure(param).then(
       (resp: any) => {
         loadingStore.end()
         //
-        const { isSuccess, message } = resp
-        if (isSuccess) {
-          extend.LocalStore.set('token', message)
+        const { success, data, message } = resp
+        if (success) {
           eventBus.emit('getinfosUser')
           //
           if (params.state) {

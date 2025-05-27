@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref, watch } from 'vue'
 import dayjs from 'dayjs'
-
-import type { FormItem } from '@/commons/datas/datas.types';
+import type { FormItem } from '@/commons/types/form.types';
 
 // name
 defineOptions({

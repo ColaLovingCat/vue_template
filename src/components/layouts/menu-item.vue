@@ -1,7 +1,7 @@
 <script lang="ts">
-import { ref, Ref, reactive, defineComponent, onMounted, computed, watch, watchEffect } from 'vue'
+import { reactive, defineComponent } from 'vue'
 
-import { MenuClass } from '@/commons/datas/datas.types'
+import { MenuClass } from '@/commons/types/datas.types'
 
 export default defineComponent({
   name: 'menu-item',

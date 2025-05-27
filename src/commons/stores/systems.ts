@@ -1,48 +1,60 @@
-import { defineStore } from 'pinia'
-import { Modal } from 'ant-design-vue'
+import { defineStore } from "pinia";
+import { Modal } from "ant-design-vue";
 
-import type { SystemInfos } from '../datas/datas.types'
+import type { SystemInfos } from "../types/datas.types";
 
-export const useSystemInfosStore = defineStore('systemInfos', {
+export const useSystemInfosStore = defineStore("systemInfos", {
   state(): { systemInfos: SystemInfos; systemStatus: any } {
     return {
       systemInfos: {
-        name: 'System Name',
+        name: "",
+        loginMode: "sso-only",
         //
-        autoSSO: false,
-        clientID: 'ec12a58c-3742-415a-bf6e-7116beb38af6',
-        tenant:
-          'https://login.microsoftonline.com/0ae51e19-07c8-4e4b-bb6d-648ee58410f4/oauth2/v2.0/authorize'
+        azure: "configs",
+        azureAuto: false,
+        azureConfigs: {
+          host: "",
+          client_id: "",
+          scope: "",
+          response_type: "",
+          redirect_uri: "",
+        },
       },
       systemStatus: {
-        headerShow: true,
-        theme: 'default',
-        logoutShow: false
-      }
-    }
+        theme: "default",
+        headerShow: true, // 隐藏头部，全屏
+        logoutShow: false, // 避免多个注销弹窗
+      },
+    };
   },
   actions: {
+    initFromConfig(configs: Partial<SystemInfos>) {
+      Object.assign(this.systemInfos, configs);
+    },
+    setAzure(values: any) {
+      Object.assign(this.systemInfos.azureConfigs, values);
+    },
     setHeader(status: boolean) {
-      this.systemStatus.headerShow = status
+      this.systemStatus.headerShow = status;
     },
     setTheme(theme: string) {
-      this.systemStatus.theme = theme
+      this.systemStatus.theme = theme;
     },
     //
     showLogout(callback: Function) {
       if (!this.systemStatus.logoutShow) {
-        this.systemStatus.logoutShow = true
+        this.systemStatus.logoutShow = true;
         //
         Modal.warning({
-          title: 'Authentication Required',
-          content: 'You will be redirected to the Login page.',
+          title: "Authentication Required",
+          content: "You will be redirected to the Login page.",
           onOk: () => {
-            this.systemStatus.logoutShow = false
+            this.systemStatus.logoutShow = false;
             //
-            callback()
-          }
-        })
+            callback();
+          },
+        });
       }
-    }
-  }
-})
+    },
+  },
+});

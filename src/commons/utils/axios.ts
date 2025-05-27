@@ -1,5 +1,6 @@
-import axios, { AxiosRequestConfig } from "axios";
-import { FetchOptions, checkAPI } from "./fetch";
+import axios, { type AxiosRequestConfig } from "axios";
+
+import { type FetchOptions, checkAPI } from "./fetch";
 import * as extend from "./extends";
 
 export const axiosRequest = (

@@ -43,12 +43,20 @@ pinia.use(({ store }) => {
 });
 app.use(pinia);
 
+//
+import appConfigs from "./configs/app.config";
+import { useSystemInfosStore } from "./commons/stores";
+const systemInfosStore = useSystemInfosStore();
+systemInfosStore.initFromConfig({
+  ...appConfigs,
+});
+
 // router
 import router from "./router/index";
 app.use(router);
 
 // 注册所有自定义指令
-import directives from '@/commons/directives'
-app.use(directives)
+import directives from "@/commons/directives";
+app.use(directives);
 
 app.mount("#app");

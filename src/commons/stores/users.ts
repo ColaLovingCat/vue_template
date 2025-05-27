@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
-import type { UserInfos } from '../datas/datas.types'
+import type { UserInfos } from '../types/user.types'
 
 export const useUserInfosStore = defineStore('userInfos', {
   state(): { userInfos: UserInfos } {
     return {
       userInfos: {
-        num: '',
-        name: '',
+        userno: '',
+        username: '',
         ntAccount: '',
         email: '',
         roles: null
@@ -19,8 +19,8 @@ export const useUserInfosStore = defineStore('userInfos', {
     },
     clear() {
       this.userInfos = {
-        num: '',
-        name: '',
+        userno: '',
+        username: '',
         ntAccount: '',
         email: '',
         roles: null

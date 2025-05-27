@@ -2,7 +2,7 @@
 import { ref, defineComponent, computed, watch } from 'vue'
 
 import menuItem from './menu-item.vue'
-import type { MenuInfos } from '@/commons/datas/datas.types'
+import type { MenuInfos } from '@/commons/types/datas.types'
 
 export default defineComponent({
   props: {

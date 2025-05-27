@@ -16,7 +16,7 @@ fetch('/api/user/list')
     return resp.json();
   })
   .then((resp: any) => {
-    console.log('Testing: ', resp)
+    console.log('[Mock] test: ', resp)
   })
   .catch(err => {
     console.error('Fetch 错误:', err);

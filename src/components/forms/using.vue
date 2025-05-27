@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { reactive, ref, type Ref } from 'vue';
+
 import formView from './view.vue'
-import type { FormItem } from '@/commons/datas/datas.types';
+import type { FormItem } from '@/commons/types/form.types';
 
 // name
 defineOptions({

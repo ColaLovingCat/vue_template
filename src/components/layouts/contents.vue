@@ -4,6 +4,7 @@ import { onMounted } from 'vue'
 import { useSystemInfosStore } from '@/commons/stores/index'
 const systemStore = useSystemInfosStore()
 
+import eventBus from '@/commons/utils/eventBus'
 import * as extend from '@/commons/utils/extends'
 
 // name
@@ -18,7 +19,8 @@ onMounted(() => {
     // 有token
   } else {
     systemStore.showLogout(() => {
-      ;(window as any).eventBus.logout()
+      eventBus.emit('logout')
+      // ;(window as any).eventBus.logout()
     })
   }
 })

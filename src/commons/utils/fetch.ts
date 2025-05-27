@@ -59,8 +59,9 @@ export const fetchRequest = (
           reject(res);
         }
         // 刷新token
-        const token = res.headers.get("Token");
+        const token = res.headers.get("Authorization");
         if (token) {
+          console.log("[Fetch] token: ", token);
           extend.LocalStore.set("token", token);
         }
         // 处理返回的数据
