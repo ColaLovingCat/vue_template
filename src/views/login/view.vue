@@ -145,8 +145,8 @@ const login = () => {
         (resp: any) => {
           loadingStore.end()
           //
-          const { success, message } = resp
-          if (success) {
+          const { status, message } = resp
+          if (status) {
             eventBus.emit('getinfosUser')
             //
             eventBus.emit('jumpHome')
@@ -164,15 +164,15 @@ const login = () => {
     }
     case 'sso-iuser': {
       let params = {
-        userName: loginForm.account,
+        ntAccount: loginForm.account,
         password: loginForm.password
       }
-      current.login(params).then(
+      current.loginiUser(params).then(
         (resp: any) => {
           loadingStore.end()
           //
-          const { isSuccess, message } = resp
-          if (isSuccess) {
+          const { status, message } = resp
+          if (status) {
             eventBus.emit('getinfosUser')
             //
             eventBus.emit('jumpHome')

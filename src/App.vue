@@ -92,8 +92,8 @@ const setTheme = (theme: string) => {
 
 const getinfosAzure = async () => {
   let resp: any = await current.getinfosAzure()
-  const { success, data } = resp;
-  if (success) {
+  const { status, data } = resp;
+  if (status) {
     console.log('[App] azure: ', data)
     systemInfosStore.setAzure({
       host: data.host,
@@ -112,8 +112,8 @@ const getinfosUser = async () => {
   try {
     // 先获取用户信息
     const resp: any = await current.getinfosUser()
-    const { success, data, message } = resp
-    if (success) {
+    const { status, data, message } = resp
+    if (status) {
       userInfosStore.refresh({ ...data })
       console.log('[App] user: ', userInfosStore.userInfos)
     } else {

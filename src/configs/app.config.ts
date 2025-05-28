@@ -2,7 +2,7 @@ import type { SystemInfos } from "@/commons/types/datas.types";
 
 const appConfigs: SystemInfos = {
   name: "Demo System",
-  loginMode: "sso-local",
+  loginMode: "sso-iuser",
   azure: "request",
   azureAuto: false,
   azureConfigs: {

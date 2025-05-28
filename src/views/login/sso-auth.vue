@@ -26,8 +26,8 @@ onMounted(() => {
       (resp: any) => {
         loadingStore.end()
         //
-        const { success, data, message } = resp
-        if (success) {
+        const { status, data, message } = resp
+        if (status) {
           eventBus.emit('getinfosUser')
           //
           if (params.state) {
