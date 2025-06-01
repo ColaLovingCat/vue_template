@@ -153,7 +153,7 @@ const chatInfos: {
   isThinking: boolean,
 } = reactive({
   // wb状态
-  host: 'wss://szhlinvma75.apac.bosch.com:59108/',
+  host: `wss://${new URL(import.meta.env.VITE_APP_COMMON_URL).host}/ws`,
   isActive: false,
   //
   thread_id: '', // 聊天的唯一ID，可以连接上下文
@@ -1073,8 +1073,7 @@ defineExpose({
             </a-popover>
             <a-tooltip>
               <template #title>Send Message</template>
-              <a-button shape="circle" class="btn btn-send" @click="sendMessage()"
-                :disabled="chatInfos.message == ''">
+              <a-button shape="circle" class="btn btn-send" @click="sendMessage()" :disabled="chatInfos.message == ''">
                 <i class="fa-solid fa-arrow-up"></i>
               </a-button>
             </a-tooltip>
