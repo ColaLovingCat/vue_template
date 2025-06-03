@@ -9,3 +9,13 @@ html[data-theme='dark'] {
     --color-page-text: #fff;
     --color-content-bg: #212121;
 }
+
+:root {
+    --color-default: #0070e0;
+    --color-primary: #0070e0;
+    --color-infos: #0070e0;
+    --color-success: #03a65a;
+    --color-warning: #fc8621;
+    --color-error: #db3056;
+    --color-gray: #c4cecf;
+}

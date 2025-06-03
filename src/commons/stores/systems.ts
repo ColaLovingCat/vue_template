@@ -28,6 +28,9 @@ export const useSystemInfosStore = defineStore("systemInfos", {
     };
   },
   actions: {
+    init() {
+      this.systemStatus.logoutShow = false;
+    },
     initFromConfig(configs: Partial<SystemInfos>) {
       Object.assign(this.systemInfos, configs);
     },

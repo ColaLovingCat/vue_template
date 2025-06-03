@@ -47,6 +47,7 @@ app.use(pinia);
 import appConfigs from "./configs/app.config";
 import { useSystemInfosStore } from "./commons/stores";
 const systemInfosStore = useSystemInfosStore();
+systemInfosStore.init();
 systemInfosStore.initFromConfig({
   ...appConfigs,
 });
