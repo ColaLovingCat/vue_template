@@ -59,6 +59,9 @@ fetch('/api/user/list')
     <div class="menu-item" @click="pageGo('/directives-using')">
       <i class="fa-solid fa-keyboard"></i> directives
     </div>
+       <div class="menu-item" @click="pageGo('/users-manage')">
+      <i class="fa-solid fa-users"></i> user manage
+    </div>
   </div>
 </template>
 

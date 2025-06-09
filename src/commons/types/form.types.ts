@@ -5,9 +5,11 @@ export interface FormItem {
   // Common
   required?: boolean;
   disabled?: boolean;
+  hidden?: boolean;
   activeClear?: boolean;
   // Input
   isPassword?: boolean;
+  isEmail?: boolean;
   // Select
   isMulti?: boolean;
   activeSearch?: boolean;

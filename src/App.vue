@@ -45,11 +45,11 @@ onMounted(async () => {
 
   // 检测token
   let token = extend.LocalStore.get('token')
-  console.log('[App] token: ', token)
+  // console.log('[App] token: ', token)
   if (token && token != '') {
     // 如果有token则加载用户信息和菜单
     getinfosUser()
-    jumpHome()
+    // jumpHome()
   }
 
   // 注册全局方法

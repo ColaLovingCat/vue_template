@@ -20,8 +20,9 @@ const props = defineProps({
       },
       format: {
         date: 'YYYY-MM-DD',
-        time: 'HH:mm'
-      }
+        time: 'HH:mm:ss'
+      },
+      showError: false
     })
   },
   forms: {
@@ -82,11 +83,7 @@ const refreshValues = (values: any) => {
 
 const onChanged = (form: any, event?: any) => {
   // 验证单个控件
-  if (!validateItem(form)) {
-    errorInfos.value[form.key] = `${form.label} required`;
-  } else {
-    delete errorInfos.value[form.key];
-  }
+  validateItem(form)
   //
   syncValues()
   emit('changed', form.key)
@@ -139,6 +136,8 @@ const filterOption = (input: string, option: any) => {
 };
 
 // validate
+const emailRegex = /^[\w.-]+@[\w.-]+\.\w+$/;
+const multiEmailRegex = /^([\w.-]+@[\w.-]+\.\w+)(;[\w.-]+@[\w.-]+\.\w+)*$/;
 const errorInfos: any = ref({});
 const validate = () => {
   // 清空之前的错误信息
@@ -147,25 +146,48 @@ const validate = () => {
   let isValid = true;
   for (const form of props.forms) {
     if (!validateItem(form)) {
-      errorInfos.value[form.key] = `${form.label} 是必填项`;
       isValid = false;
     }
   }
   return isValid;
 }
 const validateItem = (form: any) => {
-  if (form.required) {
-    const value = formValues[form.key];
+  let isValid = true
 
+  const value = formValues[form.key];
+  // 激活状态 且 必填
+  if (!(form.disabled || form.hidden) && form.required) {
+    // 多选
     if (form.type === 'checks') {
-      return value && value.length > 0;
+      isValid = value && value.length > 0
+      if (!isValid) {
+        errorInfos.value[form.key] = `${form.label} required`;
+      }
     }
 
-    if (value === '' || value == null || (Array.isArray(value) && value.length === 0)) {
-      return false
+    // 空值
+    isValid = !checkEmpty(value)
+    if (!isValid) {
+      errorInfos.value[form.key] = `${form.label} required`;
     }
   }
-  return true
+
+  // 邮件
+  if (form.isEmail && !checkEmpty(value)) {
+    isValid = multiEmailRegex.test(value.trim());
+    if (!isValid) {
+      errorInfos.value[form.key] = 'Invalid email format (a@b.com or a@b.com;b@c.com)';
+    }
+  }
+
+  // 通过
+  if (isValid) {
+    delete errorInfos.value[form.key];
+  }
+  return isValid
+}
+const checkEmpty = (value: any) => {
+  return value === '' || value == null || (Array.isArray(value) && value.length === 0)
 }
 defineExpose({
   validate
@@ -173,23 +195,32 @@ defineExpose({
 </script>
 
 <template>
+  {{ errorInfos.mail }}
   <div class="forms" :class="config.class.forms">
     <template v-for="form in forms" :key="form.key">
-      <div class="form-item" :class="config.class.items">
+      <div class="form-item" v-if="!form.hidden" :class="config.class.items">
         <label :class="`col-${config.class.labelCol}`">
           {{ form.label }}
           <span v-if="form.required" class="required">*</span>
         </label>
         <!-- Input -->
         <template v-if="form.type == 'input'">
-          <template v-if="!form.isPassword">
+          <!-- Password -->
+          <template v-if="form.isPassword">
+            <a-input-password style="width: 100%;" :placeholder="form.label" v-model:value="formValues[form.key]"
+              @change="onChanged(form)" :disabled="form.disabled" :status="errorInfos[form.key] ? 'error' : ''" />
+          </template>
+          <!-- Email -->
+          <template v-else-if="form.isEmail">
             <a-input style="width: 100%;" :placeholder="form.label" v-model:value="formValues[form.key]"
               @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
               :status="errorInfos[form.key] ? 'error' : ''" />
           </template>
+          <!-- Normal -->
           <template v-else>
-            <a-input-password style="width: 100%;" :placeholder="form.label" v-model:value="formValues[form.key]"
-              @change="onChanged(form)" :disabled="form.disabled" :status="errorInfos[form.key] ? 'error' : ''" />
+            <a-input style="width: 100%;" :placeholder="form.label" v-model:value="formValues[form.key]"
+              @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
+              :status="errorInfos[form.key] ? 'error' : ''" />
           </template>
         </template>
         <!-- Textarea -->
@@ -264,6 +295,8 @@ defineExpose({
             @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
             :status="errorInfos[form.key] ? 'error' : ''" />
         </template>
+
+        <p class="error-infos" v-if="config.showError">{{ errorInfos[form.key] }}</p>
       </div>
     </template>
   </div>

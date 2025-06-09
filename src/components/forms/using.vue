@@ -4,6 +4,8 @@ import { reactive, ref, type Ref } from 'vue';
 import formView from './view.vue'
 import type { FormItem } from '@/commons/types/form.types';
 
+import * as messages from '@/commons/utils/messages'
+
 // name
 defineOptions({
     name: 'custom-name'
@@ -18,7 +20,8 @@ const formConfig = reactive({
     format: {
         date: 'YYYY-MM-DD',
         time: 'HH:mm:ss'
-    }
+    },
+    showError: true
 })
 const formList: Ref<FormItem[]> = ref([
     {
@@ -33,6 +36,12 @@ const formList: Ref<FormItem[]> = ref([
         label: 'Password',
         isPassword: true,
         required: true,
+    },
+    {
+        type: 'input',
+        key: 'email',
+        label: 'Email',
+        isEmail: true,
     },
     {
         type: 'textarea',
@@ -109,6 +118,7 @@ type FormValue = {
 const formValue: FormValue = ref({
     username: '',
     password: '',
+    emial: '',
     desc: '',
     location: null,
     status: true,
@@ -127,9 +137,9 @@ const onChange = (key: string) => {
 const formRef = ref();
 const onSubmit = () => {
     if (formRef.value?.validate()) {
-        console.log('校验通过！可以提交')
+        messages.showSuccess('校验通过！可以提交')
     } else {
-        console.log('校验失败！请修正错误')
+        messages.showError('校验失败！请修正错误')
     }
 }
 </script>

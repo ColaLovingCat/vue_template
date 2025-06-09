@@ -18,6 +18,11 @@ const routes = [
         name: "home",
         component: () => import("@/views/home/view.vue"),
       },
+      {
+        path: "/users-manage",
+        name: "users-manage",
+        component: () => import("@/views/system/users.vue"),
+      },
     ],
   },
 
