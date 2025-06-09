@@ -26,15 +26,13 @@ onMounted(() => {
       (resp: any) => {
         loadingStore.end()
         //
-        const { status, data, message } = resp
+        const { status, message } = resp
         if (status) {
           eventBus.emit('getinfosUser')
           //
           if (params.state) {
-            let path = decodeURIComponent(decodeURIComponent(params.state))
-            routers.push({
-              path
-            })
+            const path = decodeURIComponent(atob(decodeURIComponent(decodeURIComponent(params.state)))) || '/'
+            routers.push(path)
           } else {
             eventBus.emit('jumpHome')
           }

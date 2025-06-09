@@ -33,10 +33,16 @@ onMounted(async () => {
   }
   // 跳转
   let params = extend.ExWeb.params()
+  pageInfos.type = params.type
   if (params.type) {
     switch (params.type) {
       case 'logout': {
         eventBus.emit('clearSystem')
+        break
+      }
+      case 'jump': {
+        pageInfos.path = params.path
+        loginSSO()
         break
       }
       default: {
@@ -57,7 +63,7 @@ const onKeyDown = (event: any) => {
   }
 }
 
-//#region Back
+//#region Background
 const activeDynamic = false
 const canvas: any = ref(null)
 let ctx: any = null
@@ -119,6 +125,10 @@ const resizeCanvas = () => {
 //#endregion
 
 // Login
+const pageInfos = reactive({
+  type: '',
+  path: ''
+})
 const loginForm = reactive({
   account: '',
   password: '',
@@ -197,7 +207,17 @@ const login = () => {
 const loginSSO = () => {
   const redirect_uri = extend.ExWeb.url().server + '/sso-auth'
   const { host, client_id, scope, response_type } = systemInfosStore.systemInfos.azureConfigs
-  let url = `${host}?` + extend.ExObject.stringfyParams({ client_id, scope, response_type, redirect_uri, })
+  let params = {
+    client_id,
+    scope,
+    response_type,
+    redirect_uri,
+    state: ''
+  }
+  if (pageInfos.type == 'jump') {
+    params.state = encodeURIComponent(btoa(pageInfos.path))
+  }
+  let url = `${host}?` + extend.ExObject.stringfyParams(params)
   window.open(url, '_self')
 }
 </script>
