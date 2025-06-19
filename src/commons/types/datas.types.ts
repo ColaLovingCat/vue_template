@@ -33,24 +33,19 @@ export class MenuClass {
   children?: MenuInfos[] = [];
 }
 
-export class LoadingInfos {
-  _value: number;
-
-  constructor() {
-    this._value = 0;
-  }
-
-  get status() {
-    return this._value > 0;
-  }
-
-  loading = () => {
-    this._value++;
-  };
-  end = () => {
-    this._value > 0 ? this._value-- : void 0;
-  };
-  clear = () => {
-    this._value = 0;
-  };
+export interface UserInfos {
+  id?: string;
+  userno: string;
+  ntAccount?: string;
+  username: string;
+  password?: string;
+  email?: string;
+  avatar?: string;
+  deptID?: string;
+  deptName?: string;
+  status?: number;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string;
+  roles?: string | Array<string> | null;
 }

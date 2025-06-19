@@ -21,7 +21,7 @@ const routes = [
       {
         path: "/users-manage",
         name: "users-manage",
-        component: () => import("@/views/system/users.vue"),
+        component: () => import("@/views/manages/users.vue"),
       },
     ],
   },
@@ -78,6 +78,11 @@ const routes = [
     path: "/directives-using",
     name: "directives-using",
     component: () => import("@/commons/directives/using.vue"),
+  },
+  {
+    path: "/extend-using",
+    name: "extend-using",
+    component: () => import("@/commons/utils/extends/using.vue"),
   },
 ];
 

@@ -14,7 +14,7 @@ defineOptions({
 
 onMounted(() => {
   // 每当有路由切换时，都会触发
-  let token = extend.LocalStore.get('token')
+  let token = extend.ExLocalStore.get('token')
   if (token && token != '') {
     // 有token
   } else {

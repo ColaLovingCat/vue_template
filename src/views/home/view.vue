@@ -8,12 +8,12 @@ defineOptions({
   name: 'app-home'
 })
 
-onMounted(() => { })
+onMounted(() => {
+})
 </script>
 
 <template>
   <div class="sections">
-    <h3 class="titles">Home</h3>
     <compsView></compsView>
   </div>
 </template>

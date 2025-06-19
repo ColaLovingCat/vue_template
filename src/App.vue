@@ -27,11 +27,11 @@ onMounted(async () => {
   loadingStore.clear()
 
   // 设置语言，默认en
-  let lang = extend.LocalStore.get('lang')
+  let lang = extend.ExLocalStore.get('lang')
   locale.value = lang ? lang : 'en'
 
   // 设置主题
-  let theme = extend.LocalStore.get('theme')
+  let theme = extend.ExLocalStore.get('theme')
   theme = theme ? theme : 'default'
   //
   themesStatus.value = theme == 'default'
@@ -44,7 +44,7 @@ onMounted(async () => {
   }
 
   // 检测token
-  let token = extend.LocalStore.get('token')
+  let token = extend.ExLocalStore.get('token')
   // console.log('[App] token: ', token)
   if (token && token != '') {
     // 如果有token则加载用户信息和菜单
@@ -73,7 +73,7 @@ const { locale } = useI18n()
 const changeLanguage = (lang: string) => {
   locale.value = lang
   //
-  extend.LocalStore.set('lang', lang)
+  extend.ExLocalStore.set('lang', lang)
 }
 
 // 主题
@@ -86,7 +86,7 @@ const setTheme = (theme: string) => {
   // css样式
   document.documentElement.setAttribute('data-theme', theme)
   // 全局状态
-  extend.LocalStore.set('theme', theme)
+  extend.ExLocalStore.set('theme', theme)
   systemInfosStore.setTheme(theme)
 }
 
@@ -148,7 +148,7 @@ const logout = () => {
 }
 const clearSystem = () => {
   // 清除用户信息
-  extend.LocalStore.delete('token')
+  extend.ExLocalStore.delete('token')
   userInfosStore.clear()
   // 清除菜单
   menus.value = []

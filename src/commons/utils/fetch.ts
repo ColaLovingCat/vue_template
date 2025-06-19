@@ -18,7 +18,7 @@ export const fetchRequest = (
       : {};
   Object.assign(opts.headers, options.headers);
   // 获取token信息
-  const token = extend.LocalStore.get("token");
+  const token = extend.ExLocalStore.get("token");
   if (token) {
     Object.assign(opts.headers, {
       Authorization: token,
@@ -31,7 +31,7 @@ export const fetchRequest = (
     // 拼接GET参数
     case "GET": {
       if (options.data) {
-        url += "?" + extend.ExObject.stringfyParams(options.data);
+        url += "?" + extend.ExObject.stringifyParams(options.data);
       }
       break;
     }
@@ -51,7 +51,7 @@ export const fetchRequest = (
       .then(async (res) => {
         remarks != "" ? console.log(remarks + " Status: ", res.status) : void 0;
         if (res.status == 401) {
-          extend.LocalStore.delete("token");
+          extend.ExLocalStore.delete("token");
           reject(res);
         }
         // response.status 表示响应的http状态码
@@ -62,7 +62,7 @@ export const fetchRequest = (
         const token = res.headers.get("Authorization");
         if (token) {
           console.log("[Fetch] token: ", token);
-          extend.LocalStore.set("token", token);
+          extend.ExLocalStore.set("token", token);
         }
         // 处理返回的数据
         let data = null;

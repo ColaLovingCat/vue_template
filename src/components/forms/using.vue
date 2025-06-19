@@ -15,7 +15,7 @@ const formConfig = reactive({
     class: {
         forms: '',
         items: 'inline',
-        labelCol: 2
+        label: "col-2"
     },
     format: {
         date: 'YYYY-MM-DD',

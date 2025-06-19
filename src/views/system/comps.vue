@@ -59,7 +59,10 @@ fetch('/api/user/list')
     <div class="menu-item" @click="pageGo('/directives-using')">
       <i class="fa-solid fa-keyboard"></i> directives
     </div>
-       <div class="menu-item" @click="pageGo('/users-manage')">
+    <div class="menu-item" @click="pageGo('/extend-using')">
+      <i class="fa-solid fa-infinity"></i> extend
+    </div>
+    <div class="menu-item" @click="pageGo('/users-manage')">
       <i class="fa-solid fa-users"></i> user manage
     </div>
   </div>
@@ -67,8 +70,9 @@ fetch('/api/user/list')
 
 <style scoped lang="scss">
 .list-menu {
+  padding: 50px 300px;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 
@@ -77,10 +81,8 @@ fetch('/api/user/list')
     padding: 20px;
     width: 300px;
     font-size: 21px;
-
-    &:hover {
-      background: #f0f0f0;
-    }
+    border-radius: 10px;
+    background: #f0f0f0;
   }
 }
 </style>

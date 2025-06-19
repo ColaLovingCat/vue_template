@@ -68,7 +68,7 @@ const instance = axios.create({
 });
 instance.interceptors.request.use(
   (config: any) => {
-    const token = extend.LocalStore.get("token");
+    const token = extend.ExLocalStore.get("token");
     if (token) {
       config.headers = {
         ...config.headers,
@@ -83,13 +83,13 @@ instance.interceptors.response.use(
   (response) => {
     const newToken = response.headers["token"];
     if (newToken) {
-      extend.LocalStore.set("token", newToken);
+      extend.ExLocalStore.set("token", newToken);
     }
     return response;
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      extend.LocalStore.delete("token");
+      extend.ExLocalStore.delete("token");
     }
     return Promise.reject(error);
   }

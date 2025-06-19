@@ -17,16 +17,18 @@ import * as current from './login.service'
 onMounted(async () => {
   // systemInfosStore.setHeader(false)
   // 背景
-  if (activeDynamic) {
-    ctx = canvas.value.getContext('2d')
-    resizeCanvas()
-    initialCircle()
-    animate()
+  if (canvas.value) {
+    ctx = canvas.value.getContext('2d');
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    if (activeDynamic) {
+      animate();
+    }
   }
   // 回车触发登录
   window.addEventListener('keydown', onKeyDown)
   // 记住用户名
-  let remember = JSON.parse(extend.LocalStore.get('remember'))
+  let remember = JSON.parse(extend.ExLocalStore.get('remember'))
   if (remember && remember.remember) {
     loginForm.account = remember.account
     loginForm.remember = remember.remember
@@ -63,16 +65,18 @@ const onKeyDown = (event: any) => {
   }
 }
 
-//#region Background
 const activeDynamic = false
+//#region Background
 const canvas: any = ref(null)
 let ctx: any = null
+//
 let circles: any[] = []
 const colors = ['#836fff', '#15f5ba', '#692ff']
+//
 const initialCircle = () => {
   circles = []
   //
-  let circleCount = window.innerWidth / 100
+  const circleCount = Math.floor(window.innerWidth / 100);
   for (let loop = 0; loop < circleCount; loop++) {
     let radius = window.innerWidth / 4
     let x = extend.ExNumber.createRand(radius, canvas.value.width - radius)
@@ -81,17 +85,12 @@ const initialCircle = () => {
     let dy = extend.ExNumber.createRand(window.innerWidth / -2000, window.innerWidth / 2000)
     //
     let color = colors[Math.floor(Math.random() * colors.length)]
-    circles.push({
-      x,
-      y,
-      dx,
-      dy,
-      radius,
-      color
-    })
+    circles.push({ x, y, dx, dy, radius, color })
   }
 }
 const drawCircle = (circle: any) => {
+  if (!ctx) return;
+  //
   ctx.beginPath()
   ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2, false)
   ctx.fillStyle = circle.color
@@ -99,7 +98,8 @@ const drawCircle = (circle: any) => {
   ctx.closePath()
 }
 const animate = () => {
-  requestAnimationFrame(animate)
+  if (!ctx) return;
+  //
   ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
   //
   circles.map((circle: any) => {
@@ -115,8 +115,11 @@ const animate = () => {
     //
     drawCircle(circle)
   })
+  requestAnimationFrame(animate)
 }
 const resizeCanvas = () => {
+  if (!canvas.value) return;
+  //
   canvas.value.width = window.innerWidth * 1.5
   canvas.value.height = window.innerHeight * 1.5
   //
@@ -137,7 +140,7 @@ const loginForm = reactive({
 const login = () => {
   loadingStore.loading()
   //
-  extend.LocalStore.set(
+  extend.ExLocalStore.set(
     'remember',
     JSON.stringify({
       remember: loginForm.remember,
@@ -217,14 +220,13 @@ const loginSSO = () => {
   if (pageInfos.type == 'jump') {
     params.state = encodeURIComponent(btoa(pageInfos.path))
   }
-  let url = `${host}?` + extend.ExObject.stringfyParams(params)
+  let url = `${host}?` + extend.ExObject.stringifyParams(params)
   window.open(url, '_self')
 }
 </script>
 
 <template>
   <div class="contents">
-    <canvas ref="canvas" width="500" height="500"></canvas>
     <div class="box-contents">
       <div class="col-left">
         <div class="box-img">
@@ -235,13 +237,15 @@ const loginSSO = () => {
             </p>
           </div>
         </div>
+        <div class="bg-img">
+          <img src="/public/docs/imgs/earth.jpg" alt="" srcset="">
+        </div>
       </div>
       <div class="col-right">
         <div class="box-login">
           <div class="titles">{{ systemInfosStore.systemInfos.name }}</div>
           <div class="box-sso" v-if="mode == 'sso-only'">
-            <p class="title-second">- Login for employee -</p>
-            <p class="title-desc">Login only works from Bosch network</p>
+            <p class="title-second">- Login only works from Bosch network -</p>
             <a-button type="primary" class="btn btn-sso" @click="loginSSO">
               <i class="fa-solid fa-cloud"></i>
               <span>{{ $t('system.login.sso') }}</span>
@@ -288,6 +292,7 @@ const loginSSO = () => {
           </div>
         </div>
       </div>
+      <canvas ref="canvas" width="500" height="500"></canvas>
     </div>
   </div>
 </template>
@@ -298,6 +303,37 @@ const loginSSO = () => {
   overflow: hidden;
   background: var(--color-content-bg);
 
+  .box-contents {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  canvas {
+    // display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+  }
+
+  .col-left,
+  .col-right {
+    flex: 1;
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   .bg-img {
     display: none;
     position: absolute;
@@ -306,33 +342,6 @@ const loginSSO = () => {
     width: 100%;
     height: 100%;
   }
-
-  canvas {
-    display: none;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 0;
-  }
-
-  .box-contents {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .col-left,
-  .col-right {
-    z-index: 0;
-    height: 100%;
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 }
 
 .box-img {
@@ -340,7 +349,8 @@ const loginSSO = () => {
     position: relative;
     padding: 70px 0;
 
-    &::before {
+    &::before,
+    &::after {
       content: '';
       position: absolute;
       top: 15%;
@@ -350,6 +360,17 @@ const loginSSO = () => {
       background: linear-gradient(to right, #4460f1, #c471ed, #f64f59);
       z-index: -1;
       filter: blur(70px);
+      animation: float 8s ease-in-out infinite alternate;
+    }
+
+    &::after {
+      top: 50%;
+      left: 30%;
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(to right, #72ca92, #e552da);
+      filter: blur(100px);
+      animation-delay: 4s;
     }
 
     p {
@@ -357,26 +378,19 @@ const loginSSO = () => {
       font-weight: 700;
     }
   }
-
-  img {
-    width: 500px;
-    object-fit: contain;
-    border-radius: 15px;
-    animation: jump 4s infinite ease-in-out;
-  }
 }
 
-@keyframes jump {
+@keyframes float {
   0% {
-    margin-top: 0;
+    transform: translate(0, 0) scale(1);
   }
 
   50% {
-    margin-top: -30px;
+    transform: translate(80px, 60px) scale(1.1);
   }
 
   100% {
-    margin-top: 0;
+    transform: translate(-60px, -50px) scale(1);
   }
 }
 

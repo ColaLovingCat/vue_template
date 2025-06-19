@@ -16,7 +16,7 @@ const props = defineProps({
       class: {
         forms: '',
         items: '',
-        labelCol: 12,
+        label: '',
       },
       format: {
         date: 'YYYY-MM-DD',
@@ -189,17 +189,17 @@ const validateItem = (form: any) => {
 const checkEmpty = (value: any) => {
   return value === '' || value == null || (Array.isArray(value) && value.length === 0)
 }
+
 defineExpose({
   validate
 })
 </script>
 
 <template>
-  {{ errorInfos.mail }}
   <div class="forms" :class="config.class.forms">
     <template v-for="form in forms" :key="form.key">
       <div class="form-item" v-if="!form.hidden" :class="config.class.items">
-        <label :class="`col-${config.class.labelCol}`">
+        <label :class="config.class.label" :for="form.key">
           {{ form.label }}
           <span v-if="form.required" class="required">*</span>
         </label>
@@ -207,32 +207,33 @@ defineExpose({
         <template v-if="form.type == 'input'">
           <!-- Password -->
           <template v-if="form.isPassword">
-            <a-input-password style="width: 100%;" :placeholder="form.label" v-model:value="formValues[form.key]"
-              @change="onChanged(form)" :disabled="form.disabled" :status="errorInfos[form.key] ? 'error' : ''" />
+            <a-input-password style="width: 100%;" :id="form.key" :placeholder="form.label"
+              v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
+              :status="errorInfos[form.key] ? 'error' : ''" />
           </template>
           <!-- Email -->
           <template v-else-if="form.isEmail">
-            <a-input style="width: 100%;" :placeholder="form.label" v-model:value="formValues[form.key]"
+            <a-input style="width: 100%;" :id="form.key" :placeholder="form.label" v-model:value="formValues[form.key]"
               @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
               :status="errorInfos[form.key] ? 'error' : ''" />
           </template>
           <!-- Normal -->
           <template v-else>
-            <a-input style="width: 100%;" :placeholder="form.label" v-model:value="formValues[form.key]"
+            <a-input style="width: 100%;" :id="form.key" :placeholder="form.label" v-model:value="formValues[form.key]"
               @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
               :status="errorInfos[form.key] ? 'error' : ''" />
           </template>
         </template>
         <!-- Textarea -->
         <template v-if="form.type == 'textarea'">
-          <a-textarea style="width: 100%;" :placeholder="form.label" v-model:value="formValues[form.key]"
+          <a-textarea style="width: 100%;" :id="form.key" :placeholder="form.label" v-model:value="formValues[form.key]"
             @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
             :status="errorInfos[form.key] ? 'error' : ''" />
         </template>
 
         <!-- Select -->
         <template v-if="form.type == 'select'">
-          <a-select style="width: 100%;" :mode="form.isMulti ? 'multiple' : undefined" :placeholder="form.label"
+          <a-select style="width: 100%;" :id="form.key" :mode="form.isMulti ? 'multiple' : undefined" :placeholder="form.label"
             v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
             :allowClear="form.activeClear" :show-search="form.activeSearch" :filter-option="filterOption"
             :status="errorInfos[form.key] ? 'error' : ''">
@@ -245,13 +246,13 @@ defineExpose({
         <!-- Switch -->
         <template v-if="form.type == 'switch'">
           <div style="width: 100%;">
-            <a-switch v-model:checked="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled" />
+            <a-switch :id="form.key" v-model:checked="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled" />
           </div>
         </template>
 
         <!-- Radio -->
         <template v-if="form.type == 'radios'">
-          <a-radio-group style="width: 100%;" :name="form.key" v-model:value="formValues[form.key]"
+          <a-radio-group style="width: 100%;" :id="form.key" :name="form.key" v-model:value="formValues[form.key]"
             @change="onChanged(form)" :disabled="form.disabled">
             <a-radio v-for="option in form.list" :key="option.value" :value="option.value">
               {{ option.label }}
@@ -260,7 +261,7 @@ defineExpose({
         </template>
         <!-- Checks -->
         <template v-if="form.type == 'checks'">
-          <a-checkbox-group style="width: 100%;" :name="form.key" v-model:value="formValues[form.key]"
+          <a-checkbox-group style="width: 100%;" :id="form.key" :name="form.key" v-model:value="formValues[form.key]"
             @change="onChanged(form)" :disabled="form.disabled">
             <a-checkbox v-for="option in form.list" :key="option.value" :value="option.value">
               <span v-if="errorInfos[form.key]" style="color: red">{{ option.label }}</span>
@@ -271,26 +272,26 @@ defineExpose({
 
         <!-- Date -->
         <template v-if="form.type == 'date'">
-          <a-date-picker style="width: 100%;" :format="props.config.format.date" v-model:value="formValues[form.key]"
+          <a-date-picker style="width: 100%;" :id="form.key" :format="props.config.format.date" v-model:value="formValues[form.key]"
             @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
             :status="errorInfos[form.key] ? 'error' : ''" />
         </template>
         <!-- Datetime -->
         <template v-if="form.type == 'datetime'">
-          <a-date-picker style="width: 100%;" :format="props.config.format.date + ' ' + props.config.format.time"
+          <a-date-picker style="width: 100%;" :id="form.key" :format="props.config.format.date + ' ' + props.config.format.time"
             :show-time="{ format: props.config.format.time }" v-model:value="formValues[form.key]"
             @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
             :status="errorInfos[form.key] ? 'error' : ''" />
         </template>
         <!-- Date Range -->
         <template v-if="form.type == 'date-range'">
-          <a-range-picker style="width: 100%;" :format="props.config.format.date" v-model:value="formValues[form.key]"
+          <a-range-picker style="width: 100%;" :id="form.key" :format="props.config.format.date" v-model:value="formValues[form.key]"
             @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
             :status="errorInfos[form.key] ? 'error' : ''" />
         </template>
         <!-- Datetime Range -->
         <template v-if="form.type == 'datetime-range'">
-          <a-range-picker style="width: 100%;" :format="props.config.format.date + ' ' + props.config.format.time"
+          <a-range-picker style="width: 100%;" :id="form.key" :format="props.config.format.date + ' ' + props.config.format.time"
             :show-time="{ format: props.config.format.time }" v-model:value="formValues[form.key]"
             @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
             :status="errorInfos[form.key] ? 'error' : ''" />
