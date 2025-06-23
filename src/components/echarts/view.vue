@@ -4,7 +4,7 @@ import * as echarts from 'echarts'
 
 const defaultOptions: any = {
   // 全局样式
-  color: [
+  color: [ // 颜色
     '#c23531',
     '#2f4554',
     '#61a0a8',
@@ -17,13 +17,13 @@ const defaultOptions: any = {
     '#546570',
     '#c4ccd3'
   ],
-  backgroundColor: '#00000000',
-  textStyle: {
+  backgroundColor: 'transparent', // 背景
+  textStyle: { // 文本
     color: '#071c43',
     fontWeight: 500,
     fontSize: 18
   },
-  //
+  // 标题
   title: {
     show: false,
     left: 'center',
@@ -36,14 +36,14 @@ const defaultOptions: any = {
     link: '',
     target: 'blank'
   },
-  //
+  // 网格
   grid: {
     left: 0,
     bottom: 0,
     containLabel: true
   },
   //
-  legend: {
+  legend: { // 图例
     show: true,
     data: [],
     orient: 'vertical', // vertical| horizontal
@@ -54,11 +54,21 @@ const defaultOptions: any = {
     height: 600,
     textStyle: {}
   },
-  tooltip: {
+  tooltip: { // 提示
     show: true,
     trigger: 'axis', // item| axis
     axisPointer: {
       type: 'cross' // line| cross| shadow
+    },
+    formatter: function (params: any) {
+      console.log('Testing: ', params)
+      if (Array.isArray(params)) {
+        return params.map(p =>
+          `<b>${p.seriesName}</b>: ${p.value}<br>`
+        ).join('');
+      } else {
+        return `<b>${params.seriesName}</b>: ${params.value}`;
+      }
     }
   },
   //
@@ -114,7 +124,7 @@ const defaultOptions: any = {
   //
   series: [
     {
-      name: 'Demo',
+      name: 'Bar',
       type: 'bar',
       stack: '',
       data: [820, 932, 901, 934, 1290, 1330, 1320],
@@ -152,7 +162,7 @@ const defaultOptions: any = {
       markLine: {}
     },
     {
-      name: 'Demo',
+      name: 'Line',
       type: 'line',
       yAxisIndex: 1,
       data: [10, 12, 15, 17, 21, 8, 2],
@@ -187,20 +197,33 @@ const defaultOptions: any = {
     }
   ],
   //
-  dataZoom: [
-    {
-      type: 'inside' // 支持鼠标滚轮缩放
-    },
-    {
-      type: 'slider' // 底部带滑块的缩放
-    }
-  ],
   toolbox: {
     feature: {
-      dataZoom: {},
-      restore: {}
+      dataZoom: { yAxisIndex: 'none' },
+      restore: {},
+      saveAsImage: {}
     }
-  }
+  },
+  dataZoom: [
+    {
+      type: 'inside', // 支持鼠标滚轮缩放
+      xAxisIndex: [0],
+      start: 0,
+      end: 100
+    },
+    {
+      type: 'slider', // 底部带滑块的缩放
+      xAxisIndex: [0],
+      start: 0,
+      end: 100
+    }
+  ],
+  //
+  animationDuration: 1000,
+  animationEasing: 'cubicOut',
+  //
+  responsive: true,
+  maintainAspectRatio: true
 }
 
 // name

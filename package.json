@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "vite --open --host localhost --mode development",
+    "start:test": "vite --open --host localhost --mode test",
     "build:Development": "vue-tsc && vite build --mode development",
     "build:dev": "vue-tsc && vite build --mode development",
     "build:Test": "vue-tsc && vite build --mode test",

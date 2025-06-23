@@ -466,9 +466,14 @@ const showModal = (action: string, values: any) => {
                         </template>
                         <template v-if="column.key === 'actions'">
                             <div class="btns">
-                                <a-popconfirm title="Are you sure delete this role?" ok-text="Yes" cancel-text="No"
-                                    @confirm="deleteRole(record)">
-                                    <a-button type="default">
+                                <template v-if="record.roleName === 'SystemAdmin'">
+                                    <a-button type="default" disabled class="btn btn-tools">
+                                        <i class="fa-solid fa-lock"></i>
+                                    </a-button>
+                                </template>
+                                <a-popconfirm v-else title="Are you sure delete this role?" ok-text="Yes"
+                                    cancel-text="No" @confirm="deleteRole(record)">
+                                    <a-button type="default" class="btn btn-tools">
                                         <i class="fa-solid fa-trash"></i>
                                     </a-button>
                                 </a-popconfirm>
@@ -509,7 +514,6 @@ const showModal = (action: string, values: any) => {
     .section-contents {
         display: flex;
         flex-direction: column;
-        gap: 10px;
     }
 }
 

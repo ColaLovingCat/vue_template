@@ -64,4 +64,9 @@ export default defineComponent({
   </a-layout>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.menus {
+  height: 60px;
+  line-height: 60px;
+}
+</style>
