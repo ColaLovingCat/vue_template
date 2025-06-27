@@ -17,7 +17,6 @@ import { getNode, getRunInfos } from './customs/custom'
 import flowConfigs from './flows-configs.vue'
 
 import * as messages from '@/commons/utils/messages'
-import * as extend from '@/commons/utils/extends'
 
 // name
 defineOptions({

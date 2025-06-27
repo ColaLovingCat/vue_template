@@ -33,6 +33,7 @@ export enum CategoryID {
   ParaMonitor_Task_Periodic = "ParaMonitor_Task_Periodic",
 }
 
+// 获取节点图标
 export const getIcon = (category: string) => {
   let result = "fa-database";
   switch (category) {
@@ -136,6 +137,7 @@ export const getIcon = (category: string) => {
   return result;
 };
 
+// 基于category生成node所需的基础信息
 export const getNode = (type: string, category: any): NodeInfos => {
   let params = {};
   let preCheck = "none";

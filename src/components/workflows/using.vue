@@ -13,6 +13,36 @@ onMounted(() => { })
 
 const stencils = [
   {
+    type: "基础节点",
+    category: [
+      {
+        name: "常量输入",
+        id: "Const_Input"
+      },
+    ]
+  },
+  {
+    type: "逻辑节点",
+    category: [
+      {
+        name: "Routing",
+        id: "Logi"
+      },
+      {
+        name: "Switch",
+        id: "Logi"
+      },
+      {
+        name: "Filter",
+        id: "Logi"
+      },
+      {
+        name: "Loops",
+        id: "Logi"
+      },
+    ]
+  },
+  {
     type: "参数配置",
     category: [
       {

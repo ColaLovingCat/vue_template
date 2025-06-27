@@ -1,5 +1,19 @@
 import * as extend from "./extends";
 
+export interface FetchOptions {
+  // 默认
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  data?: any; // 请求体数据（POST/PUT等）或查询参数（GET）
+  // 头部
+  type?: string; // Content-Type，例：'application/json'，设为 'none' 则不设置
+  headers?: Record<string, string>;
+  // 返回
+  dataType?: "json" | "text" | "blob"; // 期望的响应数据类型，默认是 json
+  activeBody?: boolean; // 是否需要返回响应头信息 {headers,body}
+  // credentials?: RequestCredentials  // 可选：是否发送 cookie
+  // mode?: RequestMode                // 可选：请求的模式，通常用于跨域设置
+}
+
 export const fetchRequest = (
   url: string,
   options: FetchOptions = {},
@@ -102,19 +116,6 @@ export const fetchRequest = (
   });
 };
 
-export interface FetchOptions {
-  // 默认
-  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-  data?: any; // 请求体数据（POST/PUT等）或查询参数（GET）
-  // 头部
-  type?: string; // Content-Type，例：'application/json'，设为 'none' 则不设置
-  headers?: Record<string, string>;
-  // 返回
-  dataType?: "json" | "text" | "blob"; // 期望的响应数据类型，默认是 json
-  activeBody?: boolean; // 是否需要返回响应头信息 {headers,body}
-  // credentials?: RequestCredentials  // 可选：是否发送 cookie
-  // mode?: RequestMode                // 可选：请求的模式，通常用于跨域设置
-}
 export const checkAPI = (url: string) => {
   // 接口以http或https开头
   const check =
