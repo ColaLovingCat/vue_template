@@ -96,6 +96,7 @@ Graph.registerEdge(
 //#endregion
 
 onMounted(() => {
+  // 初始化
   initialGraph()
   //
   initialFuncs()
@@ -109,7 +110,7 @@ watch(
 
 const defaultFlowName = "newflow01"
 const flowInfos: FlowInfos = reactive({
-  topic: '参数处理',
+  topic: '工作流',
   flowID: '',
   name: defaultFlowName,
   datas: null as any,

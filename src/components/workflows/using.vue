@@ -13,11 +13,44 @@ onMounted(() => { })
 
 const stencils = [
   {
-    type: "基础节点",
+    type: "触发方式",
+    category: [
+       {
+        id: "Trigger_Manually",
+        name: "手动触发",
+      },
+      {
+        name: "计划任务",
+        id: "Trigger_Schedule",
+      },
+      {
+        id: "Trigger_WebCall",
+        name: "API请求",
+      },
+      {
+        id: "Trigger_Chat",
+        name: "聊天信息",
+      },
+    ]
+  },
+  {
+    type: "数据输入",
     category: [
       {
-        name: "常量输入",
-        id: "Const_Input"
+        id: "Data_Input_Const",
+        name: "常量参数",
+      },
+      {
+        id: "Data_Input_File",
+        name: "文件上传",
+      },
+      {
+        id: "Data_Input_SQL",
+        name: "数据库",
+      },
+      {
+        id: "Data_Input_HTTP_Request",
+        name: "HTTP请求",
       },
     ]
   },
@@ -25,88 +58,73 @@ const stencils = [
     type: "逻辑节点",
     category: [
       {
-        name: "Routing",
-        id: "Logi"
+        id: "Logi_If",
+        name: "判断",
       },
       {
-        name: "Switch",
-        id: "Logi"
+        id: "Logi_Switch",
+        name: "分支",
       },
       {
-        name: "Filter",
-        id: "Logi"
+        id: "Logi_Merge",
+        name: "分支合并",
       },
       {
-        name: "Loops",
-        id: "Logi"
-      },
-    ]
-  },
-  {
-    type: "参数配置",
-    category: [
-      {
-        name: "MES参数选择_Szh",
-        id: "ParaMonitoring_param_select_szh"
+        id: "Logi_Loops",
+        name: "循环",
       },
       {
-        name: "MES参数选择_Wuj",
-        id: "ParaMonitoring_param_select_wuj"
+        id: "Logi_Loops_Continue",
+        name: "循环继续",
       },
       {
-        name: "工站匹配",
-        id: "DataEx_Input_Position"
-      }
+        id: "Logi_Loops_Break",
+        name: "循环中止",
+      },
+      {
+        id: "Logi_Error_Output",
+        name: "错误输出",
+      },
     ]
   },
   {
     type: "数据处理",
     category: [
       {
-        name: "数据处理",
-        id: "DataEx_Processing"
-      }
+        id: "Data_Process_Filter",
+        name: "筛选",
+      },
+      {
+        id: "Data_Process_Sort",
+        name: "排序",
+      },
+      {
+        id: "Data_Process_Remove_Duplicates",
+        name: "去重",
+      },
+      {
+        id: "Data_Process_Summarize",
+        name: "聚合",
+      },
+      {
+        id: "Data_Process_Code",
+        name: "代码处理",
+      },
     ]
   },
   {
-    type: "数据展示",
+    type: "数据输出",
     category: [
       {
-        name: "数据展示",
-        id: "DataEx_Show"
-      }
+        id: "Data_Output_Data",
+        name: "数据输出",
+      },
+      {
+        id: "Data_Output_File",
+        name: "文件下载",
+      },
     ]
   },
-  {
-    type: "监控规则配置",
-    category: [
-      {
-        name: "Sigma监控",
-        id: "ParaMonitor_Rule_Sigma"
-      },
-      {
-        name: "CPK监控",
-        id: "ParaMonitor_Rule_CPK"
-      },
-      {
-        name: "CMK监控",
-        id: "ParaMonitor_Rule_CMK"
-      },
-      {
-        name: "多规则监控",
-        id: "ParaMonitor_Rule_Multi"
-      }
-    ]
-  },
-  {
-    type: "监控任务部署",
-    category: [
-      {
-        name: "周期性任务定制",
-        id: "ParaMonitor_Task_Periodic"
-      }
-    ]
-  }
 ]
 </script>
 
