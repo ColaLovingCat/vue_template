@@ -170,7 +170,7 @@ const validateItem = (form: any) => {
   const value = formValues[form.key];
 
   // 激活状态 且 必填
-  if (!(form.disabled || form.hidden) && form.required) {
+  if (!(form.disabled || isHidden(form)) && form.required) {
     // 多选
     if (form.type === 'checks') {
       isValid = value && value.length > 0
@@ -207,7 +207,7 @@ const checkEmpty = (value: any) => {
 }
 
 // 联动隐藏对应控件（支持函数或布尔值）
-const isFieldHidden = (form: FormItem) => {
+const isHidden = (form: FormItem) => {
   if (typeof form.hidden === 'function') {
     return form.hidden(formValues)
   }
@@ -237,7 +237,7 @@ const setEmpty = (formKey: string) => {
 // 联动隐藏字段时自动清空其值
 watchEffect(() => {
   props.forms.forEach((form) => {
-    const shouldHide = isFieldHidden(form)
+    const shouldHide = isHidden(form)
     if (shouldHide && !checkEmpty(formValues[form.key])) {
       setEmpty(form.key)
     }
@@ -253,7 +253,7 @@ defineExpose({
 <template>
   <div class="forms" :class="config.class.forms">
     <template v-for="form in forms" :key="form.key">
-      <div class="form-item" v-if="!isFieldHidden(form)" :class="config.class.items">
+      <div class="form-item" v-if="!isHidden(form)" :class="config.class.items">
         <!-- Label -->
         <label :class="config.class.label" :for="form.key">
           {{ form.label }}
@@ -315,7 +315,8 @@ defineExpose({
             <a-radio-group style="width: 100%;" :id="form.key" :name="form.key" v-model:value="formValues[form.key]"
               @change="onChanged(form)" :disabled="form.disabled">
               <a-radio v-for="option in form.list" :key="option.value" :value="option.value">
-                {{ option.label }}
+                <span v-if="errorInfos[form.key]" style="color: red">{{ option.label }}</span>
+                <span v-else>{{ option.label }}</span>
               </a-radio>
             </a-radio-group>
           </template>
@@ -332,26 +333,28 @@ defineExpose({
 
           <!-- Date -->
           <template v-if="form.type == 'date'">
-            <a-date-picker style="width: 100%;" :id="form.key" :format="props.config.format.date" v-model:value="formValues[form.key]"
-              @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
-              :status="errorInfos[form.key] ? 'error' : ''" />
+            <a-date-picker style="width: 100%;" :id="form.key" :format="props.config.format.date"
+              v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
+              :allowClear="form.activeClear" :status="errorInfos[form.key] ? 'error' : ''" />
           </template>
           <!-- Datetime -->
           <template v-if="form.type == 'datetime'">
-            <a-date-picker style="width: 100%;" :id="form.key" :format="props.config.format.date + ' ' + props.config.format.time"
+            <a-date-picker style="width: 100%;" :id="form.key"
+              :format="props.config.format.date + ' ' + props.config.format.time"
               :show-time="{ format: props.config.format.time }" v-model:value="formValues[form.key]"
               @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
               :status="errorInfos[form.key] ? 'error' : ''" />
           </template>
           <!-- Date Range -->
           <template v-if="form.type == 'date-range'">
-            <a-range-picker style="width: 100%;" :id="form.key" :format="props.config.format.date" v-model:value="formValues[form.key]"
-              @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
-              :status="errorInfos[form.key] ? 'error' : ''" />
+            <a-range-picker style="width: 100%;" :id="form.key" :format="props.config.format.date"
+              v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
+              :allowClear="form.activeClear" :status="errorInfos[form.key] ? 'error' : ''" />
           </template>
           <!-- Datetime Range -->
           <template v-if="form.type == 'datetime-range'">
-            <a-range-picker style="width: 100%;" :id="form.key" :format="props.config.format.date + ' ' + props.config.format.time"
+            <a-range-picker style="width: 100%;" :id="form.key"
+              :format="props.config.format.date + ' ' + props.config.format.time"
               :show-time="{ format: props.config.format.time }" v-model:value="formValues[form.key]"
               @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
               :status="errorInfos[form.key] ? 'error' : ''" />
