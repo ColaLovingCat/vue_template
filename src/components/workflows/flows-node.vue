@@ -1,5 +1,5 @@
 <script lang="ts">
-import { getIcon } from './customs/custom'
+import { getIcon } from './customs/modules'
 
 export default {
   name: 'vueNode',
@@ -30,7 +30,7 @@ export default {
 </script>
 
 <template>
-  <div class="kpi-node" :class="datas.isStencil ? 'thmub' : ''">
+  <div class="flow-node" :class="datas.isStencil ? 'thmub' : ''">
     <!-- Header -->
     <div class="item-header">
       <div class="item-titles">

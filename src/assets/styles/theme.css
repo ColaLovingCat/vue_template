@@ -11,11 +11,12 @@ html[data-theme='dark'] {
 }
 
 :root {
-    --color-default: #0070e0;
-    --color-primary: #0070e0;
+    --color-default: #007bc0;
+    --color-primary: #007bc0;
     --color-infos: #0070e0;
-    --color-success: #03a65a;
+    --color-success: #00884a;
     --color-warning: #fc8621;
-    --color-error: #db3056;
-    --color-gray: #c4cecf;
+    --color-error: #ed0007;
+    --color-gray: #c1c7cc;
+    --color-black: #2e3033;
 }

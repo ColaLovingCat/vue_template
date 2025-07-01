@@ -13,8 +13,8 @@ import { Keyboard } from '@antv/x6-plugin-keyboard'
 
 import type { StencilInfos, FlowInfos, NodeData } from './contents/types'
 import flowNode from './flows-node.vue'
-import { getNode, getRunInfos } from './customs/custom'
 import flowConfigs from './flows-configs.vue'
+import { getNode, getRunInfos } from './customs/modules'
 
 import * as messages from '@/commons/utils/messages'
 
@@ -650,7 +650,6 @@ const setTemplate = async (data: any | null) => {
   }
 }
 //#endregion
-
 
 //#region Configs Modal
 const configDraw = ref(false)

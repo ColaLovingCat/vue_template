@@ -263,29 +263,35 @@ defineExpose({
         <div class="form-comp">
           <!-- Input -->
           <template v-if="form.type == 'input'">
-
             <!-- Password -->
             <template v-if="form.isPassword">
-              <a-input-password style="width: 100%;" :id="form.key" :placeholder="form.label"
-                v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
-                :status="errorInfos[form.key] ? 'error' : ''" />
+              <a-input-password style="width: 100%;" :id="form.key"
+                :placeholder="form.placeholder ? form.placeholder : form.label" v-model:value="formValues[form.key]"
+                @change="onChanged(form)" :disabled="form.disabled" :status="errorInfos[form.key] ? 'error' : ''" />
+            </template>
+            <!-- Number -->
+            <template v-else-if="form.isNumber">
+              <a-input-number style="width: 100%;" :id="form.key"
+                :placeholder="form.placeholder ? form.placeholder : form.label" v-model:value="formValues[form.key]"
+                @change="onChanged(form)" :disabled="form.disabled" :status="errorInfos[form.key] ? 'error' : ''" />
             </template>
             <!-- Email -->
             <template v-else-if="form.isEmail">
-              <a-input style="width: 100%;" :id="form.key" :placeholder="form.label"
-                v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
-                :allowClear="form.activeClear" :status="errorInfos[form.key] ? 'error' : ''" />
+              <a-input style="width: 100%;" :id="form.key"
+                :placeholder="form.placeholder ? form.placeholder : form.label" v-model:value="formValues[form.key]"
+                @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
+                :status="errorInfos[form.key] ? 'error' : ''" />
             </template>
             <!-- Normal -->
             <template v-else>
-              <a-input style="width: 100%;" :id="form.key" :placeholder="form.label"
+              <a-input style="width: 100%;" :id="form.key" :placeholder="form.placeholder ? form.placeholder : form.label"
                 v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
                 :allowClear="form.activeClear" :status="errorInfos[form.key] ? 'error' : ''" />
             </template>
           </template>
           <!-- Textarea -->
           <template v-if="form.type == 'textarea'">
-            <a-textarea style="width: 100%;" :id="form.key" :placeholder="form.label"
+            <a-textarea style="width: 100%;" :id="form.key" :placeholder="form.placeholder ? form.placeholder : form.label"
               v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
               :allowClear="form.activeClear" :status="errorInfos[form.key] ? 'error' : ''" />
           </template>
@@ -293,7 +299,7 @@ defineExpose({
           <!-- Select -->
           <template v-if="form.type == 'select'">
             <a-select style="width: 100%;" :id="form.key" :mode="form.isMulti ? 'multiple' : undefined"
-              :placeholder="form.label" v-model:value="formValues[form.key]" @change="onChanged(form)"
+              :placeholder="form.placeholder ? form.placeholder : form.label" v-model:value="formValues[form.key]" @change="onChanged(form)"
               :disabled="form.disabled" :allowClear="form.activeClear" :show-search="form.activeSearch"
               :filter-option="filterOption" :status="errorInfos[form.key] ? 'error' : ''">
               <a-select-option v-for="option in form.list" :key="option.value" :value="option.value">

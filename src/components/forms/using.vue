@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { reactive, ref, type Ref } from 'vue';
 
-import formView from './view.vue'
+import formView from '@/components/forms/view.vue'
 import type { FormItem } from '@/components/forms/form.types';
 
 import * as messages from '@/commons/utils/messages'
@@ -37,6 +37,12 @@ const formList: Ref<FormItem[]> = ref([
         label: 'Password',
         isPassword: true,
         required: true,
+    },
+    {
+        type: 'input',
+        key: 'number',
+        label: 'Number',
+        isNumber: true,
     },
     {
         type: 'input',
@@ -141,6 +147,7 @@ const formList: Ref<FormItem[]> = ref([
 const formValue: any = ref({
     username: '',
     password: '',
+    number: '',
     emial: '',
     desc: '',
     location: null,

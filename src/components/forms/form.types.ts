@@ -13,6 +13,7 @@ export interface FormItem {
     | "custom";
   key: string;
   label: string;
+  placeholder?: string;
   // Common
   /** 必填验证 */
   required?: boolean;
@@ -21,6 +22,7 @@ export interface FormItem {
   activeClear?: boolean;
   // Input
   isPassword?: boolean;
+  isNumber?: boolean;
   isEmail?: boolean;
   // Select
   isMulti?: boolean;

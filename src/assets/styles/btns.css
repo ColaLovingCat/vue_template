@@ -2,6 +2,7 @@
     cursor: pointer;
     font-size: 16px;
     border-radius: 5px;
+    border-color: transparent;
 }
 
 .btn:disabled {
@@ -20,6 +21,12 @@
     color: #008ecf;
     font-weight: 500;
     text-decoration: underline;
+}
+
+.btn.btn-default {
+    color: #000;
+    border: var(--color-gray);
+    background: var(--color-gray);
 }
 
 .btn.btn-primary {
