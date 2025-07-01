@@ -84,6 +84,11 @@ const routes = [
     name: "extend-using",
     component: () => import("@/commons/utils/extends/using.vue"),
   },
+    {
+    path: "/grid-using",
+    name: "grid-using",
+    component: () => import("@/components/grids/using.vue"),
+  },
 ];
 
 const router = createRouter({

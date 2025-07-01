@@ -65,6 +65,9 @@ fetch('/api/user/list')
     <div class="menu-item" @click="pageGo('/users-manage')">
       <i class="fa-solid fa-users"></i> user manage
     </div>
+    <div class="menu-item" @click="pageGo('/grid-using')">
+      <i class="fa-solid fa-grip"></i> grid
+    </div>
   </div>
 </template>
 

@@ -212,3 +212,10 @@ npm install rxjs/Rx vue-rx
 🔲v-lazy 图片进入视窗后加载
 ✔ v-resize 监听元素大小变化
 🔲v-click-outside 点击元素外部时触发事件
+
+# Grid Layout
+
+```sh
+pnpm install vue3-grid-layout
+```
+
