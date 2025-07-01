@@ -9,7 +9,8 @@ export interface FormItem {
     | "date"
     | "datetime"
     | "date-range"
-    | "datetime-range";
+    | "datetime-range"
+    | "custom";
   key: string;
   label: string;
   // Common

@@ -11,11 +11,12 @@ defineOptions({
     name: 'custom-name'
 })
 
+const formRef = ref();
 const formConfig = reactive({
     class: {
         forms: '',
         items: 'inline',
-        label: "col-2"
+        label: 'col-2',
     },
     format: {
         date: 'YYYY-MM-DD',
@@ -128,6 +129,12 @@ const formList: Ref<FormItem[]> = ref([
         label: 'From to',
         required: false,
     },
+    {
+        type: 'custom',
+        key: 'customSlot',
+        label: 'Custom Slot',
+        required: false
+    }
 ])
 const formValue: any = ref({
     username: '',
@@ -143,13 +150,12 @@ const formValue: any = ref({
     datetime: null,
     fromto: [],
     fromtotime: [],
+    customSlot: 12
 })
-
+//
 const onChange = (key: string) => {
     console.log('[Form] changed: ', key)
 }
-
-const formRef = ref();
 const onSubmit = () => {
     if (formRef.value?.validate()) {
         messages.showSuccess('校验通过！可以提交')
@@ -163,7 +169,11 @@ const onSubmit = () => {
     <div class="box-forms">
         <div class="box-form">
             <formView ref="formRef" :config="formConfig" :forms="formList" v-model:values="formValue"
-                @changed="onChange"></formView>
+                @changed="onChange">
+                <template #customSlot="{ value, onChange }">
+                    <a-slider style="flex:1" :value="value" @change="onChange" :min="0" :max="100" />
+                </template>
+            </formView>
             <a-button type="primary" @click="onSubmit">Submit</a-button>
         </div>
         <div class="box-result">
