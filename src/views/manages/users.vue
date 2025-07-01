@@ -2,7 +2,7 @@
 import { onMounted, ref, type Ref, reactive } from 'vue'
 
 import formView from '@/components/forms/view.vue'
-import type { FormItem } from '@/commons/types/form.types'
+import type { FormItem } from '@/components/forms/form.types'
 import type { TableInfos } from '@/commons/types/table.types'
 
 import * as current from './users.services'

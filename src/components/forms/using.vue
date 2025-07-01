@@ -2,7 +2,7 @@
 import { reactive, ref, type Ref } from 'vue';
 
 import formView from './view.vue'
-import type { FormItem } from '@/commons/types/form.types';
+import type { FormItem } from '@/components/forms/form.types';
 
 import * as messages from '@/commons/utils/messages'
 
@@ -63,6 +63,23 @@ const formList: Ref<FormItem[]> = ref([
         ],
     },
     {
+        type: 'select',
+        key: 'week',
+        label: 'Week',
+        hidden: (formValues: any) => formValues.location !== 'Asia',
+        isMulti: true,
+        activeClear: true,
+        list: [
+            { value: "Mon", label: "Monday" },
+            { value: "Tue", label: "Tuesday" },
+            { value: "Wed", label: "Wednesday" },
+            { value: "Thu", label: "Thursday" },
+            { value: "Fri", label: "Friday" },
+            { value: "Sat", label: "Saturday" },
+            { value: "Sun", label: "Sunday" },
+        ],
+    },
+    {
         type: 'switch',
         key: 'status',
         label: 'Status',
@@ -112,15 +129,13 @@ const formList: Ref<FormItem[]> = ref([
         required: false,
     },
 ])
-type FormValue = {
-    [key: string]: any;  // 可以是任何类型
-};
-const formValue: FormValue = ref({
+const formValue: any = ref({
     username: '',
     password: '',
     emial: '',
     desc: '',
     location: null,
+    week: [],
     status: true,
     sex: '女',
     hobby: [],

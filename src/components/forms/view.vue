@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref, watch, watchEffect } from 'vue'
 import dayjs from 'dayjs'
-import type { FormItem } from '@/commons/types/form.types';
+import type { FormItem } from '@/components/forms/form.types';
 
 // name
 defineOptions({
@@ -79,6 +79,13 @@ const refreshValues = (values: any) => {
       }
     }
   });
+}
+
+const isFieldHidden = (form: FormItem) => {
+  if (typeof form.hidden === 'function') {
+    return form.hidden(formValues)
+  }
+  return !!form.hidden
 }
 
 const onChanged = (form: any, event?: any) => {
@@ -189,6 +196,35 @@ const validateItem = (form: any) => {
 const checkEmpty = (value: any) => {
   return value === '' || value == null || (Array.isArray(value) && value.length === 0)
 }
+const setEmpty = (formKey: string) => {
+  const form = props.forms.find((f) => f.key === formKey)
+  if (!form) return
+
+  switch (form.type) {
+    case 'checks':
+    case 'date-range':
+    case 'datetime-range':
+      formValues[formKey] = []
+      break
+
+    case 'switch':
+      formValues[formKey] = false
+      break
+
+    default:
+      formValues[formKey] = null
+  }
+}
+
+watchEffect(() => {
+  console.log('Testing: ', 111)
+  props.forms.forEach((form) => {
+    const shouldHide = isFieldHidden(form)
+    if (shouldHide && !checkEmpty(formValues[form.key])) {
+      setEmpty(form.key)
+    }
+  })
+})
 
 defineExpose({
   validate
@@ -198,7 +234,7 @@ defineExpose({
 <template>
   <div class="forms" :class="config.class.forms">
     <template v-for="form in forms" :key="form.key">
-      <div class="form-item" v-if="!form.hidden" :class="config.class.items">
+      <div class="form-item" v-if="!isFieldHidden(form)" :class="config.class.items">
         <label :class="config.class.label" :for="form.key">
           {{ form.label }}
           <span v-if="form.required" class="required">*</span>
@@ -233,10 +269,10 @@ defineExpose({
 
         <!-- Select -->
         <template v-if="form.type == 'select'">
-          <a-select style="width: 100%;" :id="form.key" :mode="form.isMulti ? 'multiple' : undefined" :placeholder="form.label"
-            v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
-            :allowClear="form.activeClear" :show-search="form.activeSearch" :filter-option="filterOption"
-            :status="errorInfos[form.key] ? 'error' : ''">
+          <a-select style="width: 100%;" :id="form.key" :mode="form.isMulti ? 'multiple' : undefined"
+            :placeholder="form.label" v-model:value="formValues[form.key]" @change="onChanged(form)"
+            :disabled="form.disabled" :allowClear="form.activeClear" :show-search="form.activeSearch"
+            :filter-option="filterOption" :status="errorInfos[form.key] ? 'error' : ''">
             <a-select-option v-for="option in form.list" :key="option.value" :value="option.value">
               {{ option.label }}
             </a-select-option>
@@ -246,7 +282,8 @@ defineExpose({
         <!-- Switch -->
         <template v-if="form.type == 'switch'">
           <div style="width: 100%;">
-            <a-switch :id="form.key" v-model:checked="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled" />
+            <a-switch :id="form.key" v-model:checked="formValues[form.key]" @change="onChanged(form)"
+              :disabled="form.disabled" />
           </div>
         </template>
 
@@ -272,26 +309,28 @@ defineExpose({
 
         <!-- Date -->
         <template v-if="form.type == 'date'">
-          <a-date-picker style="width: 100%;" :id="form.key" :format="props.config.format.date" v-model:value="formValues[form.key]"
-            @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
-            :status="errorInfos[form.key] ? 'error' : ''" />
+          <a-date-picker style="width: 100%;" :id="form.key" :format="props.config.format.date"
+            v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
+            :allowClear="form.activeClear" :status="errorInfos[form.key] ? 'error' : ''" />
         </template>
         <!-- Datetime -->
         <template v-if="form.type == 'datetime'">
-          <a-date-picker style="width: 100%;" :id="form.key" :format="props.config.format.date + ' ' + props.config.format.time"
+          <a-date-picker style="width: 100%;" :id="form.key"
+            :format="props.config.format.date + ' ' + props.config.format.time"
             :show-time="{ format: props.config.format.time }" v-model:value="formValues[form.key]"
             @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
             :status="errorInfos[form.key] ? 'error' : ''" />
         </template>
         <!-- Date Range -->
         <template v-if="form.type == 'date-range'">
-          <a-range-picker style="width: 100%;" :id="form.key" :format="props.config.format.date" v-model:value="formValues[form.key]"
-            @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
-            :status="errorInfos[form.key] ? 'error' : ''" />
+          <a-range-picker style="width: 100%;" :id="form.key" :format="props.config.format.date"
+            v-model:value="formValues[form.key]" @change="onChanged(form)" :disabled="form.disabled"
+            :allowClear="form.activeClear" :status="errorInfos[form.key] ? 'error' : ''" />
         </template>
         <!-- Datetime Range -->
         <template v-if="form.type == 'datetime-range'">
-          <a-range-picker style="width: 100%;" :id="form.key" :format="props.config.format.date + ' ' + props.config.format.time"
+          <a-range-picker style="width: 100%;" :id="form.key"
+            :format="props.config.format.date + ' ' + props.config.format.time"
             :show-time="{ format: props.config.format.time }" v-model:value="formValues[form.key]"
             @change="onChanged(form)" :disabled="form.disabled" :allowClear="form.activeClear"
             :status="errorInfos[form.key] ? 'error' : ''" />

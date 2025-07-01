@@ -1,11 +1,22 @@
 export interface FormItem {
-  type: string;
+  type:
+    | "input"
+    | "textarea"
+    | "select"
+    | "switch"
+    | "radios"
+    | "checks"
+    | "date"
+    | "datetime"
+    | "date-range"
+    | "datetime-range";
   key: string;
   label: string;
   // Common
+  /** 必填验证 */
   required?: boolean;
   disabled?: boolean;
-  hidden?: boolean;
+  hidden?: boolean | Function;
   activeClear?: boolean;
   // Input
   isPassword?: boolean;
