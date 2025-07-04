@@ -9,7 +9,9 @@ defineOptions({
   name: 'custom-name'
 })
 
-onMounted(() => { })
+onMounted(() => {
+  changeMark.value = !changeMark.value
+})
 
 const changeMark = ref(false)
 // 工具栏节点
@@ -226,8 +228,12 @@ const flowInfos = ref({
   ]
 })
 // 保存数据
-const saveFlow = () => {
+const onSave = () => {
   console.log('Testing: ', flowInfos.value)
+}
+
+const handleCustomEvent = async ({ action, datas }: { action: string, datas: any }) => {
+  console.log('Testing: ', action, datas)
 }
 
 const templateModal = ref(false)
@@ -290,7 +296,8 @@ const showModal = (action: string, values: any) => {
 </script>
 
 <template>
-  <Workflow :stencils="stencils" v-model:datas="flowInfos" :change-mark="changeMark" @save="saveFlow"></Workflow>
+  <Workflow :stencils="stencils" v-model:datas="flowInfos" :change-mark="changeMark" @save="onSave"
+    @custom-event="handleCustomEvent"></Workflow>
 </template>
 
 <style scoped lang="scss"></style>
