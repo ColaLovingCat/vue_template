@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue'
-import type { Ref } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 
-import { configComponentMap } from '@/components/workflows/customs/modules'
+import { configComponentMap } from '@/views/func/flows/modules'
 
 // name
 defineOptions({
@@ -23,52 +22,36 @@ const props = defineProps({
 
 // emits
 const emit = defineEmits<{
+  // 刷新参数
   (event: 'updateParams', value: any): void
-  // (event: 'updateResult', value: any): void
+  // 刷新结果
+  (event: 'updateResult', value: any): void
+  // 刷新过程参数
+  (event: 'updateFlowData', value: any): void
   // (event: 'updateItemInfos', value: any): void
-  // (event: 'updateFlowData', value: any): void
 }>()
 
 const configInfos = reactive({
-  id: '',
-  category: '',
-  //
-  flowID: -1,
-  dataID: -1, // 前置结果
-  dataIDs: [], // 前置结果集
-  //
   changeMark: false,
-  datas: [], // 缓存数据集
 })
-// 节点数据
-let nodeDatas: any = {}
-const params: any = ref(null)
 
 const currentComponent = ref()
-
 onMounted(() => {
-  console.log('Testing: ', props.datas)
+  // 加载对应的配置表单
+  if (props.datas.category?.id) {
+    const id = props.datas.category.id.toLowerCase()
+    currentComponent.value = configComponentMap[id]
+    //
+    configInfos.changeMark = !configInfos.changeMark
+  } else {
+    currentComponent.value = null
+  }
 })
-
-watch(
-  () => props.datas,
-  (val) => {
-    // 加载对应的配置表单
-    if (val?.category?.id) {
-      const id = val.category.id.toLowerCase()
-      currentComponent.value = configComponentMap[id]
-    } else {
-      currentComponent.value = null
-    }
-  },
-  { immediate: true }
-)
-
 </script>
 
 <template>
-  <component v-if="currentComponent" :is="currentComponent" :params="datas.params"
-    @update="(val: any) => emit('updateParams', val)" />
+  <component v-if="currentComponent" :is="currentComponent" :datas="datas" @update-params="emit('updateParams', $event)"
+    @update-result="emit('updateResult', $event)" @update-flow-data="emit('updateFlowData', $event)" />
   <div v-else>
     暂无对应配置组件
   </div>

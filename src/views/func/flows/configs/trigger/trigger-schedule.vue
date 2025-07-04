@@ -4,6 +4,8 @@ import { onMounted, ref, reactive, computed, watch, type Ref } from 'vue'
 import formView from '@/components/forms/view.vue'
 import type { FormItem } from '@/components/forms/form.types';
 
+import type { NodeData } from '@/components/workflows/contents/flow.types';
+
 import * as db from '@/commons/datas/datas'
 import * as messages from '@/commons/utils/messages'
 
@@ -15,7 +17,7 @@ defineOptions({
 // props
 const props = defineProps({
     datas: {
-        type: Object,
+        type: Object as () => NodeData,
         default: () => ({})
     },
     changeMark: {
@@ -26,15 +28,18 @@ const props = defineProps({
 
 // emits
 const emits = defineEmits<{
-    (event: 'update', values: any): void
+    (event: 'updateParams', values: any): void
+    (event: 'updateResult', values: any): void
+    (event: 'updateFlowData', values: any): void
 }>()
 
-const pageInfos = ref({
-    loading: 0
+const pageInfos = reactive({
+    loading: 0,
 })
 
 onMounted(() => {
     console.log('Testing: ', props.datas)
+    formValue.value = props.datas.params
     // 加载列表
     db.weeks.map((item: any) => {
         weeks.value.push({
@@ -154,7 +159,11 @@ const onChange = (key: string) => {
 }
 
 const save = () => {
-    emits('update', formValue.value)
+    emits('updateParams', {
+        id: props.datas.id,
+        params: { ...formValue.value },
+        mark: true
+    })
 }
 const reset = () => { }
 </script>

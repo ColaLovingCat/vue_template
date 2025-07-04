@@ -1,5 +1,5 @@
 import { defineAsyncComponent } from "vue";
-import type { NodeInfos } from "../contents/types";
+import type { NodeInfos } from "@/components/workflows/contents/flow.types";
 import * as extend from "@/commons/utils/extends";
 
 // 定义节点的唯一code
@@ -207,25 +207,34 @@ export const getNode = (type: string, category: any): NodeInfos => {
     ports,
   };
 };
-
-//
-export const getRunInfos = (data: any, params: any) => {
-  let methodName: string = "startUpload";
-  switch (data.category.id) {
-    case CategoryID.Trigger_Schedule: {
-      methodName = "startUpload";
-      break;
-    }
-  }
+export const getEdge = () => {
   return {
-    methodName,
-    params,
+    shape: "edge",
+    attrs: {
+      line: {
+        stroke: "#5F95FF",
+        strokeWidth: 2,
+        targetMarker: {
+          name: "block",
+          width: 12,
+          height: 8,
+        },
+      },
+    },
+    zIndex: 0,
   };
 };
 
-//
+//#region Node Config
+// 匹配不同节点的配置界面
 export const configComponentMap: Record<string, any> = {
   trigger_schedule: defineAsyncComponent(
     () => import("./configs/trigger/trigger-schedule.vue")
   ),
 };
+// 匹配不同节点的运行方法
+type RunNode = (input: any, config: any) => Promise<any>;
+export const runNodeMap: Record<string, RunNode> = {
+  trigger_schedule: async (_, config) => config.initialValue,
+};
+//#endregion

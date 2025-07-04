@@ -1,5 +1,5 @@
 <script lang="ts">
-import { getIcon } from './customs/modules'
+import { getIcon } from '@/views/func/flows/modules'
 
 export default {
   name: 'vueNode',
@@ -92,5 +92,5 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-@import url(./contents/nodes.scss);
+@import url(./contents/flow-nodes.scss);
 </style>

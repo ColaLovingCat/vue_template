@@ -67,7 +67,7 @@ const routes = [
   {
     path: "/workflows-using",
     name: "workflows-using",
-    component: () => import("@/components/workflows/using.vue"),
+    component: () => import("@/views/func/flows/using.vue"),
   },
   {
     path: "/gsap-using",

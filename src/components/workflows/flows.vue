@@ -1,20 +1,13 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted, watch } from 'vue'
 
-import { Graph } from '@antv/x6'
-import { register } from '@antv/x6-vue-shape'
+import type { StencilInfos, FlowInfos, NodeData } from './contents/flow.types'
+import { useGraph, useStencil } from './contents/useGraph'
+import { getEdge, getNode, runNodeMap } from '@/views/func/flows/modules'
 //@ts-ignore
 import dagre from 'dagre'
-import { Stencil } from '@antv/x6-plugin-stencil'
-import { Snapline } from '@antv/x6-plugin-snapline'
-import { Transform } from '@antv/x6-plugin-transform'
-import { Selection } from '@antv/x6-plugin-selection'
-import { Keyboard } from '@antv/x6-plugin-keyboard'
 
-import type { StencilInfos, FlowInfos, NodeData } from './contents/types'
-import flowNode from './flows-node.vue'
 import flowConfigs from './flows-configs.vue'
-import { getNode, getRunInfos } from './customs/modules'
 
 import * as messages from '@/commons/utils/messages'
 
@@ -26,8 +19,8 @@ defineOptions({
 // props
 const props = defineProps({
   stencils: {
-    type: Array<StencilInfos>,
-    default: () => ([])
+    type: Array as () => StencilInfos[],
+    default: () => []
   },
   datas: {
     type: Object,
@@ -45,71 +38,19 @@ const emit = defineEmits<{
   (event: 'save'): void
 }>()
 
-//#region Register
-const ports = {
-  groups: {
-    left: {
-      position: 'left',
-      attrs: {
-        circle: {
-          r: 6,
-          magnet: true,
-          stroke: '#87ab7b',
-          strokeWidth: 2,
-          fill: '#fff'
-        }
-      }
-    },
-    right: {
-      position: 'right',
-      attrs: {
-        circle: {
-          r: 6,
-          magnet: true,
-          stroke: '#87ab7b',
-          strokeWidth: 2,
-          fill: '#fff'
-        }
-      }
-    }
-  }
-}
-register({
-  shape: 'flows-node',
-  component: flowNode,
-  ports
+let graph: any
+let stencil: any = null
+const graphRef: any = ref(null)
+const stencilRef: any = ref(null)
+
+const pageInfos = reactive({
+  debug: true,
+  anyChange: false,
+  loading: false
 })
-Graph.registerEdge(
-  'dag-edge',
-  {
-    inherit: 'edge',
-    attrs: {
-      line: {
-        stroke: '#C2C8D5',
-        strokeWidth: 1,
-        targetMarker: null
-      }
-    }
-  },
-  true
-)
-//#endregion
-
-onMounted(() => {
-  // 初始化
-  initialGraph()
-  //
-  initialFuncs()
-  refreshFuncs()
-})
-
-watch(
-  () => props.changeMark,
-  (newValue, oldValue) => { }
-)
-
 const defaultFlowName = "newflow01"
 const flowInfos: FlowInfos = reactive({
+  type: '',
   topic: '工作流',
   flowID: '',
   name: defaultFlowName,
@@ -118,132 +59,27 @@ const flowInfos: FlowInfos = reactive({
   edges: [] as any[],
 })
 
-// 页面容器
-const container: any = ref(null)
-let graph: Graph | any
-const container_stencil: any = ref(null)
-let stencil: any = null
-const nameForm: any = ref(null)
+onMounted(() => {
+  // 初始化
+  graph = useGraph(graphRef.value)
+  bindGrapgEvents()
+  stencil = useStencil(graph, stencilRef.value)
+})
+watch(
+  () => props.changeMark,
+  (newValue, oldValue) => {
+    refreshFuncs()
+    refreshData(props.datas)
+  }
+)
 
 //#region Initial
-const initialFuncs = () => {
-  // 工具栏初始化
-  stencil = new Stencil({
-    title: '',
-    target: graph,
-    groups: [],
-    //
-    stencilGraphWidth: 320,
-    stencilGraphHeight: 60,
-    collapsable: true,
-    layoutOptions: {
-      columns: 1,
-      columnWidth: 320,
-      rowHeight: 60
-    }
-  })
-  container_stencil.value.appendChild(stencil.container)
-}
-const refreshFuncs = () => {
-  if (props.stencils.length > 0) {
-    props.stencils.map((item: any) => {
-      const newGroup = {
-        name: item.type,
-        title: item.type,
-        graphHeight: 60 * item.category.length + 20
-      }
-      stencil.addGroup(newGroup)
-      //
-      let temp: any = []
-      item.category.map((category: any) => {
-        let node = getNode(item.type, category)
-        temp.push(graph.createNode(node))
-      })
-      stencil.load(temp, item.type)
-    })
-  }
-}
-const initialGraph = () => {
-  // 初始化设置
-  graph = new Graph({
-    container: container.value,
-    width: container.value.clientWidth,
-    height: container.value.clientHeight,
-    // 网格
-    grid: {
-      visible: true,
-      size: 20,
-      type: 'dot',
-      args: {
-        color: '#a0a0a0',
-        thickness: 1
-      }
-    },
-    // 平移
-    panning: true,
-    // 缩放
-    mousewheel: true,
-    //
-    connecting: {
-      anchor: 'center',
-      connectionPoint: 'anchor',
-      connector: 'smooth', // 设置连接线样式
-      allowBlank: false,
-      allowMulti: false,
-      snap: true,
-      highlight: true,
-      createEdge() {
-        return graph.createEdge(getEdge())
-      },
-    }
-  })
-  graph
-    .use( // 移动
-      new Transform({
-        resizing: false,
-        rotating: false
-      })
-    )
-    .use(new Snapline())    // 对齐线
-    .use(
-      new Selection({
-        rubberband: false,
-        showNodeSelectionBox: true
-      })
-    )
-    .use(new Keyboard())
-
-  // delete
-  graph.bindKey('backspace', () => {
-    const cells = graph.getSelectedCells()
-    if (cells.length) {
-      graph.removeCells(cells)
-    }
-  })
-  graph.bindKey('delete', () => {
-    const cells = graph.getSelectedCells()
-    if (cells.length) {
-      graph.removeCells(cells)
-    }
-  })
-
-  // 监听 node
-  graph.on('node:added', ({ node }: any) => {
-    console.log('[Flow] node new:', node.id)
-    // 设置新状态
-    node.setData({ id: node.id, isStencil: false, status: 'initial' })
-    // 设置新的宽高
-    node.resize(250, 100)
-  })
-  graph.on('node:removed', ({ node }: any) => {
-    console.log('[Flow] node remove:', node.id)
-  })
-
+// 绑定事件
+const bindGrapgEvents = () => {
   // 监听 edge
   graph.on('edge:added', ({ edge }: any) => {
     console.log('[Flow] edge add:', edge.id)
   });
-
   // 验证连接是否有效
   graph.on('edge:connected', ({ isNew, edge }: any) => {
     console.log('[Flow] edge connect:', edge.id)
@@ -288,7 +124,6 @@ const initialGraph = () => {
       console.log('[Flow] update preinfo:', targetData)
     }
   })
-
   // 监听连接断开
   graph.on('edge:removed', ({ edge }: any) => {
     console.log('[Flow] edge remove:', edge.id)
@@ -305,6 +140,18 @@ const initialGraph = () => {
     }, { overwrite: true })
     console.log('[Flow] update preinfo:', targetData)
   });
+
+  // 监听 node
+  graph.on('node:added', ({ node }: any) => {
+    console.log('[Flow] node add:', node.id)
+    // 设置新状态
+    node.setData({ id: node.id, isStencil: false, status: 'initial' })
+    // 设置新的宽高
+    node.resize(250, 100)
+  })
+  graph.on('node:removed', ({ node }: any) => {
+    console.log('[Flow] node remove:', node.id)
+  })
 
   // 监听 data
   graph.on('node:change:data', ({ node }: any) => { })
@@ -340,23 +187,129 @@ const initialGraph = () => {
     }
   })
 }
-// 初始化Edge
-const getEdge = () => {
-  return {
-    shape: 'edge',
-    attrs: {
-      line: {
-        stroke: '#5F95FF',
-        strokeWidth: 2,
-        targetMarker: {
-          name: 'block',
-          width: 12,
-          height: 8
-        }
+// 自动布局
+const autoLayout = () => {
+  // 创建一个新的 Dagre 图
+  const g: any = new dagre.graphlib.Graph()
+
+  // 设置图的全局布局属性
+  // rankdir: 布局方向（例如：'TB' 表示从上到下）
+  // nodesep: 节点之间的水平间距
+  // ranksep: 节点之间的垂直间距
+  g.setGraph({ rankdir: 'LR', nodesep: 60, ranksep: 150 })
+
+  // 设置边的默认标签（此处为空对象）
+  g.setDefaultEdgeLabel(() => ({}))
+
+  // 获取图中的所有节点和边
+  const nodes = graph.getNodes()
+  const edges = graph.getEdges()
+
+  // 定义节点的宽度和高度
+  const width = 260
+  const height = 90
+
+  // 为每个节点在 Dagre 图中设置节点信息（包括宽度和高度）
+  nodes.forEach((node: any) => {
+    g.setNode(node.id, { width, height })
+  })
+
+  // 为每条边在 Dagre 图中设置边信息
+  edges.forEach((edge: any) => {
+    const source = edge.getSource() // 获取边的源节点
+    const target = edge.getTarget() // 获取边的目标节点
+    g.setEdge(source.cell, target.cell) // 在 Dagre 图中设置边
+  })
+
+  // 执行 Dagre 布局
+  dagre.layout(g)
+
+  // 更新每个节点的位置
+  g.nodes().forEach((id: any) => {
+    const node = graph.getCellById(id) // 获取节点对象
+    if (node) {
+      const pos = g.node(id) // 获取节点的布局位置
+      // node.position(pos.x, pos.y) // 设置节点的位置
+      node.setProp('position', pos) // New
+    }
+  })
+
+  // 居中
+  graph.centerContent()
+}
+// 工具栏刷新节点
+const refreshFuncs = () => {
+  if (props.stencils.length > 0) {
+    props.stencils.map((item: any) => {
+      const newGroup = {
+        name: item.type,
+        title: item.type,
+        graphHeight: 60 * item.category.length + 20
       }
-    },
-    zIndex: 0
+      stencil.addGroup(newGroup)
+      //
+      let temp: any = []
+      item.category.map((category: any) => {
+        let node = getNode(item.type, category)
+        temp.push(graph.createNode(node))
+      })
+      stencil.load(temp, item.type)
+    })
   }
+}
+// 将保存的数据格式化为flow的数据
+const refreshData = (data: any) => {
+  flowInfos.type = data.type ?? ''
+  flowInfos.topic = data.topic ?? ''
+
+  flowInfos.flowID = data.flowID
+  flowInfos.name = data.name ?? defaultFlowName
+  flowInfos.datas = data.datas ?? {}
+
+  const nodes = data.nodes ?? []
+  nodes.forEach((item: any) => {
+    const node: any = {
+      ...getNode(item.type, item.category),
+      id: item.id
+    }
+    Object.assign(node.data, item)
+    //
+    graph.addNode(node)
+  })
+  const edges = data.edges ?? []
+  edges.forEach((item: any) => {
+    graph.addEdge({
+      ...getEdge(),
+      id: item.id,
+      source: item.source,
+      target: item.target
+    })
+
+    const targetID = item.target.cell
+    const sourceID = item.source.cell
+    if (targetID && sourceID) {
+      const node = graph.getCellById(targetID)
+
+      if (node) {
+        const nodeData = node.getData() as NodeData
+
+        const preInfos = [
+          ...(nodeData.preInfos ?? []),
+          {
+            id: sourceID,
+            resultID: null
+          }
+        ]
+
+        node.setData({
+          preInfos
+        })
+      }
+    }
+  })
+
+  //
+  autoLayout()
 }
 //#endregion
 
@@ -381,118 +334,11 @@ const start = async (id: string) => {
       ...data.params
     }
     // 获取方法名 & 调整参数
-    let runInfos = getRunInfos(data, params)
-    console.log('[Flow] run infos: ', runInfos)
-    // let methodName: string = 'startUpload'
-    // switch (data.category.id) {
-    //   case CategoryID.DataEx_Input_File: {
-    //     methodName = 'startUpload'
-    //     break
-    //   }
-    //   case CategoryID.DataEx_Input_SQL: {
-    //     methodName = 'startSQL'
-    //     break
-    //   }
-    //   case CategoryID.DataEx_Input_Position: {
-    //     methodName = 'startWorkPosition'
-    //     if (params.dateRange) {
-    //       params.start_date = extend.ExDate.format(params.dateRange[0], 'yyyy-MM-dd')
-    //       params.end_date = extend.ExDate.format(params.dateRange[1], 'yyyy-MM-dd')
-    //     } else {
-    //       params.start_date = ''
-    //       params.end_date = ''
-    //     }
-    //     break
-    //   }
-    //   case CategoryID.DataEx_Input_DMC: {
-    //     methodName = 'startDMC'
-    //     break
-    //   }
-    //   //
-    //   case CategoryID.DataEx_Processing: {
-    //     methodName = 'getlistDataProcess'
-    //     params.node_data_id = data.preInfos[0].resultID
-    //     params.index = 0
-    //     break
-    //   }
-    //   //
-    //   case CategoryID.DataEx_Connection_hstack: {
-    //     methodName = 'StackDataH'
-    //     params.node_data_id_list = data.preInfos.map((a: any) => a.resultID)
-    //     break
-    //   }
-    //   case CategoryID.DataEx_Connection_vstack: {
-    //     methodName = 'StackDataV'
-    //     break
-    //   }
-    //   //
-    //   case CategoryID.DataEx_Output_Download: {
-    //     methodName = 'downloadData'
-    //     params.node_data_id = data.preInfos[0].resultID
-    //     break
-    //   }
-    //   default: {
-    //     break
-    //   }
-    // }
-    // run
-    // return await current[methodName](params).then(
-    //   (resp: any) => {
-    //     switch (methodName) {
-    //       case 'downloadData': {
-    //         const filename = `${extend.ExDate.format(new Date(), 'yyyyMMdd')}_download_${extend.ExString.uuid()}.csv`
-    //         // 处理 Blob 文件流
-    //         const url = window.URL.createObjectURL(resp)
-    //         const a = document.createElement('a')
-    //         a.href = url
-    //         a.download = filename
-    //         document.body.appendChild(a)
-    //         a.click()
-    //         document.body.removeChild(a)
-    //         window.URL.revokeObjectURL(url)
-    //         //
-    //         node.setData({
-    //           status: 'success'
-    //         })
-    //         return true
-    //       }
-    //       default: {
-    //         if (!resp) {
-    //           node.setData({
-    //             status: 'error'
-    //           })
-    //           return false
-    //         }
-    //         //
-    //         const { status, result } = resp
-    //         if (status == 1) {
-    //           // 结束状态，记录结果
-    //           updateResult({
-    //             id: id,
-    //             resultID: result.node_data_id
-    //           })
-    //           return true
-    //         } else {
-    //           messages.showError(result)
-    //           //
-    //           node.setData({
-    //             status: 'error'
-    //           })
-    //           return false
-    //         }
-    //       }
-    //     }
-    //   },
-    //   (error: any) => {
-    //     node.setData({
-    //       status: 'error'
-    //     })
-    //     return false
-    //   }
-    // )
+    const fn = runNodeMap[data.category.id.toLowerCase()]
+    let output = await fn(data, params)
+    console.log('[Flow] run infos: ', output)
   }
 }
-
 // 检查前置节点 & 刷新前置信息
 const refreshNodePre = (nodeID: string) => {
   let node = graph.getCellById(nodeID)
@@ -556,14 +402,95 @@ const refreshNodePre = (nodeID: string) => {
   return result
 }
 
-const onRun = () => { }
+//#region Update Events
+// 更新参数
+const updateParams = (values: { id: string; params: any; mark: boolean }) => {
+  console.log('[Flow] update params: ', values)
+  const node = graph.getCellById(values.id)
+  node.setData({
+    params: { ...values.params }
+  })
+  if (values.mark) {
+    configDraw.value = false
+  }
+  //
+  pageInfos.anyChange = true
+}
+// 更新结果
+const updateResult = (values: { id: string; resultID: string }) => {
+  console.log('[Flow] update result: ', values)
+  const node = graph.getCellById(values.id)
+  node.setData({
+    status: 'success',
+    resultID: values.resultID.toString()
+  })
+}
+// 更新flow datas
+const updateFlowData = (values: { id: string; datas: any }) => {
+  console.log('[Flow] update flow/datas: ', values)
+  flowInfos.datas[values.id] = values.datas
+  pageInfos.anyChange = true
+}
+//#endregion
 
+// 工具栏
+const flowNameForm: any = ref(null)
+
+// Run
+let nodeMap = new Map()
+const onRun = () => {
+  // 获取所有节点的列表
+  const allNodes = graph.getNodes()
+  allNodes.map((node: any) => {
+    const nodeData = node.getData()
+    if (nodeData.model != 'show') {
+      nodeMap.set(nodeData.id, {
+        preCheck: nodeData.preCheck,
+        preCount: nodeData.preInfos.length,
+        preReady: 0
+      })
+    }
+  })
+  // 开始 none 节点
+  nodeMap.forEach((value, key) => {
+    if (value.preCheck == 'none') {
+      runNode(key)
+    }
+  })
+}
+const runNode = async (id: string) => {
+  let nodeInfos = nodeMap.get(id)
+  //
+  if (nodeInfos.preCount == nodeInfos.preReady) {
+    const result = await start(id)
+    if (result) {
+      let node = graph.getCellById(id)
+      const outgoingEdges = graph.getOutgoingEdges(node)
+      if (outgoingEdges) {
+        // 遍历出边，获取目标节点
+        outgoingEdges.forEach((edge: any) => {
+          const targetID = edge.getTargetCellId()
+          // 节点在Map中 且 节点真实存在
+          if (nodeMap.has(targetID) && graph.getCellById(targetID)) {
+            nodeMap.get(targetID).preReady += 1
+            //
+            runNode(targetID)
+          }
+        })
+      }
+    }
+  }
+}
+
+// Save
 const onSave = () => {
   const flowDatas = formatFlowDatas()
-  console.log('[Flow] save datas: ', flowDatas)
   emit('update:datas', flowDatas)
   emit('save')
+  //
+  console.log('[Flow] save datas: ', flowDatas)
 }
+// 将flow的数据处理成存储的格式
 const formatFlowDatas = () => {
   const sourceNodes = graph.getNodes()
   const sourceEdges = graph.getEdges()
@@ -572,7 +499,7 @@ const formatFlowDatas = () => {
     const data = node.getData() as NodeData
     return {
       id: node.id,
-      flowID: data.flowID,
+      flowID: flowInfos.flowID,
       type: data.type,
       category: data.category,
       name: data.name,
@@ -598,66 +525,7 @@ const formatFlowDatas = () => {
   }
 }
 
-const debug = ref(true)
-const onDebug = () => {
-  console.log('[Debug] flow datas: ', formatFlowDatas())
-}
-
-//#region Template Modal
-const templateModal = ref(false)
-const setTemplate = async (data: any | null) => {
-  templateModal.value = false
-
-  if (data) {
-    if (data.name) {
-      flowInfos.name = data.name
-    }
-    // try {
-    //   const resp: any = await current.template_create({
-    //     function_name: flowInfos.topic,
-    //     template_id: data.id
-    //   })
-    //   const { status, result } = resp
-
-    //   if (status === 1 && result) {
-    //     processWorkflowData({
-    //       ...result,
-    //       nodes: (result.nodes ?? []).map((node: any) => ({
-    //         flowID: pageInfos.flowID,
-    //         ...node
-    //       })),
-    //       edges: (result.edges ?? []).map((edge: any) => {
-    //         if (edge.sourceID || edge.targetID) {
-    //           return {
-    //             source: {
-    //               cell: edge.sourceID,
-    //               port: 'right'
-    //             },
-    //             target: {
-    //               cell: edge.targetID,
-    //               port: 'left'
-    //             }
-    //           }
-    //         }
-
-    //         return edge
-    //       })
-    //     })
-    //   }
-    // } catch (error) {
-    //   console.error(error)
-    // }
-  }
-}
-//#endregion
-
-//#region Configs Modal
-const configDraw = ref(false)
-const changeMark = ref(false)
-let configForm: any = reactive({})
-//#endregion
-
-//#region Rename Modal
+//#region Rename Node Modal
 const renameModal = ref(false);
 const renameInfos = reactive({
   id: '',
@@ -674,6 +542,39 @@ const updateName = () => {
 }
 //#endregion
 
+//#region Configs Modal
+const configDraw = ref(false)
+const configMark = ref(false)
+let configForm: any = reactive({})
+//#endregion
+
+// Debug
+const onDebug = (action: string) => {
+  switch (action) {
+    case 'save': {
+      console.log('[Debug] save: ', formatFlowDatas())
+      break
+    }
+    case 'flow': {
+      console.log('[Debug] flow: ', flowInfos)
+      break
+    }
+    case 'clear': {
+      flowInfos.datas = {}
+      console.log('[Debug] clear: ', flowInfos)
+      break
+    }
+    case 'log': {
+      showModal('log', {})
+      break
+    }
+    default: {
+      break
+    }
+  }
+}
+
+// Modal
 const showModal = (action: string, values: any) => {
   const nodeID = values.id
   switch (action) {
@@ -700,7 +601,7 @@ const showModal = (action: string, values: any) => {
       }
       //
       configForm = reactive({ ...nodeData })
-      changeMark.value = !changeMark.value
+      configMark.value = !configMark.value
       //
       configDraw.value = true
       break
@@ -710,10 +611,6 @@ const showModal = (action: string, values: any) => {
       renameInfos.name = ''
       //
       renameModal.value = true
-      break
-    }
-    case 'template': {
-      templateModal.value = true
       break
     }
     default: {
@@ -730,24 +627,30 @@ const showModal = (action: string, values: any) => {
       <div class="title">
         {{ flowInfos.topic }}
       </div>
-      <div ref="container_stencil" class="container-stencil"></div>
+      <div ref="stencilRef" class="container-stencil"></div>
     </div>
 
     <!-- 画布 -->
     <div class="flows-right">
-      <div ref="container" class="container"></div>
+      <div ref="graphRef" class="container"></div>
     </div>
 
     <!-- 编辑工具 -->
     <div class="flows-tools">
       <div class="btns">
         <div class="item-name">
-          <a-input ref="nameForm" placeholder="名称" v-model:value="flowInfos.name" size="small" :bordered="false" />
+          <a-input ref="flowNameForm" placeholder="名称" v-model:value="flowInfos.name" size="small" :bordered="false" />
         </div>
         <a-tooltip>
           <template #title>重命名</template>
-          <button type="button" class="btn btn-tools" @click="nameForm?.focus()">
+          <button type="button" class="btn btn-tools" @click="flowNameForm?.focus()">
             <i class="fa-solid fa-edit"></i>
+          </button>
+        </a-tooltip>
+        <a-tooltip>
+          <template #title>自动布局</template>
+          <button type="button" class="btn btn-tools" @click="autoLayout">
+            <i class="fa-solid fa-layer-group"></i>
           </button>
         </a-tooltip>
         <a-tooltip>
@@ -762,24 +665,44 @@ const showModal = (action: string, values: any) => {
             <i class="fa-solid fa-floppy-disk"></i>
           </button>
         </a-tooltip>
-        <a-tooltip v-if="debug">
-          <template #title>调试工具</template>
-          <button type="button" class="btn btn-tools" @click="onDebug">
+        <a-dropdown placement="top" v-if="pageInfos.debug">
+          <button type="button" class="btn btn-tools">
             <i class="fa-solid fa-screwdriver-wrench"></i>
           </button>
-        </a-tooltip>
+          <template #overlay>
+            <a-menu>
+              <a-menu-item>
+                调试工具
+              </a-menu-item>
+              <a-menu-item>
+                <a target="_blank" rel="noopener noreferrer" @click="onDebug('save')">
+                  获取 保存数据
+                </a>
+              </a-menu-item>
+              <a-menu-item>
+                <a target="_blank" rel="noopener noreferrer" @click="onDebug('flow')">
+                  获取 flow数据
+                </a>
+              </a-menu-item>
+              <a-menu-item>
+                <a target="_blank" rel="noopener noreferrer" @click="onDebug('clear')">
+                  清除 flow数据
+                </a>
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
       </div>
       <!-- 额外按钮组 -->
-      <div class="btns">
-
-      </div>
+      <slot name="ex-btns"></slot>
     </div>
   </div>
 
   <!-- Configs -->
   <a-drawer v-model:open="configDraw" :maskClosable="false" :destroy-on-close="true" placement="right"
     :title="configForm.category?.name" width="70%" root-class-name="drawer-configs">
-    <flowConfigs :datas="configForm" :changeMark="changeMark"></flowConfigs>
+    <flowConfigs :datas="configForm" :change-mark="configMark" @update-params="updateParams"
+      @update-result="updateResult" @update-flow-data="updateFlowData"></flowConfigs>
   </a-drawer>
 
   <!-- Rename -->
@@ -818,6 +741,7 @@ const showModal = (action: string, values: any) => {
       line-height: 60px;
       font-weight: 700;
       text-align: center;
+      border-radius: 10px;
       background: #fff;
     }
 

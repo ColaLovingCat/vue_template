@@ -4,6 +4,7 @@ export interface StencilInfos {
 }
 
 export interface FlowInfos {
+  type: string;
   topic: string;
   //
   flowID: string;
