@@ -33,9 +33,10 @@ const props = defineProps({
 })
 
 // emits
-const emit = defineEmits<{
+const emits = defineEmits<{
   (event: 'update:datas', values: any): void
   (event: 'save'): void
+  (event: 'customEvent', values: { action: string, datas: any }): void
 }>()
 
 let graph: any
@@ -46,14 +47,13 @@ const stencilRef: any = ref(null)
 const pageInfos = reactive({
   debug: true,
   anyChange: false,
-  loading: false
+  loading: 0
 })
-const defaultFlowName = "newflow01"
 const flowInfos: FlowInfos = reactive({
   type: '',
-  topic: '工作流',
+  topic: '',
   flowID: '',
-  name: defaultFlowName,
+  name: '',
   datas: null as any,
   nodes: [] as any[],
   edges: [] as any[],
@@ -263,7 +263,7 @@ const refreshData = (data: any) => {
   flowInfos.topic = data.topic ?? ''
 
   flowInfos.flowID = data.flowID
-  flowInfos.name = data.name ?? defaultFlowName
+  flowInfos.name = data.name ?? ''
   flowInfos.datas = data.datas ?? {}
 
   const nodes = data.nodes ?? []
@@ -414,7 +414,7 @@ const updateParams = (values: { id: string; params: any; mark: boolean }) => {
     configDraw.value = false
   }
   //
-  pageInfos.anyChange = true
+  syncData()
 }
 // 更新结果
 const updateResult = (values: { id: string; resultID: string }) => {
@@ -424,12 +424,22 @@ const updateResult = (values: { id: string; resultID: string }) => {
     status: 'success',
     resultID: values.resultID.toString()
   })
+  //
+  syncData()
 }
 // 更新flow datas
 const updateFlowData = (values: { id: string; datas: any }) => {
   console.log('[Flow] update flow/datas: ', values)
   flowInfos.datas[values.id] = values.datas
-  pageInfos.anyChange = true
+  //
+  syncData()
+}
+// 自定义事件
+const customEvent = (values: { action: string; datas: any }) => {
+  syncData()
+  //
+  console.log('[Flow] custom event: ', values)
+  emits('customEvent', values)
 }
 //#endregion
 
@@ -484,11 +494,17 @@ const runNode = async (id: string) => {
 
 // Save
 const onSave = () => {
-  const flowDatas = formatFlowDatas()
-  emit('update:datas', flowDatas)
-  emit('save')
+  syncData()
   //
-  console.log('[Flow] save datas: ', flowDatas)
+  emits('save')
+  pageInfos.anyChange = false
+}
+const syncData = () => {
+  const flowDatas = formatFlowDatas()
+  emits('update:datas', flowDatas)
+  console.log('[Flow] sync datas: ', flowDatas)
+  //
+  pageInfos.anyChange = true
 }
 // 将flow的数据处理成存储的格式
 const formatFlowDatas = () => {
@@ -514,9 +530,6 @@ const formatFlowDatas = () => {
       target: edge.target
     }
   })
-  if (!flowInfos.name) {
-    flowInfos.name = defaultFlowName
-  }
 
   return {
     ...flowInfos,
@@ -625,7 +638,8 @@ const showModal = (action: string, values: any) => {
     <!-- 工具栏 -->
     <div class="flows-left">
       <div class="title">
-        {{ flowInfos.topic }}
+        <slot name="home-btn"></slot>
+        <span>{{ flowInfos.topic }}</span>
       </div>
       <div ref="stencilRef" class="container-stencil"></div>
     </div>
@@ -661,9 +675,17 @@ const showModal = (action: string, values: any) => {
         </a-tooltip>
         <a-tooltip>
           <template #title>保存</template>
-          <button type="button" class="btn btn-tools" @click="onSave">
-            <i class="fa-solid fa-floppy-disk"></i>
-          </button>
+          <a-badge>
+            <template #count>
+              <div class="icon-changed" v-if="pageInfos.anyChange">
+                <i class="fa-solid fa-exclamation"></i>
+              </div>
+              <div v-else></div>
+            </template>
+            <button type="button" class="btn btn-tools" @click="onSave">
+              <i class="fa-solid fa-floppy-disk"></i>
+            </button>
+          </a-badge>
         </a-tooltip>
         <a-dropdown placement="top" v-if="pageInfos.debug">
           <button type="button" class="btn btn-tools">
@@ -696,13 +718,15 @@ const showModal = (action: string, values: any) => {
       <!-- 额外按钮组 -->
       <slot name="ex-btns"></slot>
     </div>
+
+    <div class="loading" v-if="pageInfos.loading > 0"></div>
   </div>
 
   <!-- Configs -->
   <a-drawer v-model:open="configDraw" :maskClosable="false" :destroy-on-close="true" placement="right"
     :title="configForm.category?.name" width="70%" root-class-name="drawer-configs">
     <flowConfigs :datas="configForm" :change-mark="configMark" @update-params="updateParams"
-      @update-result="updateResult" @update-flow-data="updateFlowData"></flowConfigs>
+      @update-result="updateResult" @update-flow-data="updateFlowData" @custom-event="customEvent"></flowConfigs>
   </a-drawer>
 
   <!-- Rename -->
@@ -738,11 +762,12 @@ const showModal = (action: string, values: any) => {
       width: 100%;
       height: 60px;
       font-size: 21px;
-      line-height: 60px;
       font-weight: 700;
-      text-align: center;
       border-radius: 10px;
       background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .container-stencil {
@@ -782,6 +807,18 @@ const showModal = (action: string, values: any) => {
       .item-name {
         min-width: 120px;
         border-bottom: 1px dashed #0000007d;
+      }
+
+      .icon-changed {
+        width: 16px;
+        height: 16px;
+        text-align: center;
+        color: #fff;
+        font-size: 14px;
+        line-height: 16px;
+        font-weight: 700;
+        border-radius: 50%;
+        background: #ff4d4f;
       }
 
       .btn {

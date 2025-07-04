@@ -1,33 +1,33 @@
 export interface StencilInfos {
-  type: string;
-  category: { id: string; name: string }[];
+  type: string
+  category: { id: string; name: string }[]
 }
 
 export interface FlowInfos {
-  type: string;
-  topic: string;
+  type: string
+  topic: string
   //
-  flowID: string;
-  name: string;
+  flowID: string
+  name: string
   //
-  datas: any;
+  datas: any
   //
-  nodes: any[];
-  edges: any[];
+  nodes: any[]
+  edges: any[]
 }
 
 export interface NodeInfos {
-  id: string;
-  shape: string;
-  label: string;
+  id: string
+  shape: string
+  label: string
   //
-  width: number;
-  height: number;
-  x?: number;
-  y?: number;
+  width: number
+  height: number
+  x?: number
+  y?: number
   //
-  data: NodeData;
-  ports: PortInfos[];
+  data: NodeData
+  ports: PortInfos[]
 }
 
 export interface NodeData {
@@ -60,6 +60,6 @@ export interface PreInfos {
   resultID: string | null
 }
 export interface PortInfos {
-  id: string;
-  group: string;
+  id: string
+  group: string
 }

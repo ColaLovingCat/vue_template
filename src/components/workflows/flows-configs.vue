@@ -23,12 +23,13 @@ const props = defineProps({
 // emits
 const emit = defineEmits<{
   // 刷新参数
-  (event: 'updateParams', value: any): void
+  (event: 'updateParams', values: { id: string, params: any, mark: boolean }): void
   // 刷新结果
-  (event: 'updateResult', value: any): void
+  (event: 'updateResult', values: { id: string, resultID: string }): void
   // 刷新过程参数
-  (event: 'updateFlowData', value: any): void
-  // (event: 'updateItemInfos', value: any): void
+  (event: 'updateFlowData', values: { id: string, datas: any }): void
+  // 自定义事件
+  (event: 'customEvent', values: { action: string, datas: any }): void
 }>()
 
 const configInfos = reactive({
@@ -51,7 +52,8 @@ onMounted(() => {
 
 <template>
   <component v-if="currentComponent" :is="currentComponent" :datas="datas" @update-params="emit('updateParams', $event)"
-    @update-result="emit('updateResult', $event)" @update-flow-data="emit('updateFlowData', $event)" />
+    @update-result="emit('updateResult', $event)" @update-flow-data="emit('updateFlowData', $event)"
+    @custom-event="emit('customEvent', $event)" />
   <div v-else>
     暂无对应配置组件
   </div>
