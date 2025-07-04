@@ -32,6 +32,6 @@ export interface FormItem {
 
 export interface DrpItem {
   key?: string | number;
-  value?: string | number;
+  value?: string | number | boolean;
   label: string;
 }
